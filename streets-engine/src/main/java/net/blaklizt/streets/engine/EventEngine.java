@@ -47,6 +47,7 @@ public class EventEngine {
 	{
 		List<Location> locations = locationDao.findAll();
 
+
 		log4j.info("Populating known problems for all locations");
 
 		for (Location location : locations)
