@@ -1,10 +1,14 @@
 package net.blaklizt.streets.web;
 
 import net.blaklizt.streets.common.configuration.Configuration;
+import net.blaklizt.streets.common.utilities.CommonUtilities;
 import net.blaklizt.streets.engine.EventEngine;
 import net.blaklizt.streets.engine.Streets;
+import net.blaklizt.streets.engine.event.BusinessProblemEvent;
 import net.blaklizt.streets.engine.menu.Menu;
+import net.blaklizt.streets.engine.menu.MenuItem;
 import net.blaklizt.streets.engine.session.UserSession;
+import net.blaklizt.streets.persistence.UserAttribute;
 import net.blaklizt.streets.web.common.Format;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,16 +79,75 @@ public class StreetsWebController
 		return userSession.getCurrentMenu().toString().replaceAll("\r\n","<br/>");
     }
 
-	@RequestMapping(value="/getEvents", method = {RequestMethod.GET, RequestMethod.POST}, produces="text/event-stream")
-	public @ResponseBody String getEvents(HttpServletRequest request, HttpServletResponse response)
+	@RequestMapping(value= "/getBusinessProblems", method = {RequestMethod.GET, RequestMethod.POST}, produces="text/event-stream")
+	public @ResponseBody String getBusinessProblems(HttpServletRequest request, HttpServletResponse response)
 	{
 		UserSession userSession = (UserSession)request.getSession().getAttribute("userSession");
-		List<String> events = EventEngine.getEvents(userSession);
+		List<BusinessProblemEvent> businessProblems = EventEngine.getBusinessProblems(userSession);
 		String messages = "";
 
-		if (events != null)
+		if (businessProblems != null)
 		{
-			for (String message : events) { messages += message + "<br/>"; }
+			final UserAttribute userAttribute = userSession.getUser().getUserAttribute();
+
+			for (final BusinessProblemEvent businessProblem : businessProblems)
+			{
+				messages += businessProblem.getDescription()+ "<br/>";
+				userSession.getCurrentMenu().addItem(new MenuItem(businessProblem.getName()) {
+					@Override
+					public Menu execute(UserSession currentSession) {
+
+						Menu returnMenu = Menu.createMenu(currentSession.getSessionType());
+						final double cost = businessProblem.getBusinessProblem().getCost();
+
+						MenuItem menuItem = new MenuItem(businessProblem.getName())
+						{
+							@Override
+							public Menu execute(UserSession currentSession)
+							{
+								Double currentBalance = userAttribute.getBankBalance();
+
+								if (currentBalance.compareTo(cost) >= 0)
+								{
+									userAttribute.setBankBalance(currentBalance - cost);
+									businessProblem.getLocation().setBusinessProblemID(null); //problem solved!
+
+									return MenuItem.createFinalMenu("The problem has been resolved for " + cost +
+											". You may continue with business as usual." +
+											"Current Funds: " + CommonUtilities.formatDoubleToMoney(
+											userAttribute.getBankBalance(), true),
+											streets.getMainMenu(currentSession), currentSession.getSessionType());
+								}
+								else
+								{
+									//insufficient funds
+									return MenuItem.createFinalMenu("You have don't have enough funds to fix the problem."
+											+ "You need to get some money first before you fix that problem",
+											streets.getMainMenu(currentSession), currentSession.getSessionType());
+
+								}
+							}
+						};
+						returnMenu.setDescription("It will cost " +
+							CommonUtilities.formatDoubleToMoney(cost, true) + "to fix the problem");
+						returnMenu.addItem(menuItem);
+						returnMenu.addItem(new MenuItem("Back")
+						{
+							@Override
+							public Menu execute(UserSession currentSession) {
+								return streets.getMainMenu(currentSession);
+							}
+						});
+
+						return returnMenu;
+
+
+
+
+
+					}
+				});
+			}
 		}
 
 		response.setHeader("Cache-Control", "no-cache");

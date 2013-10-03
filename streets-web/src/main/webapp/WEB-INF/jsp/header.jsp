@@ -1,4 +1,3 @@
-<%@ page import="net.blaklizt.streets.engine.session.UserSession" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -15,7 +14,7 @@
 
         if (!!window.EventSource)
         {
-            var source = new EventSource("<c:url value='/getEvents' />");
+            var source = new EventSource("<c:url value='/getBusinessProblems' />");
 
             source.onmessage = function(event)
             {

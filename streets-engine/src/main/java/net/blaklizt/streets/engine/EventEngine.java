@@ -2,6 +2,7 @@ package net.blaklizt.streets.engine;
 
 import net.blaklizt.streets.common.configuration.Configuration;
 import net.blaklizt.streets.common.utilities.CommonUtilities;
+import net.blaklizt.streets.engine.event.BusinessProblemEvent;
 import net.blaklizt.streets.engine.session.UserSession;
 import net.blaklizt.streets.persistence.BusinessProblem;
 import net.blaklizt.streets.persistence.Location;
@@ -36,10 +37,41 @@ public class EventEngine {
 
 	private static final Logger log4j = Configuration.getNewLogger(EventEngine.class.getSimpleName());
 
-	private static HashMap<Long,List<String>> userEvents = new HashMap<>();
+	private static HashMap<Long,List<BusinessProblemEvent>> userBusinessProblems = new HashMap<>();
 
-	public static List<String> getEvents(UserSession userSession) {
-		return userEvents.get(userSession.getUser().getUserId());
+	public static List<BusinessProblemEvent> getBusinessProblems(UserSession userSession) {
+		return userBusinessProblems.get(userSession.getUser().getUserId());
+	}
+
+	public EventEngine()
+	{
+		populateUserBusinessProblems();
+	}
+
+	private void populateUserBusinessProblems()
+	{
+		List<Location> locations = locationDao.findAll();
+
+		log4j.info("Populating known problems for all locations");
+
+		for (Location location : locations)
+		{
+			Long userID = location.getControllingGang().getGangLeaderID();
+			if (location.getBusinessProblemID() != null)
+			{
+				if (userBusinessProblems.get(userID) == null)
+				{
+					userBusinessProblems.put(userID, new LinkedList<BusinessProblemEvent>());
+				}
+
+				BusinessProblem businessProblem = businessProblemDao.findById(location.getBusinessProblemID());
+
+				userBusinessProblems.get(userID).add(new BusinessProblemEvent(
+					businessProblem.getProblemMenuName(),
+					businessProblem.getProblemDescription(),
+					businessProblem, location));
+			}
+		}
 	}
 
 	public void runBusinessProblems()
@@ -104,12 +136,16 @@ public class EventEngine {
 								log4j.info(possibleProblems.get(randomProblem).getProblemDescription());
 								location.setBusinessProblemID(possibleProblems.get(randomProblem).getBusinessProblemID());
 
-								if (userEvents.get(userID) == null)
+								if (userBusinessProblems.get(userID) == null)
 								{
-									userEvents.put(userID, new LinkedList<String>());
+									userBusinessProblems.put(userID, new LinkedList<BusinessProblemEvent>());
 								}
-								userEvents.get(userID).add(possibleProblems.get(randomProblem).getProblemDescription());
-								userSession.getCurrentMenu().setEventMessages(userEvents.get(userID));
+								userBusinessProblems.get(userID).add(new BusinessProblemEvent(
+										possibleProblems.get(randomProblem).getProblemMenuName(),
+										possibleProblems.get(randomProblem).getProblemDescription(),
+										possibleProblems.get(randomProblem), location));
+								userSession.getCurrentMenu().setBusinessProblemEvents(
+										userSession, userBusinessProblems.get(userID));
 							}
 							else
 							{

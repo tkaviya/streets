@@ -1,6 +1,9 @@
 package net.blaklizt.streets.engine.menu;
 
+import net.blaklizt.streets.engine.Streets;
+import net.blaklizt.streets.engine.event.BusinessProblemEvent;
 import net.blaklizt.streets.engine.session.UserSession;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +16,10 @@ import java.util.List;
  */
 public abstract class Menu
 {
-	protected List<String> eventMessages;
+	@Autowired
+	protected Streets streets;
+
+	protected List<BusinessProblemEvent> businessProblemEvents;
     protected String errorMessage;
 	protected String description;
     protected ArrayList<MenuItem> menuItems = new ArrayList<>();
@@ -22,6 +28,9 @@ public abstract class Menu
 
     @Override
     public abstract String toString();
+
+	public abstract void setBusinessProblemEvents(UserSession userSession,
+		List<BusinessProblemEvent> businessProblemEvents);
 
 	public static Menu createMenu(UserSession.SessionType sessionType)
 	{
@@ -44,19 +53,14 @@ public abstract class Menu
 		this.errorMessage = errorMessage;
 	}
 
-	public void setEventMessages(List<String> eventMessages)
-	{
-		this.eventMessages = eventMessages;
-	}
-
 	public void setDescription(String description)
     {
         this.description = description;
     }
 
-	public List<String> getEventMessages()
+	public List<BusinessProblemEvent> getBusinessProblemEvents()
 	{
-		return eventMessages;
+		return businessProblemEvents;
 	}
 
 	public String getErrorMessage()

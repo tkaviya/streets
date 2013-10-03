@@ -11,6 +11,9 @@
         <property name="businessType">
             <column name="BusinessType" sql-type="varchar" length="30"/>
         </property>
+        <property name="problemMenuName">
+            <column name="ProblemMenuName" sql-type="varchar" length="30" not-null="true"/>
+        </property>
         <property name="problemDescription">
             <column name="ProblemDescription" sql-type="varchar" length="256" not-null="true"/>
         </property>

@@ -34,6 +34,18 @@ public class BusinessProblem {
 		this.businessType = businessType;
 	}
 
+	private String problemMenuName;
+
+	@javax.persistence.Column(name = "ProblemMenuName", nullable = false, insertable = true, updatable = true, length = 30)
+	@javax.persistence.Basic
+	public String getProblemMenuName() {
+		return problemMenuName;
+	}
+
+	public void setProblemMenuName(String problemMenuName) {
+		this.problemMenuName = problemMenuName;
+	}
+
 	private String problemDescription;
 
 	@javax.persistence.Column(name = "ProblemDescription", nullable = false, insertable = true, updatable = true, length = 256, precision = 0)

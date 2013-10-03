@@ -117,6 +117,7 @@ create table BusinessProblem
 (
   BusinessProblemID BIGINT(19) AUTO_INCREMENT PRIMARY KEY,
   BusinessType VARCHAR(30) REFERENCES Business(BusinessType) ON UPDATE CASCADE,
+  ProblemMenuName VARCHAR(30) NOT NULL,
   ProblemDescription VARCHAR(256) NOT NULL,
   Cost DOUBLE NOT NULL
 );
@@ -142,17 +143,17 @@ insert into Business values ('Weed',2000,70,500);
 insert into Business values ('Armed Robbery',5000,90,10000);
 insert into Business values ('HiJacking',5000,90,10000);
 
-insert into BusinessProblem values (null,'Restaurant', 'Your chef has resigned after receiving a better offer elsewhere. You need to hire a new chef immediately to resume business.', 10000);
-insert into BusinessProblem values (null,'Casino', 'There was an attempted armed robbery on your casino that resulted in damage to property. You need to repair it to resume business.', 50000);
-insert into BusinessProblem values (null,'Club', 'A fight in your club resulted in a police raid. Several other customers have been found with illegal drugs. You need to pay the cops to keep your license.', 10000);
-insert into BusinessProblem values (null,'Club', 'One of your bouncers severely injured a customer after a misunderstanding. Your licence will be revoked if this gets out. You should settle as fast as possible.', 15000);
-insert into BusinessProblem values (null,'Narcotics', 'A customer of yours has been arrested and will rat you out unless you pay for his bail immediately.', 5000);
-insert into BusinessProblem values (null,'Narcotics', 'Your drug runner has been apprehended. You need to get him out to continue running your business.', 5000);
-insert into BusinessProblem values (null,'Narcotics', 'There\'s a new chief of police in town, and you need to offer him a show of good faith to continue business', 30000);
-insert into BusinessProblem values (null,'Weed', 'A customer of yours has been arrested and will rat you out unless you pay for his bail immediately.', 1000);
-insert into BusinessProblem values (null,'Armed Robbery', 'During a getaway, you lost your fire arm and you need a new one to continue.', 2000);
-insert into BusinessProblem values (null,'Armed Robbery', 'Talk of your arrest is underway as your identity has been discovered by a high ranking police officer. An immediate bribe can save you.', 20000);
-insert into BusinessProblem values (null,'HiJacking', 'Your dealer has been apprehended. You need to get him out to continue running your business.', 2000);
+insert into BusinessProblem values (null,'Restaurant', 'Get A New Chef', 'Your chef has resigned after receiving a better offer elsewhere. You need to hire a new chef immediately to resume business.', 10000);
+insert into BusinessProblem values (null,'Casino', 'Repair Damages', 'There was an attempted armed robbery on your casino that resulted in damage to property. You need to repair it to resume business.', 50000);
+insert into BusinessProblem values (null,'Club', 'Bribe Cops', 'A fight in your club resulted in a police raid. Several other customers have been found with illegal drugs. You need to pay the cops to keep your license.', 10000);
+insert into BusinessProblem values (null,'Club', 'Pay Customer Settlement', 'One of your bouncers severely injured a customer after a misunderstanding. Your licence will be revoked if this gets out. You should settle as fast as possible.', 15000);
+insert into BusinessProblem values (null,'Narcotics', 'Bail out customer', 'A customer of yours has been arrested and will rat you out unless you pay for his bail immediately.', 5000);
+insert into BusinessProblem values (null,'Narcotics', 'Bail out runner', 'Your drug runner has been apprehended. You need to get him out to continue running your business.', 5000);
+insert into BusinessProblem values (null,'Narcotics', 'Send Gift to Chief of Police', 'There\'s a new chief of police in town, and you need to offer him a show of good faith to continue business', 30000);
+insert into BusinessProblem values (null,'Weed', 'Bail out customer', 'A customer of yours has been arrested and will rat you out unless you pay for his bail immediately.', 1000);
+insert into BusinessProblem values (null,'Armed Robbery', 'Buy new fire arm', 'During a getaway, you lost your fire arm and you need a new one to continue.', 2000);
+insert into BusinessProblem values (null,'Armed Robbery', 'Pay bribe', 'Talk of your arrest is underway as your identity has been discovered by a high ranking police officer. An immediate bribe can save you.', 20000);
+insert into BusinessProblem values (null,'HiJacking', 'Bail out Henchman', 'Your henchman has been apprehended. You need to get him out to continue running your business.', 2000);
 
 insert into Location values (100, 'Johannesburg', 101, 102, 300, 201, '3-1-2', 'Casino', 'Narcotics', null);
 insert into Location values (101, 'Pretoria', 104, 100, 105, 201, 'Two Sixes', null, null, null);
