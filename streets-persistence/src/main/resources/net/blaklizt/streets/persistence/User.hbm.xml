@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="net.blaklizt.streets.persistence.User" table="user" schema="" catalog="streets">
+        <id name="userID" column="UserID"/>
+        <property name="name" column="Name"/>
+        <property name="userGroupID" column="UserGroupID"/>
+        <property name="username" column="Username"/>
+        <property name="password" column="Password"/>
+        <property name="status" column="Status"/>
+        <property name="salt" column="Salt"/>
+        <one-to-one name="userAttribute" class="net.blaklizt.streets.persistence.UserAttribute" cascade="save-update" />
+    </class>
+</hibernate-mapping>

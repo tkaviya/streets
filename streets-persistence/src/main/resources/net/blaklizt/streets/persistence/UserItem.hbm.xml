@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="net.blaklizt.streets.persistence.UserItem" table="useritem" schema="" catalog="streets">
+        <composite-id mapped="true" class="net.blaklizt.streets.persistence.UserItemPK">
+            <key-property name="userId">
+                <column name="UserID" sql-type="bigint" length="19" not-null="true"/>
+            </key-property>
+            <key-property name="itemId">
+                <column name="ItemID" sql-type="bigint" length="19" not-null="true"/>
+            </key-property>
+        </composite-id>
+    </class>
+</hibernate-mapping>

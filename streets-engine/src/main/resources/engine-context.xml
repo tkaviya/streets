@@ -1,0 +1,30 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <import resource="classpath*:persistence-context.xml" />
+
+    <context:component-scan base-package="net.blaklizt.streets.persistence"/>
+    <context:annotation-config />
+
+    <bean id="streets" name="streets" class="net.blaklizt.streets.engine.Streets" />
+
+    <bean id="eventEngine" name="eventEngine" class="net.blaklizt.streets.engine.EventEngine" />
+
+    <bean id="bankEngine" name="bankEngine" class="net.blaklizt.streets.engine.navigation.location.BankEngine">
+        <property name="streets" ref="streets" />
+    </bean>
+
+    <bean id="hospitalEngine" name="hospitalEngine" class="net.blaklizt.streets.engine.navigation.location.HospitalEngine">
+        <property name="streets" ref="streets" />
+    </bean>
+
+    <bean id="storeEngine" name="storeEngine" class="net.blaklizt.streets.engine.navigation.location.StoreEngine">
+        <property name="streets" ref="streets" />
+    </bean>
+
+</beans>

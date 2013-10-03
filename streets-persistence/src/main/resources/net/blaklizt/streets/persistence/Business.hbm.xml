@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="net.blaklizt.streets.persistence.Business" table="business" schema="" catalog="streets">
+        <id name="businessType">
+            <column name="BusinessType" sql-type="varchar" length="30" not-null="true"/>
+        </id>
+        <property name="startupCost">
+            <column name="StartupCost" sql-type="double" length="22" not-null="true"/>
+        </property>
+        <property name="riskFactor">
+            <column name="RiskFactor" sql-type="int" length="10" not-null="true"/>
+        </property>
+        <property name="payout">
+            <column name="Payout" sql-type="double" length="22" not-null="true"/>
+        </property>
+    </class>
+</hibernate-mapping>
