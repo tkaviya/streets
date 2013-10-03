@@ -43,12 +43,7 @@ public class EventEngine {
 		return userBusinessProblems.get(userSession.getUser().getUserId());
 	}
 
-	public EventEngine()
-	{
-		populateUserBusinessProblems();
-	}
-
-	private void populateUserBusinessProblems()
+	public void populateUserBusinessProblems()
 	{
 		List<Location> locations = locationDao.findAll();
 

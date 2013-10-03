@@ -30,6 +30,8 @@ public class Streets extends Observable
 
 		Date now = new Date();
 
+		eventEngine.populateUserBusinessProblems();
+
 		theStreets.scheduleAtFixedRate(businessProblems, new Date(now.getTime() + 30000), 30000);
 	}
 
