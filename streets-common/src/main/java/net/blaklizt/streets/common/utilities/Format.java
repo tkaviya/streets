@@ -1,4 +1,4 @@
-package net.blaklizt.streets.web.common;
+package net.blaklizt.streets.common.utilities;
 
 /**
  * Created with IntelliJ IDEA.

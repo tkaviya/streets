@@ -1,4 +1,4 @@
-
+<%@ page import="net.blaklizt.streets.engine.session.UserSession" %>
 <%--<embed src="resources/streets_theme.mp3" type="audio/mpeg" autostart="true" hidden="false"/>--%>
 <%--<noembed><bgsound src="resources/streets_theme.mp3" type="audio/mpeg" autostart="true" hidden="false" /></noembed>--%>
 
@@ -47,11 +47,11 @@
             <img src="${pageContext.request.contextPath}/resources/blaklizt_logo.jpg" width="100%"/>
         </td>
     </tr>
-    <tr>
-        <td colspan="2">
-            <div id="eventDiv" name="eventDiv">data!</div>
-        </td>
-    </tr>
+    <%--<tr>--%>
+        <%--<td colspan="2">--%>
+            <%--<div id="eventDiv" name="eventDiv">data!</div>--%>
+        <%--</td>--%>
+    <%--</tr>--%>
     <tr height="100%" style="padding: 20px; vertical-align: top; ">
         <td colspan="2">
             <div id="gameMenu" name="gameMenu">

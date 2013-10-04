@@ -22,7 +22,13 @@ public class Streets extends Observable
 	{
 		Timer theStreets = new Timer();
 
-		TimerTask businessProblems = new TimerTask()
+		TimerTask populateBusinessProblems = new TimerTask()
+		{
+			@Override
+			public void run() { eventEngine.populateUserBusinessProblems(); }
+		};
+
+		TimerTask runBusinessProblems = new TimerTask()
 		{
 			@Override
 			public void run() { eventEngine.runBusinessProblems(); }
@@ -30,18 +36,14 @@ public class Streets extends Observable
 
 		Date now = new Date();
 
-		eventEngine.populateUserBusinessProblems();
-
-		theStreets.scheduleAtFixedRate(businessProblems, new Date(now.getTime() + 30000), 30000);
+		theStreets.schedule(populateBusinessProblems, new Date(now.getTime() + 20000));
+		theStreets.scheduleAtFixedRate(runBusinessProblems, new Date(now.getTime() + 30000), 30000);
 	}
 
     public Menu getMainMenu(UserSession userSession)
     {
         if (userSession != null && userSession.isLoggedIn())
-        {
-            return MapEngine.getInstance().getMainMenu(userSession);
-        }
-
+            return MapEngine.getInstance().getMainMenu(this, userSession);
 		return null;
     }
 

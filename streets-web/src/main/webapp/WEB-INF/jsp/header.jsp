@@ -18,8 +18,7 @@
 
             source.onmessage = function(event)
             {
-                document.getElementById("eventDiv").innerHTML = event.data + "<br/>";
-                blinkIt();
+                $('#gameMenu').html(event.data);
             };
         }
         else

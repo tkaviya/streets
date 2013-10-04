@@ -54,7 +54,7 @@ public class StoreEngine extends MenuItem {
 		String currentFunds = CommonUtilities.formatDoubleToMoney(currentBalance, true);
 		Store locationStore = storeDao.findByLocationID(userAttribute.getLocationID());
 		List<StoreItem> storeItems = storeItemDao.findByStoreID(locationStore.getStoreID());
-		Menu returnMenu = Menu.createMenu(userSession.getSessionType());
+		Menu returnMenu = Menu.createMenu(streets, userSession);
 		returnMenu.setDescription("Welcome to the " + locationStore.getStoreName()
 				+ " store. Your bank bank balance is " + currentFunds);
 
@@ -75,23 +75,24 @@ public class StoreEngine extends MenuItem {
 						if (otherItem != null && !item.getAllowMultiple())
 						{
 							//user already has the item
-							return MenuItem.createFinalMenu("You already have that item. You can only need 1 at a time.",
-									streets.getMainMenu(currentSession), currentSession.getSessionType());
+							return MenuItem.createFinalMenu(streets,
+									"You already have that item. You can only need 1 at a time.",
+									streets.getMainMenu(currentSession), currentSession);
 						}
 						else
 						{
 							userAttribute.setBankBalance(currentBalance - storeItem.getCost());
 							userItemDao.saveOrUpdate(new UserItem(currentUser.getUserId(), storeItem.getItemID()));
-							return MenuItem.createFinalMenu("You have bought a " + item.getItemName(),
-									streets.getMainMenu(currentSession), currentSession.getSessionType());
+							return MenuItem.createFinalMenu(streets, "You have bought a " + item.getItemName(),
+									streets.getMainMenu(currentSession), currentSession);
 						}
 					}
 					else
 					{
 						//insufficient funds
-						return MenuItem.createFinalMenu("You have don't have enough funds buy that item. " +
+						return MenuItem.createFinalMenu(streets, "You have don't have enough funds buy that item. " +
 								"Come back when you have made some more money",
-								streets.getMainMenu(currentSession), currentSession.getSessionType());
+								streets.getMainMenu(currentSession), currentSession);
 					}
 				}
 			};

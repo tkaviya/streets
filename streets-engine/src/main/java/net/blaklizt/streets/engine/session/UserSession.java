@@ -1,8 +1,11 @@
 package net.blaklizt.streets.engine.session;
 
+import net.blaklizt.streets.engine.event.BusinessProblemEvent;
 import net.blaklizt.streets.engine.menu.Menu;
 import net.blaklizt.streets.persistence.User;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -23,8 +26,8 @@ public class UserSession implements Observer
     private User user;
     private Menu currentMenu;
     private boolean loggedIn = false;
-
 	private SessionType sessionType = SessionType.PLAIN_TEXT;
+	private List<BusinessProblemEvent> businessProblemEvents = new LinkedList<>();
 
 	public UserSession(User user, SessionType sessionType)
 	{
@@ -55,9 +58,14 @@ public class UserSession implements Observer
 		return sessionType;
 	}
 
-	public void setSessionType(SessionType sessionType)
+	public List<BusinessProblemEvent> getBusinessProblemEvents()
 	{
-		this.sessionType = sessionType;
+		return businessProblemEvents;
+	}
+
+	public void setBusinessProblemEvents(List<BusinessProblemEvent> businessProblemEvents)
+	{
+		this.businessProblemEvents = businessProblemEvents;
 	}
 
 	public boolean isLoggedIn()

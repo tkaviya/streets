@@ -39,6 +39,7 @@ create table Gang
   GangName VARCHAR(30) PRIMARY KEY,
   GangLeaderID BIGINT(19) REFERENCES User(UserID) ON UPDATE CASCADE,
   AIControlled TINYINT(1) NOT NULL DEFAULT 0,
+  CurrentBalance DOUBLE NOT NULL,
   Payout DOUBLE NOT NULL
 );
 
@@ -130,10 +131,10 @@ insert into UserGroup values ('STR_ADMIN');
 insert into UserGroupRole values ('STR_ADMIN','ROLE_USER');
 insert into UserGroupRole values ('STR_ADMIN','ROLE_ADMIN');
 
-insert into Gang values ('Boyz Dze Smoko',0, 1, 0);
-insert into Gang values ('Vitori Brotherhood',0, 1, 0);
-insert into Gang values ('3-1-2',1, 0, 0);
-insert into Gang values ('Two Sixes',0, 1, 0);
+insert into Gang values ('Boyz Dze Smoko',0, 1, 0, 0);
+insert into Gang values ('Vitori Brotherhood',0, 1, 0, 0);
+insert into Gang values ('3-1-2',1, 0, 0, 0);
+insert into Gang values ('Two Sixes',0, 1, 0, 0);
 
 insert into Business values ('Restaurant',100000,1,1000);
 insert into Business values ('Casino',5000000,10,5000);

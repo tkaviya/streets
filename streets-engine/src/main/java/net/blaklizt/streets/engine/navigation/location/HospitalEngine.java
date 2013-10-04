@@ -42,14 +42,14 @@ public class HospitalEngine extends MenuItem {
 		switch (currentHealth)
         {
             case 0:
-				return MenuItem.createFinalMenu("You have 0% health remaining, i.e. YOU'RE DEAD! Game Over!",
-                    streets.getMainMenu(userSession), userSession.getSessionType());
+				return MenuItem.createFinalMenu(streets, "You have 0% health remaining, i.e. YOU'RE DEAD! Game Over!",
+                    streets.getMainMenu(userSession), userSession);
             case 100:
-				return MenuItem.createFinalMenu("You have 100% health. You don't need a hospital.",
-                    streets.getMainMenu(userSession), userSession.getSessionType());
+				return MenuItem.createFinalMenu(streets, "You have 100% health. You don't need a hospital.",
+                    streets.getMainMenu(userSession), userSession);
             default:
 			{
-				Menu returnMenu = Menu.createMenu(userSession.getSessionType());
+				Menu returnMenu = Menu.createMenu(streets, userSession);
 
 				final Integer treatmentCost = (MAX_HEALTH - currentHealth) * HEALTH_COST;
 
@@ -68,18 +68,18 @@ public class HospitalEngine extends MenuItem {
 						{
 							userAttribute.setBankBalance(currentBalance - treatmentCost);
 							userAttribute.setHealthPoints(MAX_HEALTH);
-							return MenuItem.createFinalMenu("You have been treated for " + treatmentCost + ".\r\n" +
-								"Current Health: " + MAX_HEALTH + "%.\r\n" +
+							return MenuItem.createFinalMenu(streets, "You have been treated for " + treatmentCost +
+								".\r\n" + "Current Health: " + MAX_HEALTH + "%.\r\n" +
 								"Current Funds: " + CommonUtilities.formatDoubleToMoney(
 									userAttribute.getBankBalance(), true),
-									streets.getMainMenu(currentSession), currentSession.getSessionType());
+									streets.getMainMenu(currentSession), currentSession);
 						}
 						else
 						{
 							//insufficient funds
-							return MenuItem.createFinalMenu("You have don't have enough funds to see a doctor. " +
-									"Come back when you have made some more money",
-									streets.getMainMenu(currentSession), currentSession.getSessionType());
+							return MenuItem.createFinalMenu(streets, "You have don't have enough funds to see a doctor."
+									+ " Come back when you have made some more money",
+									streets.getMainMenu(currentSession), currentSession);
 
 						}
 					}

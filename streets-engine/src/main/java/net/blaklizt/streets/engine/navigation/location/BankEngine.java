@@ -34,10 +34,10 @@ public class BankEngine extends MenuItem {
     @Override
     public Menu execute(UserSession userSession) {
 
-        return MenuItem.createFinalMenu("You currently have " + CommonUtilities.formatDoubleToMoney(
+        return MenuItem.createFinalMenu(streets, "You currently have " + CommonUtilities.formatDoubleToMoney(
 					userSession.getUser().getUserAttribute().getBankBalance().doubleValue(),true)
 					+ " in your bank account.",
-            streets.getMainMenu(userSession), userSession.getSessionType());
+            streets.getMainMenu(userSession), userSession);
     }
 
     public void setStreets(Streets streets)

@@ -1,5 +1,6 @@
 package net.blaklizt.streets.engine.menu;
 
+import net.blaklizt.streets.engine.Streets;
 import net.blaklizt.streets.engine.session.UserSession;
 
 /**
@@ -19,17 +20,18 @@ public abstract class MenuItem
         this.name = name;
     }
 
-    protected static Menu createFinalMenu(final String description,
+    protected static Menu createFinalMenu(final Streets streets,
+										  final String description,
                                           final Menu previous,
-										  final UserSession.SessionType sessionType)
+										  final UserSession userSession)
     {
         Menu finalMenu;
 
-		switch (sessionType)
+		switch (userSession.getSessionType())
 		{
-			case PLAIN_TEXT: finalMenu = new DefaultMenu();	break;
-			case HTML:		 finalMenu = new HTMLMenu();	break;
-			default:		 finalMenu = new DefaultMenu();	break;
+			case PLAIN_TEXT: finalMenu = new DefaultMenu(streets, userSession);	break;
+			case HTML:		 finalMenu = new HTMLMenu(streets, userSession);	break;
+			default:		 finalMenu = new DefaultMenu(streets, userSession);	break;
 		}
 
         finalMenu.setDescription(description);

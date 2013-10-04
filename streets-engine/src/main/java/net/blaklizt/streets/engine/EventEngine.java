@@ -39,6 +39,8 @@ public class EventEngine {
 
 	private static HashMap<Long,List<BusinessProblemEvent>> userBusinessProblems = new HashMap<>();
 
+	private static List<Location> locations = null;
+
 	public static List<BusinessProblemEvent> getBusinessProblems(UserSession userSession) {
 		return userBusinessProblems.get(userSession.getUser().getUserId());
 	}
@@ -52,9 +54,11 @@ public class EventEngine {
 
 		for (Location location : locations)
 		{
-			Long userID = location.getControllingGang().getGangLeaderID();
-			if (location.getBusinessProblemID() != null)
+			if (location.getCurrentBusinessType() != null && location.getBusinessProblemID() != null
+				&& (location.getControllingGang() != null && !location.getControllingGang().getAiControlled()))
 			{
+				Long userID = location.getControllingGang().getGangLeaderID();
+
 				if (userBusinessProblems.get(userID) == null)
 				{
 					userBusinessProblems.put(userID, new LinkedList<BusinessProblemEvent>());
@@ -72,7 +76,7 @@ public class EventEngine {
 
 	public void runBusinessProblems()
 	{
-		List<Location> locations = locationDao.findAll();
+		if (locations == null) locations = locationDao.findAll();
 
 		log4j.info("Processing " + locations.size() + " locations and " + Streets.getLoggedInUsers().size() + " users");
 
@@ -80,10 +84,11 @@ public class EventEngine {
 
 		for (Location location : locations)
 		{
-			log4j.info("Location: " + location.getLocationName()
-					+ " |BestBusiness: " + location.getBestBusinessType()
-					+ " |CurrentBusiness: " + location.getCurrentBusinessType()
-					+ " |Gang: " + (location.getControllingGang() == null ? "" : location.getControllingGang().getGangName()));
+			log4j.info("Loc: " + location.getLocationName()
+					+ " |BestBiz: " + location.getBestBusinessType()
+					+ " |CurrentBiz: " + location.getCurrentBusinessType()
+					+ " |Gang: " + (location.getControllingGang() == null ? "" : location.getControllingGang().getGangName())
+					+ " |Problem: " + location.getBusinessProblemID());
 
 			if (location.getCurrentBusinessType() != null && location.getBusinessProblemID() == null
 				&& (location.getControllingGang() != null && !location.getControllingGang().getAiControlled()))
@@ -130,7 +135,12 @@ public class EventEngine {
 
 								log4j.info("Getting possibleProblems at index " + randomProblem);
 								log4j.info(possibleProblems.get(randomProblem).getProblemDescription());
+
+								System.out.println("locate businessProblemID = " + location.getBusinessProblemID());
+
 								location.setBusinessProblemID(possibleProblems.get(randomProblem).getBusinessProblemID());
+
+								System.out.println("locate businessProblemID = " + location.getBusinessProblemID());
 
 								if (userBusinessProblems.get(userID) == null)
 								{
@@ -140,8 +150,7 @@ public class EventEngine {
 										possibleProblems.get(randomProblem).getProblemMenuName(),
 										possibleProblems.get(randomProblem).getProblemDescription(),
 										possibleProblems.get(randomProblem), location));
-								userSession.getCurrentMenu().setBusinessProblemEvents(
-										userSession, userBusinessProblems.get(userID));
+								userSession.setBusinessProblemEvents(userBusinessProblems.get(userID));
 							}
 							else
 							{
