@@ -2,19 +2,17 @@ package net.blaklizt.streets.engine;
 
 import net.blaklizt.streets.common.configuration.Configuration;
 import net.blaklizt.streets.common.utilities.CommonUtilities;
+import net.blaklizt.streets.engine.event.BusinessEvent;
 import net.blaklizt.streets.engine.event.BusinessProblemEvent;
 import net.blaklizt.streets.engine.session.UserSession;
-import net.blaklizt.streets.persistence.BusinessProblem;
-import net.blaklizt.streets.persistence.Location;
-import net.blaklizt.streets.persistence.User;
+import net.blaklizt.streets.persistence.*;
 import net.blaklizt.streets.persistence.dao.BusinessProblemDao;
 import net.blaklizt.streets.persistence.dao.LocationDao;
+import net.blaklizt.streets.persistence.dao.UserAttributeDao;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,10 +20,15 @@ import java.util.List;
  * Date: 2013/07/08
  * Time: 11:50 PM
  */
+
+//@Singleton
 public class EventEngine {
 
 	@Autowired
 	private LocationDao locationDao;
+
+	@Autowired
+	private UserAttributeDao userAttributeDao;
 
 	@Autowired
 	private BusinessProblemDao businessProblemDao;
@@ -39,11 +42,9 @@ public class EventEngine {
 
 	private static HashMap<Long,List<BusinessProblemEvent>> userBusinessProblems = new HashMap<>();
 
-	private static List<Location> locations = null;
+	private static List<BusinessEvent> businessEvents = new LinkedList<>();
 
-	public static List<BusinessProblemEvent> getBusinessProblems(UserSession userSession) {
-		return userBusinessProblems.get(userSession.getUser().getUserId());
-	}
+	private static List<Location> locations = null;
 
 	public void populateUserBusinessProblems()
 	{
@@ -74,22 +75,71 @@ public class EventEngine {
 		}
 	}
 
+	public void runBusinessRewards()
+	{
+		if (locations == null) locations = locationDao.findAll();
+
+		log4j.info("Processing Business Rewards for " + locations.size() + " locations");
+
+		for (Location location : locations)
+		{
+			final Gang controllingGang = location.getControllingGang();
+
+			if (location.getCurrentBusinessType() != null && location.getBusinessProblemID() == null
+			&& (controllingGang != null && !controllingGang.getAiControlled()))
+			{
+				controllingGang.setCurrentBalance(
+					controllingGang.getCurrentBalance() +
+					location.getCurrentBusiness().getPayout());
+
+				List<UserAttribute> gangMembers = userAttributeDao.findByGangName(controllingGang.getGangName());
+
+				log4j.info("Processing payout for " + location.getLocationName() +
+						" to " + gangMembers.size() + " members of " + controllingGang.getGangName());
+
+				final Double payout = controllingGang.getPayout();
+
+				if (gangMembers != null && controllingGang.getCurrentBalance().compareTo(gangMembers.size() * payout) >= 0)
+				{
+					for (UserAttribute userAttribute : gangMembers)
+					{
+						controllingGang.setCurrentBalance(controllingGang.getCurrentBalance() - payout);
+						userAttribute.setBankBalance(userAttribute.getBankBalance() + payout);
+						log4j.info("New gang balance: " + controllingGang.getCurrentBalance());
+						log4j.info("New user balance: " + userAttribute.getBankBalance());
+					}
+				}
+			}
+		}
+
+		//notify users of their pay checks
+		businessEvents.add(new BusinessEvent("Payout Received",
+			"Payouts from businesses have been processed. Check your bank account for your latest balance. " +
+			"If you didn't get a payout, make sure your gang has enough funds to pay out to all its members," +
+			" and that there are currently no problems with your businesses."));
+
+		//start a timer and clear notification in 30 seconds
+		Timer clearKnownBusinessEvents = new Timer();
+		TimerTask clearBusinessEvents = new TimerTask()
+		{
+			@Override
+			public void run() { businessEvents.clear(); }
+		};
+		clearKnownBusinessEvents.schedule(clearBusinessEvents, new Date(new Date().getTime() + 30000));
+	}
+
+//	@Schedule(hour="*/6", minute="0", second="0", persistent=false)
 	public void runBusinessProblems()
 	{
 		if (locations == null) locations = locationDao.findAll();
 
-		log4j.info("Processing " + locations.size() + " locations and " + Streets.getLoggedInUsers().size() + " users");
+		log4j.info("Processing Business Problems for " + locations.size() + " locations and " +
+			Streets.getLoggedInUsers().size() + " users");
 
 		if (Streets.getLoggedInUsers().size() < 1) return;
 
 		for (Location location : locations)
 		{
-			log4j.info("Loc: " + location.getLocationName()
-					+ " |BestBiz: " + location.getBestBusinessType()
-					+ " |CurrentBiz: " + location.getCurrentBusinessType()
-					+ " |Gang: " + (location.getControllingGang() == null ? "" : location.getControllingGang().getGangName())
-					+ " |Problem: " + location.getBusinessProblemID());
-
 			if (location.getCurrentBusinessType() != null && location.getBusinessProblemID() == null
 				&& (location.getControllingGang() != null && !location.getControllingGang().getAiControlled()))
 			{
@@ -163,4 +213,10 @@ public class EventEngine {
 			}
 		}
 	}
+
+	public static List<BusinessEvent> getBusinessEvents()
+	{
+		return businessEvents;
+	}
+
 }

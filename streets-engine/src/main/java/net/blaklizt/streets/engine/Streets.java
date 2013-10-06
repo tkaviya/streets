@@ -22,22 +22,23 @@ public class Streets extends Observable
 	{
 		Timer theStreets = new Timer();
 
-		TimerTask populateBusinessProblems = new TimerTask()
-		{
-			@Override
-			public void run() { eventEngine.populateUserBusinessProblems(); }
+		TimerTask populateBusinessProblems = new TimerTask() {
+			@Override public void run() { eventEngine.populateUserBusinessProblems(); }
 		};
 
-		TimerTask runBusinessProblems = new TimerTask()
-		{
-			@Override
-			public void run() { eventEngine.runBusinessProblems(); }
+		TimerTask runBusinessProblems = new TimerTask() {
+			@Override public void run() { eventEngine.runBusinessProblems(); }
+		};
+
+		TimerTask runBusinessRewards = new TimerTask() {
+			@Override public void run() { eventEngine.runBusinessRewards(); }
 		};
 
 		Date now = new Date();
 
 		theStreets.schedule(populateBusinessProblems, new Date(now.getTime() + 20000));
-		theStreets.scheduleAtFixedRate(runBusinessProblems, new Date(now.getTime() + 30000), 30000);
+		theStreets.scheduleAtFixedRate(runBusinessProblems, new Date(now.getTime() + 42000), 30000);
+		theStreets.scheduleAtFixedRate(runBusinessRewards, new Date(now.getTime() + 30000), 45000);
 	}
 
     public Menu getMainMenu(UserSession userSession)
@@ -58,5 +59,10 @@ public class Streets extends Observable
 
 	public void removeLoggedInUser(UserSession userSession) {
 		loggedInUsers.remove(userSession);
+	}
+
+	public EventEngine getEventEngine()
+	{
+		return eventEngine;
 	}
 }

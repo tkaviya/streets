@@ -133,7 +133,7 @@ insert into UserGroupRole values ('STR_ADMIN','ROLE_ADMIN');
 
 insert into Gang values ('Boyz Dze Smoko',0, 1, 0, 0);
 insert into Gang values ('Vitori Brotherhood',0, 1, 0, 0);
-insert into Gang values ('3-1-2',1, 0, 0, 0);
+insert into Gang values ('3-1-2',1, 0, 0, 2000);
 insert into Gang values ('Two Sixes',0, 1, 0, 0);
 
 insert into Business values ('Restaurant',100000,1,1000);

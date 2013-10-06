@@ -1,11 +1,10 @@
 package net.blaklizt.streets.web;
 
 import net.blaklizt.streets.common.configuration.Configuration;
-import net.blaklizt.streets.engine.EventEngine;
+import net.blaklizt.streets.common.utilities.Format;
 import net.blaklizt.streets.engine.Streets;
 import net.blaklizt.streets.engine.menu.Menu;
 import net.blaklizt.streets.engine.session.UserSession;
-import net.blaklizt.streets.common.utilities.Format;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -42,7 +41,6 @@ public class StreetsWebController
     {
 		ModelMap model = new ModelMap();
 		UserSession userSession = (UserSession)request.getSession().getAttribute("userSession");
-		//if (userSession == null) return new ModelAndView("login/login", model);
 
 		if (!br.hasErrors())
         {
@@ -72,11 +70,10 @@ public class StreetsWebController
 		return userSession.getCurrentMenu().toString().replaceAll("\r\n","<br/>");
     }
 
-	@RequestMapping(value= "/getBusinessProblems", method = {RequestMethod.GET, RequestMethod.POST}, produces="text/event-stream")
-	public @ResponseBody String getBusinessProblems(HttpServletRequest request)
+	@RequestMapping(value= "/getEvents", method = {RequestMethod.GET, RequestMethod.POST}, produces="text/event-stream")
+	public @ResponseBody String getEvents(HttpServletRequest request)
 	{
 		UserSession userSession = (UserSession)request.getSession().getAttribute("userSession");
-		EventEngine.getBusinessProblems(userSession);
 		return ("data:" + userSession.getCurrentMenu().toString().replaceAll("\r\n", "<br/>") + "\r\n\r\n");
 	}
 }

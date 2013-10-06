@@ -13,6 +13,8 @@ import javax.persistence.*;
 public class Gang {
 	private String gangName;
 	private Boolean aiControlled;
+	private Double currentBalance;
+	private Double payout;
 	private Long gangLeaderID;
 
 	@Column(name = "GangName", nullable = false, insertable = true, updatable = true, length = 30, precision = 0)
@@ -45,6 +47,26 @@ public class Gang {
 		this.aiControlled = aiControlled;
 	}
 
+	@Column(name = "CurrentBalance", nullable = false, insertable = true, updatable = true)
+	@Basic
+	public Double getCurrentBalance() {
+		return currentBalance;
+	}
+
+	public void setCurrentBalance(Double currentBalance) {
+		this.currentBalance = currentBalance;
+	}
+
+	@Column(name = "Payout", nullable = false, insertable = true, updatable = true)
+	@Basic
+	public Double getPayout() {
+		return payout;
+	}
+
+	public void setPayout(Double payout) {
+		this.payout = payout;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -52,6 +74,8 @@ public class Gang {
 
 		Gang gang = (Gang) o;
 
+		if (payout != null ? !payout.equals(gang.payout) : gang.payout != null) return false;
+		if (currentBalance != null ? !currentBalance.equals(gang.currentBalance) : gang.currentBalance != null) return false;
 		if (aiControlled != null ? !aiControlled.equals(gang.aiControlled) : gang.aiControlled != null) return false;
 		if (gangLeaderID != null ? !gangLeaderID.equals(gang.gangLeaderID) : gang.gangLeaderID != null) return false;
 		if (gangName != null ? !gangName.equals(gang.gangName) : gang.gangName != null) return false;
@@ -62,6 +86,8 @@ public class Gang {
 	@Override
 	public int hashCode() {
 		int result = gangName != null ? gangName.hashCode() : 0;
+		result = 31 * result + (payout != null ? payout.hashCode() : 0);
+		result = 31 * result + (currentBalance != null ? currentBalance.hashCode() : 0);
 		result = 31 * result + (gangLeaderID != null ? gangLeaderID.hashCode() : 0);
 		result = 31 * result + (aiControlled != null ? aiControlled.hashCode() : 0);
 		return result;

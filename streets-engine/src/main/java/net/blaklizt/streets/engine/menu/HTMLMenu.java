@@ -24,7 +24,7 @@ public class HTMLMenu extends Menu
 
 	@Override
 	public String setStreetsEventFormat(String message) {
-		return Format.formatColor(message, Format.HTML_COLOR.BLUE.getColor());
+		return Format.formatColor(message, "#AAAAFF");
 	}
 
 	@Override

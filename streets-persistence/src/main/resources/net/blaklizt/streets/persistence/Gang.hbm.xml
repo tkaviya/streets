@@ -8,5 +8,7 @@
         <id name="gangName" column="GangName"/>
         <property name="gangLeaderID" column="GangLeaderID"/>
         <property name="aiControlled" column="AIControlled"/>
+        <property name="currentBalance" column="CurrentBalance"/>
+        <property name="payout" column="Payout"/>
     </class>
 </hibernate-mapping>

@@ -2,6 +2,7 @@ package net.blaklizt.streets.engine.menu;
 
 import net.blaklizt.streets.common.utilities.CommonUtilities;
 import net.blaklizt.streets.engine.Streets;
+import net.blaklizt.streets.engine.event.BusinessEvent;
 import net.blaklizt.streets.engine.event.BusinessProblemEvent;
 import net.blaklizt.streets.engine.session.UserSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,11 @@ public abstract class Menu
 	public String toString()
 	{
 		String result = (errorMessage == null || errorMessage.matches("")) ? "" : errorMessage + "\r\n\r\n";
+
+		for (BusinessEvent businessEvent : streets.getEventEngine().getBusinessEvents())
+		{
+			result += setStreetsEventFormat(businessEvent.getDescription()) + "\r\n\r\n";
+		}
 
 		for (BusinessProblemEvent businessProblemEvent : userSession.getBusinessProblemEvents())
 		{

@@ -14,7 +14,7 @@
 
         if (!!window.EventSource)
         {
-            var source = new EventSource("<c:url value='/getBusinessProblems' />");
+            var source = new EventSource("<c:url value='/getEvents' />");
 
             source.onmessage = function(event)
             {
