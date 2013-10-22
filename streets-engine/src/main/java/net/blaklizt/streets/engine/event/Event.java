@@ -8,7 +8,7 @@ import java.io.Serializable;
  * Date: 10/3/13
  * Time: 8:53 PM
  */
-public abstract class Event implements Serializable {
+public class Event implements Serializable {
 	protected String name;
 	protected String description;
 

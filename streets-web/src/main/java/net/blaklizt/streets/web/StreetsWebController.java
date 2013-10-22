@@ -47,7 +47,8 @@ public class StreetsWebController
 			log4j.debug("Processing response: " + response);
 			if (Menu.isValid(response, userSession.getCurrentMenu()))
 			{
-	            userSession.setCurrentMenu(userSession.getCurrentMenu().execute(Integer.parseInt(response) - 1, userSession));
+	            userSession.setCurrentMenu(
+					userSession.getCurrentMenu().execute(Integer.parseInt(response) - 1, userSession));
 			}
 			else
 			{
@@ -67,13 +68,13 @@ public class StreetsWebController
         }
 		model.addAttribute("userSession", userSession);
 
-		return userSession.getCurrentMenu().toString().replaceAll("\r\n","<br/>");
+		return userSession.getCurrentMenu().toString();
     }
 
 	@RequestMapping(value= "/getEvents", method = {RequestMethod.GET, RequestMethod.POST}, produces="text/event-stream")
 	public @ResponseBody String getEvents(HttpServletRequest request)
 	{
 		UserSession userSession = (UserSession)request.getSession().getAttribute("userSession");
-		return ("data:" + userSession.getCurrentMenu().toString().replaceAll("\r\n", "<br/>") + "\r\n\r\n");
+		return ("data:" + userSession.getCurrentMenu().toString() + "\r\n\r\n");
 	}
 }

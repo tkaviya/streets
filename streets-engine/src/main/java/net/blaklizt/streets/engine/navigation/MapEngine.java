@@ -7,9 +7,10 @@ import net.blaklizt.streets.engine.menu.DefaultMenu;
 import net.blaklizt.streets.engine.menu.HTMLMenu;
 import net.blaklizt.streets.engine.menu.Menu;
 import net.blaklizt.streets.engine.menu.MenuItem;
-import net.blaklizt.streets.engine.navigation.location.BankEngine;
-import net.blaklizt.streets.engine.navigation.location.HospitalEngine;
-import net.blaklizt.streets.engine.navigation.location.StoreEngine;
+import net.blaklizt.streets.engine.engine.BankEngine;
+import net.blaklizt.streets.engine.engine.HospitalEngine;
+import net.blaklizt.streets.engine.engine.LottoEngine;
+import net.blaklizt.streets.engine.engine.StoreEngine;
 import net.blaklizt.streets.engine.session.UserSession;
 import net.blaklizt.streets.persistence.UserAttribute;
 
@@ -49,6 +50,7 @@ public class MapEngine {
 		mainMenu.addItem(BankEngine.getBankEngine());
 		mainMenu.addItem(HospitalEngine.getHospitalEngine());
 		mainMenu.addItem(StoreEngine.getStoreEngine());
+		mainMenu.addItem(LottoEngine.getLottoEngine());
 
 		final UserAttribute userAttribute = userSession.getUser().getUserAttribute();
 

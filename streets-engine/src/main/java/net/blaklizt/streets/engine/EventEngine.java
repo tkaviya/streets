@@ -4,6 +4,7 @@ import net.blaklizt.streets.common.configuration.Configuration;
 import net.blaklizt.streets.common.utilities.CommonUtilities;
 import net.blaklizt.streets.engine.event.BusinessEvent;
 import net.blaklizt.streets.engine.event.BusinessProblemEvent;
+import net.blaklizt.streets.engine.event.Event;
 import net.blaklizt.streets.engine.session.UserSession;
 import net.blaklizt.streets.persistence.*;
 import net.blaklizt.streets.persistence.dao.BusinessProblemDao;
@@ -42,7 +43,7 @@ public class EventEngine {
 
 	private static HashMap<Long,List<BusinessProblemEvent>> userBusinessProblems = new HashMap<>();
 
-	private static List<BusinessEvent> businessEvents = new LinkedList<>();
+	private static List<Event> streetsEvents = new LinkedList<>();
 
 	private static List<Location> locations = null;
 
@@ -112,20 +113,6 @@ public class EventEngine {
 			}
 		}
 
-		//notify users of their pay checks
-		businessEvents.add(new BusinessEvent("Payout Received",
-			"Payouts from businesses have been processed. Check your bank account for your latest balance. " +
-			"If you didn't get a payout, make sure your gang has enough funds to pay out to all its members," +
-			" and that there are currently no problems with your businesses."));
-
-		//start a timer and clear notification in 30 seconds
-		Timer clearKnownBusinessEvents = new Timer();
-		TimerTask clearBusinessEvents = new TimerTask()
-		{
-			@Override
-			public void run() { businessEvents.clear(); }
-		};
-		clearKnownBusinessEvents.schedule(clearBusinessEvents, new Date(new Date().getTime() + 30000));
 	}
 
 //	@Schedule(hour="*/6", minute="0", second="0", persistent=false)
@@ -207,16 +194,36 @@ public class EventEngine {
 								log4j.warn(location.getBestBusinessType() + " has no associated problems!");
 							}
 						}
-
+						addStreetsEvent(new BusinessEvent("Payout Received",
+							"Payouts from businesses have been processed. Check your bank account for your latest balance. " +
+							"If you didn't get a payout, make sure your gang has enough " +
+							"funds to pay out to all its members," +
+							" and that there are currently no problems with your businesses."));
 					}
 				}
 			}
 		}
 	}
 
-	public static List<BusinessEvent> getBusinessEvents()
+	public static List<Event> getStreetsEvents()
 	{
-		return businessEvents;
+		return streetsEvents;
+	}
+
+	public static void addStreetsEvent(final Event event)
+	{
+		//notify users of the event
+		streetsEvents.add(event);
+
+		//start a timer and clear the notification in 30 seconds
+		Timer clearKnownEvents = new Timer();
+		TimerTask clearEvents = new TimerTask()
+		{
+			@Override
+			public void run() { streetsEvents.remove(event); }
+		};
+		clearKnownEvents.schedule(clearEvents, new Date(new Date().getTime() + 30000));
+
 	}
 
 }

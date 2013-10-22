@@ -1,4 +1,4 @@
-package net.blaklizt.streets.engine.navigation.location;
+package net.blaklizt.streets.engine.engine;
 
 import net.blaklizt.streets.common.utilities.CommonUtilities;
 import net.blaklizt.streets.engine.Streets;
