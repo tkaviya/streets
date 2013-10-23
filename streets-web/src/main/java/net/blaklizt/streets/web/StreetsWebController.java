@@ -2,11 +2,9 @@ package net.blaklizt.streets.web;
 
 import net.blaklizt.streets.common.configuration.Configuration;
 import net.blaklizt.streets.common.utilities.Format;
-import net.blaklizt.streets.engine.Streets;
 import net.blaklizt.streets.engine.menu.Menu;
 import net.blaklizt.streets.engine.session.UserSession;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -28,9 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class StreetsWebController
 {
-    @Autowired
-    private Streets streets;
-
 	private static final Logger log4j = Configuration.getNewLogger(StreetsWebController.class.getSimpleName());
 
     @RequestMapping(value="/process", method = { RequestMethod.GET , RequestMethod.POST } )

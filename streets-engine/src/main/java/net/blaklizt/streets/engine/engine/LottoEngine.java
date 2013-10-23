@@ -41,7 +41,7 @@ public class LottoEngine extends MenuItem {
 	private static final Double LOTTO_TICKET_COST =
 			Double.valueOf(Configuration.getInstance().getProperty("lottoTicketCost"));
 
-	private static final Logger log4j = Configuration.getNewLogger(EventEngine.class.getSimpleName());
+	private static final Logger log4j = Configuration.getNewLogger(LottoEngine.class.getSimpleName());
 
 	private LottoEngine()
 	{
@@ -62,19 +62,15 @@ public class LottoEngine extends MenuItem {
 		final Double currentBalance = userAttribute.getBankBalance();
 		String currentFunds = CommonUtilities.formatDoubleToMoney(currentBalance, true);
 
-		Double currentStakes = getCurrentStakes();
-
-		//Store locationStore = storeDao.findByLocationID(userAttribute.getLocationID());
-		//List<StoreItem> storeItems = storeItemDao.findByStoreID(locationStore.getStoreID());
 		Menu returnMenu = Menu.createMenu(streets, userSession);
 		final Integer numEntries = lottoEntrants.get(currentUser.getUserId());
+		String winnings = CommonUtilities.formatDoubleToMoney(getCurrentStakes(true), true);
 
-		returnMenu.setDescription("Your bank bank balance is " + currentFunds + ". "
-			+ " This is the place where your dreams can come true! LOTTO! One day is one day!"
-			+ " Buy a lotto ticket and stand a chance to win up to "
-			+ CommonUtilities.formatDoubleToMoney((0.75 * currentStakes + LOTTO_TICKET_COST), true)
-			+ " or more! You currently have " + (numEntries == null ? "0" : numEntries) + " tickets. "
-			+ "\r\n\r\nThe more tickets you buy, the higher your chances of winning. Bandz Make Her Dance!");
+		returnMenu.setDescription("Your bank bank balance is " + currentFunds + ". \r\n"
+			+ " This is the place where your dreams can come true!\r\nLOTTO! One day is one day!\r\n"
+			+ " Buy a ticket & stand a chance to win " + winnings
+			+ " or more!\r\nYou currently have " + (numEntries == null ? "0" : numEntries) + " tickets. "
+			+ "\r\n\r\nThe more tickets you buy, the higher your chances of winning.\r\nBandz Make Her Dance!");
 
 		String cost = CommonUtilities.formatDoubleToMoney(LOTTO_TICKET_COST, true);
 
@@ -125,7 +121,7 @@ public class LottoEngine extends MenuItem {
 
 	public void runLotto()
 	{
-		Double currentStakes = getCurrentStakes();
+		Double currentStakes = getCurrentStakes(false);
 		Vector<Long> userList = new Vector<>();
 
 		//enter all the users into the draw
@@ -145,11 +141,14 @@ public class LottoEngine extends MenuItem {
 			log4j.info(description);
 			userAttributeDao.findById(winnerUserID).setBankBalance(
 					userAttributeDao.findById(winnerUserID).getBankBalance() + currentStakes);
+
+			lottoEntrants.clear();
+
 			EventEngine.addStreetsEvent(new Event("Lotto Results", description));
 		}
 	}
 
-	private Double getCurrentStakes()
+	private Double getCurrentStakes(boolean addAdditionalTicket)
 	{
 		Double currentStakes = 0.0;
 
@@ -157,6 +156,12 @@ public class LottoEngine extends MenuItem {
 		{
 			currentStakes += lottoEntrants.get(userID) * LOTTO_TICKET_COST;
 		}
+
+		/* check if we are calculating potential earning or actual earnings */
+		if (addAdditionalTicket) currentStakes += LOTTO_TICKET_COST;
+
+		/* winner always only takes a percentage of the pot! :P Hey, the house must win, it's the law! */
+		currentStakes *= 0.75;
 
 		/* minimum lotto payout is 10,000 */
 		if (currentStakes < 10000) currentStakes = 10000.00;

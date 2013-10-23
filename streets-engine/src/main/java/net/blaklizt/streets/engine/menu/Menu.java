@@ -1,6 +1,7 @@
 package net.blaklizt.streets.engine.menu;
 
 import net.blaklizt.streets.common.utilities.CommonUtilities;
+import net.blaklizt.streets.engine.EventEngine;
 import net.blaklizt.streets.engine.Streets;
 import net.blaklizt.streets.engine.event.BusinessProblemEvent;
 import net.blaklizt.streets.engine.event.Event;
@@ -38,10 +39,13 @@ public abstract class Menu
 	{
 		String result = (errorMessage == null || errorMessage.matches("")) ? "" : errorMessage + "\r\n\r\n";
 
-		for (Event streetsEvent : streets.getEventEngine().getStreetsEvents())
+		try
 		{
-			result += setStreetsEventFormat(streetsEvent.getDescription()) + "\r\n\r\n";
-		}
+			for (Event streetsEvent : EventEngine.getStreetsEvents())
+			{
+				result += setStreetsEventFormat(streetsEvent.getDescription()) + "\r\n\r\n";
+			}
+		} catch (Exception ex) { /* Event engine still initializing */ }
 
 		for (BusinessProblemEvent businessProblemEvent : userSession.getBusinessProblemEvents())
 		{

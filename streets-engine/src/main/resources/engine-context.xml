@@ -19,8 +19,6 @@
 
     <bean id="streets" name="streets" class="net.blaklizt.streets.engine.Streets" />
 
-    <bean id="eventEngine" name="eventEngine" class="net.blaklizt.streets.engine.EventEngine" />
-
     <bean id="bankEngine" name="bankEngine" class="net.blaklizt.streets.engine.engine.BankEngine">
         <property name="streets" ref="streets" />
     </bean>
@@ -33,7 +31,18 @@
         <property name="streets" ref="streets" />
     </bean>
 
+    <bean id="businessEngine" name="businessEngine" class="net.blaklizt.streets.engine.engine.BusinessEngine" />
+
     <bean id="lottoEngine" name="lottoEngine" class="net.blaklizt.streets.engine.engine.LottoEngine">
         <property name="streets" ref="streets" />
     </bean>
+
+    <bean id="eventEngine" name="eventEngine" class="net.blaklizt.streets.engine.EventEngine">
+        <property name="businessEngine" ref="businessEngine" />
+        <property name="lottoEngine" ref="lottoEngine" />
+    </bean>
+
+
+
+
 </beans>

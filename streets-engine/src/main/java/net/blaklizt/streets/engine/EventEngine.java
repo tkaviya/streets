@@ -1,17 +1,8 @@
 package net.blaklizt.streets.engine;
 
-import net.blaklizt.streets.common.configuration.Configuration;
-import net.blaklizt.streets.common.utilities.CommonUtilities;
-import net.blaklizt.streets.engine.event.BusinessEvent;
-import net.blaklizt.streets.engine.event.BusinessProblemEvent;
+import net.blaklizt.streets.engine.engine.BusinessEngine;
+import net.blaklizt.streets.engine.engine.LottoEngine;
 import net.blaklizt.streets.engine.event.Event;
-import net.blaklizt.streets.engine.session.UserSession;
-import net.blaklizt.streets.persistence.*;
-import net.blaklizt.streets.persistence.dao.BusinessProblemDao;
-import net.blaklizt.streets.persistence.dao.LocationDao;
-import net.blaklizt.streets.persistence.dao.UserAttributeDao;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
@@ -25,184 +16,38 @@ import java.util.*;
 //@Singleton
 public class EventEngine {
 
-	@Autowired
-	private LocationDao locationDao;
+	private static BusinessEngine businessEngine;
 
-	@Autowired
-	private UserAttributeDao userAttributeDao;
-
-	@Autowired
-	private BusinessProblemDao businessProblemDao;
-
-	private static final Double REDUCED_RISK_FACTOR =
-			Double.parseDouble(Configuration.getInstance().getProperty("reducedRiskFactor"));
-	private static final Double EVENT_THRESHOLD =
-			Double.parseDouble(Configuration.getInstance().getProperty("eventThreshold"));
-
-	private static final Logger log4j = Configuration.getNewLogger(EventEngine.class.getSimpleName());
-
-	private static HashMap<Long,List<BusinessProblemEvent>> userBusinessProblems = new HashMap<>();
+	private static LottoEngine lottoEngine;
 
 	private static List<Event> streetsEvents = new LinkedList<>();
 
-	private static List<Location> locations = null;
-
-	public void populateUserBusinessProblems()
+	private EventEngine()
 	{
-		List<Location> locations = locationDao.findAll();
+		Timer theStreets = new Timer();
 
+		TimerTask populateBusinessProblems = new TimerTask() {
+			@Override public void run() { businessEngine.populateUserBusinessProblems(); }
+		};
 
-		log4j.info("Populating known problems for all locations");
+		TimerTask runLotto = new TimerTask() {
+			@Override public void run() { lottoEngine.runLotto(); }
+		};
 
-		for (Location location : locations)
-		{
-			if (location.getCurrentBusinessType() != null && location.getBusinessProblemID() != null
-				&& (location.getControllingGang() != null && !location.getControllingGang().getAiControlled()))
-			{
-				Long userID = location.getControllingGang().getGangLeaderID();
+		TimerTask runBusinessProblems = new TimerTask() {
+			@Override public void run() { businessEngine.runBusinessProblems(); }
+		};
 
-				if (userBusinessProblems.get(userID) == null)
-				{
-					userBusinessProblems.put(userID, new LinkedList<BusinessProblemEvent>());
-				}
+		TimerTask runBusinessRewards = new TimerTask() {
+			@Override public void run() { businessEngine.runBusinessRewards(); }
+		};
 
-				BusinessProblem businessProblem = businessProblemDao.findById(location.getBusinessProblemID());
+		final Date now = new Date();
 
-				userBusinessProblems.get(userID).add(new BusinessProblemEvent(
-					businessProblem.getProblemMenuName(),
-					businessProblem.getProblemDescription(),
-					businessProblem, location));
-			}
-		}
-	}
-
-	public void runBusinessRewards()
-	{
-		if (locations == null) locations = locationDao.findAll();
-
-		log4j.info("Processing Business Rewards for " + locations.size() + " locations");
-
-		for (Location location : locations)
-		{
-			final Gang controllingGang = location.getControllingGang();
-
-			if (location.getCurrentBusinessType() != null && location.getBusinessProblemID() == null
-			&& (controllingGang != null && !controllingGang.getAiControlled()))
-			{
-				controllingGang.setCurrentBalance(
-					controllingGang.getCurrentBalance() +
-					location.getCurrentBusiness().getPayout());
-
-				List<UserAttribute> gangMembers = userAttributeDao.findByGangName(controllingGang.getGangName());
-
-				log4j.info("Processing payout for " + location.getLocationName() +
-						" to " + gangMembers.size() + " members of " + controllingGang.getGangName());
-
-				final Double payout = controllingGang.getPayout();
-
-				if (gangMembers != null && controllingGang.getCurrentBalance().compareTo(gangMembers.size() * payout) >= 0)
-				{
-					for (UserAttribute userAttribute : gangMembers)
-					{
-						controllingGang.setCurrentBalance(controllingGang.getCurrentBalance() - payout);
-						userAttribute.setBankBalance(userAttribute.getBankBalance() + payout);
-						log4j.info("New gang balance: " + controllingGang.getCurrentBalance());
-						log4j.info("New user balance: " + userAttribute.getBankBalance());
-					}
-				}
-			}
-		}
-
-	}
-
-//	@Schedule(hour="*/6", minute="0", second="0", persistent=false)
-	public void runBusinessProblems()
-	{
-		if (locations == null) locations = locationDao.findAll();
-
-		log4j.info("Processing Business Problems for " + locations.size() + " locations and " +
-			Streets.getLoggedInUsers().size() + " users");
-
-		if (Streets.getLoggedInUsers().size() < 1) return;
-
-		for (Location location : locations)
-		{
-			if (location.getCurrentBusinessType() != null && location.getBusinessProblemID() == null
-				&& (location.getControllingGang() != null && !location.getControllingGang().getAiControlled()))
-			{
-				double problemProbably;
-
-				if (!location.getCurrentBusinessType().equals(location.getBestBusinessType()))
-				{
-					log4j.info("Current business " + location.getCurrentBusinessType() +
-							" is NOT the best in this location.");
-					problemProbably = location.getCurrentBusiness().getRiskFactor();
-				}
-				else
-				{
-					log4j.info("Current business " + location.getCurrentBusinessType() +
-							" is the best in this location.");
-					problemProbably = location.getCurrentBusiness().getRiskFactor() * REDUCED_RISK_FACTOR;
-				}
-
-				for (UserSession userSession : Streets.getLoggedInUsers())
-				{
-					User currentUser = userSession.getUser();
-					Long userID = currentUser.getUserId();
-					if (currentUser.getUserAttribute().getGangName().equals(location.getControllingGangName())
-						&& location.getControllingGang().getGangLeaderID().equals(userSession.getUser().getUserId())
-						&& location.getBusinessProblemID() == null)
-					{
-						double currentProbability = Math.random() * problemProbably;
-						log4j.info("currentProbability = " + currentProbability);
-
-						if (currentProbability > EVENT_THRESHOLD)
-						{
-							//shit!
-							List<BusinessProblem> possibleProblems =
-									businessProblemDao.findByBusinessType(location.getCurrentBusinessType());
-							if (possibleProblems != null)
-							{
-								log4j.info("Possible problems: " + possibleProblems.size());
-								double randomSelect = Math.random() * (possibleProblems.size() - 1);
-
-								log4j.info("randomSelect: " + randomSelect);
-
-								int randomProblem = CommonUtilities.round(randomSelect);
-
-								log4j.info("Getting possibleProblems at index " + randomProblem);
-								log4j.info(possibleProblems.get(randomProblem).getProblemDescription());
-
-								System.out.println("locate businessProblemID = " + location.getBusinessProblemID());
-
-								location.setBusinessProblemID(possibleProblems.get(randomProblem).getBusinessProblemID());
-
-								System.out.println("locate businessProblemID = " + location.getBusinessProblemID());
-
-								if (userBusinessProblems.get(userID) == null)
-								{
-									userBusinessProblems.put(userID, new LinkedList<BusinessProblemEvent>());
-								}
-								userBusinessProblems.get(userID).add(new BusinessProblemEvent(
-										possibleProblems.get(randomProblem).getProblemMenuName(),
-										possibleProblems.get(randomProblem).getProblemDescription(),
-										possibleProblems.get(randomProblem), location));
-								userSession.setBusinessProblemEvents(userBusinessProblems.get(userID));
-							}
-							else
-							{
-								log4j.warn(location.getBestBusinessType() + " has no associated problems!");
-							}
-						}
-						addStreetsEvent(new BusinessEvent("Payout Received",
-							"Payouts from businesses have been processed. Check your bank account for your latest balance. " +
-							"If you didn't get a payout, make sure your gang has enough " +
-							"funds to pay out to all its members," +
-							" and that there are currently no problems with your businesses."));
-					}
-				}
-			}
-		}
+		theStreets.schedule(populateBusinessProblems, new Date(now.getTime() + 20000));
+		theStreets.scheduleAtFixedRate(runBusinessProblems, new Date(now.getTime() + 42000), 30000);
+		theStreets.scheduleAtFixedRate(runBusinessRewards, new Date(now.getTime() + 30000), 45000);
+		theStreets.scheduleAtFixedRate(runLotto, new Date(now.getTime() + 60000), 30000);
 	}
 
 	public static List<Event> getStreetsEvents()
@@ -226,4 +71,11 @@ public class EventEngine {
 
 	}
 
+	public void setBusinessEngine(BusinessEngine businessEngine) {
+		this.businessEngine = businessEngine;
+	}
+
+	public void setLottoEngine(LottoEngine lottoEngine) {
+		this.lottoEngine = lottoEngine;
+	}
 }
