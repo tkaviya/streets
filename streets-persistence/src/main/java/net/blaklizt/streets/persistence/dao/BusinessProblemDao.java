@@ -21,9 +21,4 @@ public class BusinessProblemDao extends AbstractDao<BusinessProblem, Long>
 	{
 		return findByCriteria(Restrictions.like("businessType", businessType, MatchMode.EXACT));
 	}
-
-//	@Override
-//	protected String getEntityClassName() {
-//		return BusinessProblem.class.getSimpleName();
-//	}
 }

@@ -1,9 +1,6 @@
 package net.blaklizt.streets.persistence.dao;
 
-import org.hibernate.Criteria;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import org.hibernate.*;
 import org.hibernate.criterion.Criterion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,17 +41,20 @@ public abstract class AbstractDao<E, I extends Serializable> {
 
 	public List findAll()
 	{
-		Query queryResult = getCurrentSession().createQuery(
-			"from " + className);
+		Query queryResult = getCurrentSession().createQuery("from " + className);
 		return queryResult.list();
 	}
 
+	@Transactional
 	public void saveOrUpdate(E e) {
 		getCurrentSession().saveOrUpdate(e);
+		getCurrentSession().flush();
 	}
 
+	@Transactional
 	public void delete(E e) {
 		getCurrentSession().delete(e);
+		getCurrentSession().flush();
 	}
 
 	public List findByCriteria(Criterion criterion) {

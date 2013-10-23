@@ -6,6 +6,8 @@ import net.blaklizt.streets.engine.menu.Menu;
 import net.blaklizt.streets.engine.menu.MenuItem;
 import net.blaklizt.streets.engine.session.UserSession;
 import net.blaklizt.streets.persistence.UserAttribute;
+import net.blaklizt.streets.persistence.dao.UserAttributeDao;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,7 +17,10 @@ import net.blaklizt.streets.persistence.UserAttribute;
  */
 public class HospitalEngine extends MenuItem {
 
-    private static Streets streets;
+	@Autowired
+	private UserAttributeDao userAttributeDao;
+
+	private static Streets streets;
 
     private static int HEALTH_COST = Integer.parseInt(CommonUtilities.getConfiguration("healthCost"));
 	private static int MAX_HEALTH = 100;
@@ -68,6 +73,7 @@ public class HospitalEngine extends MenuItem {
 						{
 							userAttribute.setBankBalance(currentBalance - treatmentCost);
 							userAttribute.setHealthPoints(MAX_HEALTH);
+							userAttributeDao.saveOrUpdate(userAttribute);
 							return MenuItem.createFinalMenu(streets, "You have been treated for " + treatmentCost +
 								".\r\n" + "Current Health: " + MAX_HEALTH + "%.\r\n" +
 								"Current Funds: " + CommonUtilities.formatDoubleToMoney(

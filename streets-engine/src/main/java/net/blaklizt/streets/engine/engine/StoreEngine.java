@@ -8,6 +8,7 @@ import net.blaklizt.streets.engine.session.UserSession;
 import net.blaklizt.streets.persistence.*;
 import net.blaklizt.streets.persistence.dao.StoreDao;
 import net.blaklizt.streets.persistence.dao.StoreItemDao;
+import net.blaklizt.streets.persistence.dao.UserAttributeDao;
 import net.blaklizt.streets.persistence.dao.UserItemDao;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -26,6 +27,9 @@ public class StoreEngine extends MenuItem {
 
 	@Autowired
 	private StoreItemDao storeItemDao;
+
+	@Autowired
+	private UserAttributeDao userAttributeDao;
 
 	@Autowired
 	private UserItemDao userItemDao;
@@ -82,6 +86,7 @@ public class StoreEngine extends MenuItem {
 						else
 						{
 							userAttribute.setBankBalance(currentBalance - storeItem.getCost());
+							userAttributeDao.saveOrUpdate(userAttribute);
 							userItemDao.saveOrUpdate(new UserItem(currentUser.getUserId(), storeItem.getItemID()));
 							return MenuItem.createFinalMenu(streets, "You have bought a " + item.getItemName(),
 									streets.getMainMenu(currentSession), currentSession);

@@ -82,6 +82,7 @@ public class LottoEngine extends MenuItem {
 				if (currentBalance.compareTo(LOTTO_TICKET_COST) >= 0)
 				{
 					userAttribute.setBankBalance(currentBalance - LOTTO_TICKET_COST);
+					userAttributeDao.saveOrUpdate(currentUser.getUserAttribute());
 
 					if (lottoEntrants.get(currentUser.getUserId()) != null)
 					{
@@ -129,22 +130,27 @@ public class LottoEngine extends MenuItem {
 			for (int c = 0; c < lottoEntrants.get(userID); c++)
 				userList.add(userID);
 
-		log4j.info("Possible problems: " + userList.size());
-		double randomSelect = Math.random() * (userList.size() - 1);
-		Long winnerUserID = userList.get(CommonUtilities.round(randomSelect));
-
-		if (winnerUserID != null)
+		if (userList.size() > 0)
 		{
+			double randomSelect = Math.random() * (userList.size() - 1);
+			Long winnerUserID = userList.get(CommonUtilities.round(randomSelect));
 			String description = userDao.findById(winnerUserID).getUsername() + " has won the lotto of " +
 				CommonUtilities.formatDoubleToMoney(currentStakes,true) + "! Congradulations!";
 
+			UserAttribute winner = userAttributeDao.findById(winnerUserID);
+			winner.setBankBalance(winner.getBankBalance() + currentStakes);
+			userAttributeDao.saveOrUpdate(winner);
+
 			log4j.info(description);
-			userAttributeDao.findById(winnerUserID).setBankBalance(
-					userAttributeDao.findById(winnerUserID).getBankBalance() + currentStakes);
-
-			lottoEntrants.clear();
-
 			EventEngine.addStreetsEvent(new Event("Lotto Results", description));
+			lottoEntrants.clear();
+		}
+		else
+		{
+			String description = "There are no winners on tonight's lotto.";
+			log4j.info(description);
+			EventEngine.addStreetsEvent(new Event("Lotto Results", description));
+			lottoEntrants.clear();
 		}
 	}
 

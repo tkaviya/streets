@@ -2,17 +2,19 @@ package net.blaklizt.streets.engine.navigation;
 
 import net.blaklizt.streets.common.utilities.CommonUtilities;
 import net.blaklizt.streets.engine.Streets;
+import net.blaklizt.streets.engine.engine.*;
 import net.blaklizt.streets.engine.event.BusinessProblemEvent;
 import net.blaklizt.streets.engine.menu.DefaultMenu;
 import net.blaklizt.streets.engine.menu.HTMLMenu;
 import net.blaklizt.streets.engine.menu.Menu;
 import net.blaklizt.streets.engine.menu.MenuItem;
-import net.blaklizt.streets.engine.engine.BankEngine;
-import net.blaklizt.streets.engine.engine.HospitalEngine;
-import net.blaklizt.streets.engine.engine.LottoEngine;
-import net.blaklizt.streets.engine.engine.StoreEngine;
 import net.blaklizt.streets.engine.session.UserSession;
 import net.blaklizt.streets.persistence.UserAttribute;
+import net.blaklizt.streets.persistence.dao.LocationDao;
+import net.blaklizt.streets.persistence.dao.UserAttributeDao;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,6 +23,12 @@ import net.blaklizt.streets.persistence.UserAttribute;
  * Time: 11:18 PM
  */
 public class MapEngine {
+
+	@Autowired
+	LocationDao locationDao;
+
+	@Autowired
+	UserAttributeDao userAttributeDao;
 
     private static MapEngine mapEngine = null;
 
@@ -54,6 +62,11 @@ public class MapEngine {
 
 		final UserAttribute userAttribute = userSession.getUser().getUserAttribute();
 
+		List<BusinessProblemEvent> businessProblemEventList =
+				BusinessEngine.getUserBusinessProblems().get(userSession.getUser().getUserId());
+
+		if (businessProblemEventList != null) userSession.setBusinessProblemEvents(businessProblemEventList);
+
 		for (final BusinessProblemEvent businessProblem : userSession.getBusinessProblemEvents())
 		{
 			boolean alreadyExists = false;
@@ -85,6 +98,9 @@ public class MapEngine {
 							if (currentBalance.compareTo(cost) >= 0) {
 								userAttribute.setBankBalance(currentBalance - cost);
 								businessProblem.getLocation().setBusinessProblemID(null); //problem solved!
+
+								userAttributeDao.saveOrUpdate(userAttribute);
+								locationDao.saveOrUpdate(businessProblem.getLocation());
 
 								for (BusinessProblemEvent businessProblemEvent : userSession.getBusinessProblemEvents())
 								{

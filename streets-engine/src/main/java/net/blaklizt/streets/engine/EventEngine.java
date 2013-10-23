@@ -22,6 +22,8 @@ public class EventEngine {
 
 	private static List<Event> streetsEvents = new LinkedList<>();
 
+	private static Timer clearKnownEvents = new Timer();
+
 	private EventEngine()
 	{
 		Timer theStreets = new Timer();
@@ -45,9 +47,9 @@ public class EventEngine {
 		final Date now = new Date();
 
 		theStreets.schedule(populateBusinessProblems, new Date(now.getTime() + 20000));
-		theStreets.scheduleAtFixedRate(runBusinessProblems, new Date(now.getTime() + 42000), 30000);
+		theStreets.scheduleAtFixedRate(runBusinessProblems, new Date(now.getTime() + 42000), 120000);
 		theStreets.scheduleAtFixedRate(runBusinessRewards, new Date(now.getTime() + 30000), 45000);
-		theStreets.scheduleAtFixedRate(runLotto, new Date(now.getTime() + 60000), 30000);
+		theStreets.scheduleAtFixedRate(runLotto, new Date(now.getTime() + 60000), 60000);
 	}
 
 	public static List<Event> getStreetsEvents()
@@ -61,14 +63,13 @@ public class EventEngine {
 		streetsEvents.add(event);
 
 		//start a timer and clear the notification in 30 seconds
-		Timer clearKnownEvents = new Timer();
+
 		TimerTask clearEvents = new TimerTask()
 		{
-			@Override
-			public void run() { streetsEvents.remove(event); }
+			@Override public void run() { streetsEvents.remove(event); }
 		};
-		clearKnownEvents.schedule(clearEvents, new Date(new Date().getTime() + 30000));
 
+		clearKnownEvents.schedule(clearEvents, new Date(new Date().getTime() + 30000));
 	}
 
 	public void setBusinessEngine(BusinessEngine businessEngine) {

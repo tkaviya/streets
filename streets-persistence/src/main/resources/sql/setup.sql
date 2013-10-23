@@ -124,7 +124,7 @@ create table BusinessProblem
 );
 
 -- SETUP DATA
-insert into User values (null,'tkaviya','STR_ADMIN','tkaviya','password',1,'salt', null);
+insert into User values (null,'Tich de Blak','STR_ADMIN','tkaviya','password',1,'salt', null);
 insert into UserAttribute values (1,'3-1-2','10000','90', '100');
 
 insert into UserGroup values ('STR_ADMIN');

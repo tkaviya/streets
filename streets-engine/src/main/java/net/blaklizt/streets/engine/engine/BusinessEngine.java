@@ -9,6 +9,7 @@ import net.blaklizt.streets.engine.event.BusinessProblemEvent;
 import net.blaklizt.streets.engine.session.UserSession;
 import net.blaklizt.streets.persistence.*;
 import net.blaklizt.streets.persistence.dao.BusinessProblemDao;
+import net.blaklizt.streets.persistence.dao.GangDao;
 import net.blaklizt.streets.persistence.dao.LocationDao;
 import net.blaklizt.streets.persistence.dao.UserAttributeDao;
 import org.apache.log4j.Logger;
@@ -33,6 +34,9 @@ public class BusinessEngine {
 	private UserAttributeDao userAttributeDao;
 
 	@Autowired
+	private GangDao gangDao;
+
+	@Autowired
 	private BusinessProblemDao businessProblemDao;
 
 	private static final Double REDUCED_RISK_FACTOR =
@@ -40,19 +44,11 @@ public class BusinessEngine {
 	private static final Double EVENT_THRESHOLD =
 			Double.parseDouble(Configuration.getInstance().getProperty("eventThreshold"));
 
-	private static BusinessEngine businessEngine;
-
 	private static List<Location> locations = null;
 
 	private static final Logger log4j = Configuration.getNewLogger(BusinessEngine.class.getSimpleName());
 
 	private static HashMap<Long,List<BusinessProblemEvent>> userBusinessProblems = new HashMap<>();
-
-
-	private BusinessEngine()
-	{
-		businessEngine = this;
-	}
 
 	public void populateUserBusinessProblems()
 	{
@@ -64,7 +60,7 @@ public class BusinessEngine {
 		for (Location location : locations)
 		{
 			if (location.getCurrentBusinessType() != null && location.getBusinessProblemID() != null
-					&& (location.getControllingGang() != null && !location.getControllingGang().getAiControlled()))
+			&& (location.getControllingGang() != null && !location.getControllingGang().getAiControlled()))
 			{
 				Long userID = location.getControllingGang().getGangLeaderID();
 
@@ -75,6 +71,7 @@ public class BusinessEngine {
 
 				BusinessProblem businessProblem = businessProblemDao.findById(location.getBusinessProblemID());
 
+				log4j.info("Problem for: " + location.getLocationName() + ":" + businessProblem.getProblemDescription());
 				userBusinessProblems.get(userID).add(new BusinessProblemEvent(
 						businessProblem.getProblemMenuName(),
 						businessProblem.getProblemDescription(),
@@ -96,9 +93,8 @@ public class BusinessEngine {
 			if (location.getCurrentBusinessType() != null && location.getBusinessProblemID() == null
 					&& (controllingGang != null && !controllingGang.getAiControlled()))
 			{
-				controllingGang.setCurrentBalance(
-						controllingGang.getCurrentBalance() +
-								location.getCurrentBusiness().getPayout());
+				controllingGang.setCurrentBalance(controllingGang.getCurrentBalance() +
+						location.getCurrentBusiness().getPayout());
 
 				List<UserAttribute> gangMembers = userAttributeDao.findByGangName(controllingGang.getGangName());
 
@@ -113,10 +109,10 @@ public class BusinessEngine {
 					{
 						controllingGang.setCurrentBalance(controllingGang.getCurrentBalance() - payout);
 						userAttribute.setBankBalance(userAttribute.getBankBalance() + payout);
-						log4j.info("New gang balance: " + controllingGang.getCurrentBalance());
-						log4j.info("New user balance: " + userAttribute.getBankBalance());
+						userAttributeDao.saveOrUpdate(userAttribute);
 					}
 				}
+				gangDao.saveOrUpdate(controllingGang);
 			}
 		}
 
@@ -161,7 +157,6 @@ public class BusinessEngine {
 							&& location.getBusinessProblemID() == null)
 					{
 						double currentProbability = Math.random() * problemProbably;
-						log4j.info("currentProbability = " + currentProbability);
 
 						if (currentProbability > EVENT_THRESHOLD)
 						{
@@ -170,21 +165,13 @@ public class BusinessEngine {
 									businessProblemDao.findByBusinessType(location.getCurrentBusinessType());
 							if (possibleProblems != null)
 							{
-								log4j.info("Possible problems: " + possibleProblems.size());
 								double randomSelect = Math.random() * (possibleProblems.size() - 1);
-
-								log4j.info("randomSelect: " + randomSelect);
-
 								int randomProblem = CommonUtilities.round(randomSelect);
 
-								log4j.info("Getting possibleProblems at index " + randomProblem);
 								log4j.info(possibleProblems.get(randomProblem).getProblemDescription());
 
-								System.out.println("locate businessProblemID = " + location.getBusinessProblemID());
-
 								location.setBusinessProblemID(possibleProblems.get(randomProblem).getBusinessProblemID());
-
-								System.out.println("locate businessProblemID = " + location.getBusinessProblemID());
+								locationDao.saveOrUpdate(location);
 
 								if (userBusinessProblems.get(userID) == null)
 								{
@@ -211,4 +198,9 @@ public class BusinessEngine {
 			}
 		}
 	}
+
+	public static HashMap<Long, List<BusinessProblemEvent>> getUserBusinessProblems() {
+		return userBusinessProblems;
+	}
+
 }

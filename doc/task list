@@ -3,7 +3,7 @@ registration
 employees
 salaries
 training
-lotto
+*lotto
 cash in transit
 locations travel
 casino
@@ -17,6 +17,9 @@ graphical user interface
 persisting data
 stocks
 shortcuts
-"horse racing"
-stocks
+horse racing
 31314 integration to get money into the game
+
+
+bugs:
+when receiving business payouts, bank balance is taken from the db, updating in db, but ram objects are not updated.

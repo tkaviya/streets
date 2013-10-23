@@ -5,8 +5,9 @@
 <table width="400px" style="vertical-align: top; font-weight: bold; padding: 10px; font-family: DEJAVU SANS MONO,monospace; ">
     <tr>
         <td style="text-align: left">
-            <audio loop="loop" controls>
-                <source src="${pageContext.request.contextPath}/resources/streets_theme.mp3" type="audio/mpeg; codecs='mp3'" onended="">
+            <audio controls loop>
+                <source src="${pageContext.request.contextPath}/resources/streets_theme.mp3" type="audio/mpeg; codecs='mp3'">
+                <source src="${pageContext.request.contextPath}/resources/streets_theme.ogg" type="audio/ogg; codecs='theora, vorbis'">
                 <embed height="50px" width="100%" src="${pageContext.request.contextPath}/resources/streets_theme.mp3">
                 <noembed>
                     <bgsound src="${pageContext.request.contextPath}/resources/streets_theme.mp3" type="audio/mpeg" autostart="true">
