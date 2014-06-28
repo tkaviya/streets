@@ -1,0 +1,27 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <import resource="classpath*:persistence-context.xml" />
+
+    <context:component-scan base-package="net.blaklizt.streets.persistence"/>
+    <context:annotation-config />
+
+    <bean id="streets" name="streets" class="net.blaklizt.streets.core.Streets" factory-method="getInstance"/>
+    <bean id="coreDaoManager" name="coreDaoManager" class="net.blaklizt.streets.core.CoreDaoManager" factory-method="getInstance"/>
+    <bean id="bankEngine" name="bankEngine" class="net.blaklizt.streets.core.engine.BankEngine" />
+    <bean id="hospitalEngine" name="hospitalEngine" class="net.blaklizt.streets.core.engine.HospitalEngine"/>
+    <bean id="storeEngine" name="storeEngine" class="net.blaklizt.streets.core.engine.StoreEngine" />
+    <bean id="mapEngine" name="mapEngine" class="net.blaklizt.streets.core.navigation.MapEngine" />
+    <bean id="businessEngine" name="businessEngine" class="net.blaklizt.streets.core.engine.BusinessEngine" />
+    <bean id="businessProblemEngine" name="businessProblemEngine" class="net.blaklizt.streets.core.engine.BusinessProblemEngine" />
+    <bean id="lottoEngine" name="lottoEngine" class="net.blaklizt.streets.core.engine.LottoEngine" />
+    <bean id="logEngine" name="logEngine" class="net.blaklizt.streets.core.engine.LogEngine" />
+
+    <bean id="eventEngine" name="eventEngine" class="net.blaklizt.streets.core.EventEngine"/>
+
+</beans>

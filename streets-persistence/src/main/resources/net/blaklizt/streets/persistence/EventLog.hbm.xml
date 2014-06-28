@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="net.blaklizt.streets.persistence.EventLog" table="eventlog" schema="" catalog="streets">
+        <id name="eventLogId" column="EventLogID" type="long">
+            <generator class="identity"/>
+        </id>
+        <property name="eventDate" column="EventDate"/>
+        <property name="userID" column="UserID"/>
+        <property name="description" column="Description"/>
+    </class>
+</hibernate-mapping>
