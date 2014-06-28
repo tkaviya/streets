@@ -16,7 +16,7 @@ import java.util.ResourceBundle;
 @Service
 public class Configuration
 {
-    /* configuration engine settings */
+    /* configuration core settings */
     protected static final Logger log4j = Logger.getLogger(Configuration.class);
     protected static Configuration configuration = null;
 
@@ -34,7 +34,7 @@ public class Configuration
 		return Logger.getLogger(loggerName);
 	}
 
-	public String getProperty(String property)
+	public static String getProperty(String property)
 	{
 		return ResourceBundle.getBundle("properties/streets_configuration", Locale.ENGLISH).getString(property);
 	}

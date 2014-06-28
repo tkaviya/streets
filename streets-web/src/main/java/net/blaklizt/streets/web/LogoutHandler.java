@@ -1,8 +1,8 @@
 package net.blaklizt.streets.web;
 
 import net.blaklizt.streets.common.configuration.Configuration;
-import net.blaklizt.streets.engine.Streets;
-import net.blaklizt.streets.engine.session.UserSession;
+import net.blaklizt.streets.core.Streets;
+import net.blaklizt.streets.core.session.UserSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 

@@ -1,7 +1,5 @@
 package net.blaklizt.streets.persistence;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import javax.persistence.*;
 
 /**
@@ -71,7 +69,6 @@ public class UserAttribute {
 		return bankBalance;
 	}
 
-	@Transactional
 	public void setBankBalance(Double bankBalance) {
 		this.bankBalance = bankBalance;
 	}
@@ -82,7 +79,6 @@ public class UserAttribute {
 		return healthPoints;
 	}
 
-	@Transactional
 	public void setHealthPoints(Integer healthPoints) {
 		this.healthPoints = healthPoints;
 	}

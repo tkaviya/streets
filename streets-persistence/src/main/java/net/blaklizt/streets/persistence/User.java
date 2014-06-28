@@ -2,6 +2,7 @@ package net.blaklizt.streets.persistence;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "User")
@@ -9,6 +10,7 @@ public class User implements Serializable
 {
 	public enum UserStatus
 	{
+		INACTIVE(0),
 		ACTIVE(1),
 		SUSPENDED(2),
 		BLOCKED(3),
@@ -42,20 +44,24 @@ public class User implements Serializable
 	private String userGroupID;
 	private String username;
 	private String password;
+	private String email;
 	private UserStatus status;
 	private String salt;
+	private Date lastLoginDate;
 
-	@OneToOne
 	@JoinTable(name="UserAttribute",
 			joinColumns = {@JoinColumn(name="UserID", referencedColumnName="UserID")},
 	 inverseJoinColumns = {@JoinColumn(name="UserID", referencedColumnName="UserID")})
 	private UserAttribute userAttribute;
 
-	Long getUserID() {
+	@Column(name = "UserID")
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	public Long getUserID() {
 		return userID;
 	}
 
-	void setUserID(Long userID) {
+	public void setUserID(Long userID) {
 		this.userID = userID;
 	}
 
@@ -89,6 +95,16 @@ public class User implements Serializable
 		this.password = password;
 	}
 
+	@Column(name = "Email")
+	@Basic
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
 	@Column(name = "Status")
 	@Basic
 	public int getStatus() {
@@ -109,16 +125,6 @@ public class User implements Serializable
 		this.salt = salt;
 	}
 
-	@Column(name = "UserID")
-	@Id
-	public Long getUserId() {
-		return userID;
-	}
-
-	public void setUserId(Long userID) {
-		this.userID = userID;
-	}
-
 	@Column(name = "UserGroupID")
 	@Basic
 	public String getUserGroupID() {
@@ -127,6 +133,16 @@ public class User implements Serializable
 
 	public void setUserGroupID(String userGroupID) {
 		this.userGroupID = userGroupID;
+	}
+
+	@Column(name = "LastLoginDate")
+	@Basic
+	public Date getLastLoginDate() {
+		return lastLoginDate;
+	}
+
+	public void setLastLoginDate(Date lastLoginDate) {
+		this.lastLoginDate = lastLoginDate;
 	}
 
 	public UserAttribute getUserAttribute() {
@@ -147,9 +163,12 @@ public class User implements Serializable
 		if (userID != user.userID) return false;
 		if (name != null ? !name.equals(user.name) : user.name != null) return false;
 		if (password != null ? !password.equals(user.password) : user.password != null) return false;
+		if (email != null ? !email.equals(user.email) : user.email != null) return false;
 		if (salt != null ? !salt.equals(user.salt) : user.salt != null) return false;
 		if (userGroupID != null ? !userGroupID.equals(user.userGroupID) : user.userGroupID != null) return false;
 		if (username != null ? !username.equals(user.username) : user.username != null) return false;
+		if (status != null ? !status.equals(user.status) : user.status != null) return false;
+		if (lastLoginDate != null ? !lastLoginDate.equals(user.lastLoginDate) : user.lastLoginDate != null) return false;
 
 		return true;
 	}
@@ -161,7 +180,10 @@ public class User implements Serializable
 		result = 31 * result + (userGroupID != null ? userGroupID.hashCode() : 0);
 		result = 31 * result + (username != null ? username.hashCode() : 0);
 		result = 31 * result + (password != null ? password.hashCode() : 0);
+		result = 31 * result + (email != null ? email.hashCode() : 0);
 		result = 31 * result + (salt != null ? salt.hashCode() : 0);
+		result = 31 * result + (status != null ? status.hashCode() : 0);
+		result = 31 * result + (lastLoginDate != null ? lastLoginDate.hashCode() : 0);
 		return result.intValue();
 	}
 }

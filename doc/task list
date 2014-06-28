@@ -1,7 +1,7 @@
-password encryption
-registration
+->password encryption
+->registration
 employees
-salaries
+*salaries
 training
 *lotto
 cash in transit
@@ -11,13 +11,36 @@ hacking
 business attack
 gang donation
 statistics
-logs
+*logs
 adverts
-graphical user interface
-persisting data
+>graphical user interface
+*persisting data
 stocks
-shortcuts
+*shortcuts
 horse racing
+car racing
+simulator (strength, health, cash)
+caged fighting
+casino (slots | high card)
+drug market (buy+sell drugs from different locations)
+knockout ring (challenge random players to bouts)
+the underground (hire hackers, hack bank accounts)
+health (affected by caged fighting, knockout ring, simulator)
+gym
+polls
+energy shop
+drive buy shootings (bets)
+hall of fame (money, level, win/loss/gang)
+hall of shame
+idleRPG
+mud wrestling
+the hunt
+factory bombers
+crack the safe, 9 chances to guess [ x x x x x ]
+derby race
+the hunted (if not hunted, you keep the cash)
+stock markets
+
 31314 integration to get money into the game
 
 

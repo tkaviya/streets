@@ -21,6 +21,6 @@ public class UserAttributeDao extends AbstractDao<UserAttribute, Long>
 
 	public List<UserAttribute> findByGangName(String gangName)
 	{
-		return findByCriteria(Restrictions.like("gangName", gangName, MatchMode.EXACT));
+		return findByCriterion(Restrictions.like("gangName", gangName, MatchMode.EXACT));
 	}
 }

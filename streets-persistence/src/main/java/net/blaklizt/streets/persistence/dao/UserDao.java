@@ -21,7 +21,14 @@ public class UserDao extends AbstractDao<User, Long>
 
 	public User findByUsername(String username)
 	{
-		List result = findByCriteria(Restrictions.like("username", username, MatchMode.EXACT));
+		List result = findByCriterion(Restrictions.like("username", username, MatchMode.EXACT));
+		if (result == null || result.size() != 1) return null;
+		return (User)result.get(0);
+	}
+
+	public User findByEmail(String email)
+	{
+		List result = findByCriterion(Restrictions.like("email", email, MatchMode.EXACT));
 		if (result == null || result.size() != 1) return null;
 		return (User)result.get(0);
 	}

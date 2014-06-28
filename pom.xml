@@ -168,11 +168,16 @@
                 <version>6.0-SNAPSHOT</version>
             </dependency>
 
-            <!-- Google API Libraries -->
             <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>2.2.3</version>
+                <groupId>net.blaklizt.symbiosis</groupId>
+                <artifactId>sym_common</artifactId>
+                <version>2.0.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.blaklizt.symbiosis</groupId>
+                <artifactId>sym_authentication</artifactId>
+                <version>2.0.0</version>
             </dependency>
 
         </dependencies>
@@ -181,8 +186,9 @@
     <modules>
         <module>streets-persistence</module>
         <module>streets-common</module>
-        <module>streets-engine</module>
+        <module>streets-core</module>
         <module>streets-web</module>
+        <module>streets-android</module>
     </modules>
 
 </project>

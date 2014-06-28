@@ -1,6 +1,9 @@
 package net.blaklizt.streets.persistence.dao;
 
-import org.hibernate.*;
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,36 +33,53 @@ public abstract class AbstractDao<E, I extends Serializable> {
 		this.className = entityClass.getSimpleName();
 	}
 
-	public Session getCurrentSession() {
-		return sessionFactory.getCurrentSession();
+	private Session getCurrentSession() {
+		try { return sessionFactory.getCurrentSession(); } catch (Exception e) { e.printStackTrace(); return null; }
+	}
+
+	@Transactional
+	public void refresh(E e)
+	{
+		getCurrentSession().refresh(e);
 	}
 
 	public E findById(I id)
 	{
-		return (E) getCurrentSession().get(entityClass, id);
+		try {
+			return (E) getCurrentSession().get(entityClass, id);
+		} catch (Exception ex) { ex.printStackTrace(); return null; }
 	}
 
 	public List findAll()
 	{
-		Query queryResult = getCurrentSession().createQuery("from " + className);
-		return queryResult.list();
+		try {
+			Query queryResult = getCurrentSession().createQuery("from " + className);
+			return queryResult.list();
+		} catch (Exception ex) { ex.printStackTrace(); return null; }
 	}
 
 	@Transactional
 	public void saveOrUpdate(E e) {
 		getCurrentSession().saveOrUpdate(e);
-		getCurrentSession().flush();
+	}
+
+	@Transactional
+	public void save(E e) {
+		getCurrentSession().save(e);
 	}
 
 	@Transactional
 	public void delete(E e) {
 		getCurrentSession().delete(e);
-		getCurrentSession().flush();
 	}
 
-	public List findByCriteria(Criterion criterion) {
-		Criteria criteria = getCurrentSession().createCriteria(entityClass);
-		criteria.add(criterion);
-		return criteria.list();
+	public List findByCriteria(Criterion... criterion) {
+		try {
+			Criteria criteria = getCurrentSession().createCriteria(entityClass);
+			for (Criterion c : criterion) { criteria.add(c); }
+			return criteria.list();
+		} catch (Exception ex) { ex.printStackTrace(); return null; }
 	}
+
+	public List findByCriterion(Criterion criterion) { return findByCriteria(criterion); }
 }

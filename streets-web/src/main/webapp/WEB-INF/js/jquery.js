@@ -52,7 +52,7 @@ var jQuery = function( selector, context ) {
 	// Keep a UserAgent string for use with jQuery.browser
 	userAgent = navigator.userAgent,
 
-	// For matching the engine and version of the browser
+	// For matching the core and version of the browser
 	browserMatch,
 	
 	// Has the ready events already been bound?
@@ -2635,7 +2635,7 @@ var chunker = /((?:\((?:\([^()]+\)|[^()]+)+\)|\[(?:\[[^[\]]*\]|['"][^'"]*['"]|[^
 	hasDuplicate = false,
 	baseHasDuplicate = true;
 
-// Here we check if the JavaScript engine is using some sort of
+// Here we check if the JavaScript core is using some sort of
 // optimization where it does not always call our comparision
 // function. If that is the case, discard the hasDuplicate value.
 //   Thus far that includes Google Chrome.

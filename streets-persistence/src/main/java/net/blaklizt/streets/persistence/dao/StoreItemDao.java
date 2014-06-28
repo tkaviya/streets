@@ -18,6 +18,6 @@ public class StoreItemDao extends AbstractDao<StoreItem, Long>
 
 	public List findByStoreID(Long storeID)
 	{
-		return findByCriteria(Restrictions.like("storeID", storeID));
+		return findByCriterion(Restrictions.like("storeID", storeID));
 	}
 }

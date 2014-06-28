@@ -2,9 +2,12 @@ package net.blaklizt.streets.web;
 
 import net.blaklizt.streets.common.configuration.Configuration;
 import net.blaklizt.streets.common.utilities.Format;
-import net.blaklizt.streets.engine.menu.Menu;
-import net.blaklizt.streets.engine.session.UserSession;
+import net.blaklizt.streets.core.Streets;
+import net.blaklizt.streets.core.menu.Menu;
+import net.blaklizt.streets.core.module.ModuleInterface;
+import net.blaklizt.streets.core.session.UserSession;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,7 +30,12 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class StreetsWebController
 {
+	@Autowired
+	private Streets streets;
+
 	private static final Logger log4j = Configuration.getNewLogger(StreetsWebController.class.getSimpleName());
+
+	private final HashMap<String, ModuleInterface> moduleShortcuts = streets.getModuleShortcuts();
 
     @RequestMapping(value="/process", method = { RequestMethod.GET , RequestMethod.POST } )
     public @ResponseBody String process(
@@ -40,7 +49,12 @@ public class StreetsWebController
 		if (!br.hasErrors())
         {
 			log4j.debug("Processing response: " + response);
-			if (Menu.isValid(response, userSession.getCurrentMenu()))
+
+			if (moduleShortcuts.get(response) != null)
+			{
+				userSession.setCurrentMenu(moduleShortcuts.get(response).execute(userSession));
+			}
+			else if (Menu.isValid(response, userSession.getCurrentMenu()))
 			{
 	            userSession.setCurrentMenu(
 					userSession.getCurrentMenu().execute(Integer.parseInt(response) - 1, userSession));

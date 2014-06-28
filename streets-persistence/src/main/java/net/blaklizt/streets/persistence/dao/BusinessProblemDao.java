@@ -19,6 +19,6 @@ public class BusinessProblemDao extends AbstractDao<BusinessProblem, Long>
 
 	public List findByBusinessType(String businessType)
 	{
-		return findByCriteria(Restrictions.like("businessType", businessType, MatchMode.EXACT));
+		return findByCriterion(Restrictions.like("businessType", businessType, MatchMode.EXACT));
 	}
 }

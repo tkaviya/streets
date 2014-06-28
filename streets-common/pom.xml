@@ -21,6 +21,11 @@
         <finalName>common</finalName>
     </build>
     <dependencies>
+        <!-- Streets Dependencies -->
+        <dependency>
+            <groupId>net.blaklizt.symbiosis</groupId>
+            <artifactId>sym_common</artifactId>
+        </dependency>
 
         <!-- Spring Framework -->
         <dependency>
@@ -33,11 +38,10 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
-
-        <!-- Google API Libraries -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
+            <version>2.2.3</version>
         </dependency>
 
     </dependencies>

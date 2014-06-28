@@ -1,4 +1,4 @@
-<%@ page import="net.blaklizt.streets.engine.session.UserSession" %>
+<%@ page import="net.blaklizt.streets.core.session.UserSession" %>
 <%--<embed src="resources/streets_theme.mp3" type="audio/mpeg" autostart="true" hidden="false"/>--%>
 <%--<noembed><bgsound src="resources/streets_theme.mp3" type="audio/mpeg" autostart="true" hidden="false" /></noembed>--%>
 

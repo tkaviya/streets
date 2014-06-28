@@ -21,7 +21,7 @@ public class UserGroupRoleDao extends AbstractDao<UserGroupRole, Long>
 
 	public List<UserGroupRole> findByUserGroup(String userGroup)
 	{
-		return findByCriteria(Restrictions.like("userGroupID", userGroup, MatchMode.EXACT));
+		return findByCriterion(Restrictions.like("userGroupID", userGroup, MatchMode.EXACT));
 	}
 
 //	@Override

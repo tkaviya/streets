@@ -1,8 +1,10 @@
 package net.blaklizt.streets.web;
 
 import net.blaklizt.streets.common.configuration.Configuration;
-import net.blaklizt.streets.engine.Streets;
-import net.blaklizt.streets.engine.session.UserSession;
+import net.blaklizt.streets.core.CoreDaoManager;
+import net.blaklizt.streets.core.Streets;
+import net.blaklizt.streets.core.session.UserSession;
+import net.blaklizt.streets.persistence.EventLog;
 import net.blaklizt.streets.persistence.dao.UserDao;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 
 /**
  * Created with IntelliJ IDEA.
@@ -45,8 +48,8 @@ public class LoginController
 		return new ModelAndView("login/login", model);
 	}
 
-	@RequestMapping(value = "/loginSuccess", method = { RequestMethod.GET , RequestMethod.POST } )
-	public ModelAndView loginSuccess(HttpServletRequest request)
+	@RequestMapping(value = "/main", method = { RequestMethod.GET , RequestMethod.POST } )
+	public ModelAndView main(HttpServletRequest request)
 	{
 		ModelMap model = new ModelMap();
 
@@ -60,6 +63,11 @@ public class LoginController
 			request.getSession().setAttribute("userSession", userSession);
 			streets.addLoggedInUser(userSession);
 			log4j.info("Instantiated new session for " + userSession.getUser().getUsername());
+			Date loginDateTime = new Date();
+			userSession.getUser().setLastLoginDate(loginDateTime);
+			CoreDaoManager.getInstance().getEventLogDao().save(
+					new EventLog(null, loginDateTime, userSession.getUser().getUserID(),
+							userSession.getUser().getUsername() + " Logged in successfully"));
 			return new ModelAndView("index", model);
 		}
 		catch (Exception ex)

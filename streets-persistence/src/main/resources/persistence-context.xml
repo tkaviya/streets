@@ -3,9 +3,9 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/tx
-        http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <import resource="classpath*:common-context.xml" />
 
@@ -23,29 +23,39 @@
     <bean id="streetsSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
         <property name="annotatedClasses">
             <list>
-                <value>net.blaklizt.streets.persistence.UserGroup</value>
-                <value>net.blaklizt.streets.persistence.Role</value>
-                <value>net.blaklizt.streets.persistence.UserGroupRole</value>
-                <value>net.blaklizt.streets.persistence.UserGroupRolePK</value>
-                <value>net.blaklizt.streets.persistence.User</value>
-                <value>net.blaklizt.streets.persistence.Gang</value>
-                <value>net.blaklizt.streets.persistence.UserAttribute</value>
-                <value>net.blaklizt.streets.persistence.UserItem</value>
                 <value>net.blaklizt.streets.persistence.Business</value>
                 <value>net.blaklizt.streets.persistence.BusinessProblem</value>
+                <value>net.blaklizt.streets.persistence.EventLog</value>
+                <value>net.blaklizt.streets.persistence.Gang</value>
                 <value>net.blaklizt.streets.persistence.Item</value>
                 <value>net.blaklizt.streets.persistence.Location</value>
+                <value>net.blaklizt.streets.persistence.Module</value>
+                <value>net.blaklizt.streets.persistence.ModuleTime</value>
+                <value>net.blaklizt.streets.persistence.ModuleTimePK</value>
+                <value>net.blaklizt.streets.persistence.Role</value>
                 <value>net.blaklizt.streets.persistence.Store</value>
                 <value>net.blaklizt.streets.persistence.StoreItem</value>
                 <value>net.blaklizt.streets.persistence.StoreItemPK</value>
+                <value>net.blaklizt.streets.persistence.User</value>
+                <value>net.blaklizt.streets.persistence.UserAttribute</value>
+                <value>net.blaklizt.streets.persistence.UserGroup</value>
+                <value>net.blaklizt.streets.persistence.UserGroupRole</value>
+                <value>net.blaklizt.streets.persistence.UserGroupRolePK</value>
+                <value>net.blaklizt.streets.persistence.UserItem</value>
+                <value>net.blaklizt.streets.persistence.UserItemPK</value>
                 <value>net.blaklizt.streets.persistence.dao.AbstractDao</value>
                 <value>net.blaklizt.streets.persistence.dao.BusinessProblemDao</value>
+                <value>net.blaklizt.streets.persistence.dao.EventLogDao</value>
+                <value>net.blaklizt.streets.persistence.dao.GangDao</value>
                 <value>net.blaklizt.streets.persistence.dao.LocationDao</value>
+                <value>net.blaklizt.streets.persistence.dao.ModuleDao</value>
+                <value>net.blaklizt.streets.persistence.dao.ModuleTimeDao</value>
                 <value>net.blaklizt.streets.persistence.dao.StoreDao</value>
                 <value>net.blaklizt.streets.persistence.dao.StoreItemDao</value>
+                <value>net.blaklizt.streets.persistence.dao.UserAttributeDao</value>
                 <value>net.blaklizt.streets.persistence.dao.UserDao</value>
-                <value>net.blaklizt.streets.persistence.dao.UserItemDao</value>
                 <value>net.blaklizt.streets.persistence.dao.UserGroupRoleDao</value>
+                <value>net.blaklizt.streets.persistence.dao.UserItemDao</value>
             </list>
         </property>
 
@@ -66,9 +76,12 @@
             <list>
                 <value>net/blaklizt/streets/persistence/Business.hbm.xml</value>
                 <value>net/blaklizt/streets/persistence/BusinessProblem.hbm.xml</value>
+                <value>net/blaklizt/streets/persistence/EventLog.hbm.xml</value>
                 <value>net/blaklizt/streets/persistence/Gang.hbm.xml</value>
                 <value>net/blaklizt/streets/persistence/Item.hbm.xml</value>
                 <value>net/blaklizt/streets/persistence/Location.hbm.xml</value>
+                <value>net/blaklizt/streets/persistence/Module.hbm.xml</value>
+                <value>net/blaklizt/streets/persistence/ModuleTime.hbm.xml</value>
                 <value>net/blaklizt/streets/persistence/Role.hbm.xml</value>
                 <value>net/blaklizt/streets/persistence/Store.hbm.xml</value>
                 <value>net/blaklizt/streets/persistence/StoreItem.hbm.xml</value>
