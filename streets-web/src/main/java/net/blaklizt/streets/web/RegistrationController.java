@@ -1,6 +1,5 @@
 package net.blaklizt.streets.web;
 
-import net.blaklizt.streets.common.configuration.Configuration;
 import net.blaklizt.streets.common.utilities.StreetsUtilities;
 import net.blaklizt.streets.core.CoreDaoManager;
 import net.blaklizt.streets.core.session.UserSession;
@@ -8,6 +7,7 @@ import net.blaklizt.streets.persistence.EventLog;
 import net.blaklizt.streets.persistence.User;
 import net.blaklizt.streets.persistence.UserAttribute;
 import net.blaklizt.symbiosis.sym_authentication.security.Security;
+import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
 import net.blaklizt.symbiosis.sym_common.mail.EMailer;
 import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
 import org.apache.log4j.Logger;

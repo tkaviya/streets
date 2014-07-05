@@ -17,23 +17,18 @@
     <description>Streets Android</description>
 
     <properties>
-        <!-- use UTF-8 for everything -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <android.sdk.path>C:\Program Files\Android\android-sdk</android.sdk.path>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
-            <version>2.3.3</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>support-v4</artifactId>
-            <version>r7</version>
         </dependency>
         <dependency>
             <groupId>com.google.android.gms</groupId>
@@ -44,8 +39,12 @@
         <dependency>
             <groupId>com.google.android.gms</groupId>
             <artifactId>google-play-services</artifactId>
-            <version>17.0.0</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.nostra13.universalimageloader</groupId>
+            <artifactId>universal-image-loader</artifactId>
+            <version>1.9.2</version>
         </dependency>
         <dependency>
             <groupId>net.blaklizt.streets</groupId>

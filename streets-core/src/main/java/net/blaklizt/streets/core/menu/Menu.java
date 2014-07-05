@@ -1,10 +1,10 @@
 package net.blaklizt.streets.core.menu;
 
-import net.blaklizt.streets.common.configuration.Configuration;
 import net.blaklizt.streets.core.EventEngine;
 import net.blaklizt.streets.core.event.BusinessProblemEvent;
 import net.blaklizt.streets.core.event.Event;
 import net.blaklizt.streets.core.session.UserSession;
+import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
 import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
 
 import java.util.ArrayList;

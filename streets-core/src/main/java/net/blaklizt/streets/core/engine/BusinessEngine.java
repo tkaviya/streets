@@ -1,6 +1,5 @@
 package net.blaklizt.streets.core.engine;
 
-import net.blaklizt.streets.common.configuration.Configuration;
 import net.blaklizt.streets.core.EventEngine;
 import net.blaklizt.streets.core.event.BusinessEvent;
 import net.blaklizt.streets.core.menu.Menu;
@@ -10,6 +9,7 @@ import net.blaklizt.streets.persistence.EventLog;
 import net.blaklizt.streets.persistence.Gang;
 import net.blaklizt.streets.persistence.Location;
 import net.blaklizt.streets.persistence.UserAttribute;
+import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
 import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
 
 import java.util.Date;

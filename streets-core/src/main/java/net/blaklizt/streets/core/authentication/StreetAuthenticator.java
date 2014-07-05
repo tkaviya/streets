@@ -1,11 +1,11 @@
 package net.blaklizt.streets.core.authentication;
 
-import net.blaklizt.streets.common.configuration.Configuration;
 import net.blaklizt.streets.persistence.User;
 import net.blaklizt.streets.persistence.UserGroupRole;
 import net.blaklizt.streets.persistence.dao.UserDao;
 import net.blaklizt.streets.persistence.dao.UserGroupRoleDao;
 import net.blaklizt.symbiosis.sym_authentication.security.Security;
+import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.encoding.PasswordEncoder;

@@ -93,4 +93,7 @@
         Received an unknown activity request code %1$d in onActivityResult.
     </string>
 
+    <!-- Location Strings -->
+    <string name="location_image">Location Image</string>
+
 </resources>

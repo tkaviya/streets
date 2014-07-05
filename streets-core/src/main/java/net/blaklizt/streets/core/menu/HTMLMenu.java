@@ -1,7 +1,7 @@
 package net.blaklizt.streets.core.menu;
 
-import net.blaklizt.streets.common.utilities.Format;
 import net.blaklizt.streets.core.session.UserSession;
+import net.blaklizt.symbiosis.sym_common.utilities.Format;
 
 /**
  * Created with IntelliJ IDEA.

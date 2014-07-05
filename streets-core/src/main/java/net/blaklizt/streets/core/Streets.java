@@ -1,6 +1,5 @@
 package net.blaklizt.streets.core;
 
-import net.blaklizt.streets.common.configuration.Configuration;
 import net.blaklizt.streets.common.utilities.StreetsUtilities;
 import net.blaklizt.streets.core.engine.BusinessProblemEngine;
 import net.blaklizt.streets.core.event.BusinessProblemEvent;
@@ -13,6 +12,7 @@ import net.blaklizt.streets.core.session.UserSession;
 import net.blaklizt.streets.persistence.UserAttribute;
 import net.blaklizt.streets.persistence.dao.LocationDao;
 import net.blaklizt.streets.persistence.dao.UserAttributeDao;
+import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
 import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
 import org.springframework.beans.factory.annotation.Autowired;
 

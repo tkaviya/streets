@@ -10,19 +10,6 @@ import java.util.ResourceBundle;
  */
 public class StreetsUtilities
 {
-	public static String getCurrencySymbol()
-	{
-		return CommonUtilities.getConfiguration("properties/streets_configuration", "currencySymbol");
-	}
-
-	public static String getCountryCodePrefix() {
-		/*
-		 * We have to use locales to get the right prefix
-		 *
-		 */
-		return CommonUtilities.getConfiguration("properties/streets_configuration", "countryCode");
-	}
-
 	public static String getConfiguration(String propertyKey)
 	{
 		ResourceBundle rb = ResourceBundle.getBundle("properties/streets_configuration");

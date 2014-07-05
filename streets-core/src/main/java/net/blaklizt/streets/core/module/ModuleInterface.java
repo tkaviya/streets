@@ -1,6 +1,5 @@
 package net.blaklizt.streets.core.module;
 
-import net.blaklizt.streets.common.configuration.Configuration;
 import net.blaklizt.streets.core.CoreDaoManager;
 import net.blaklizt.streets.core.Streets;
 import net.blaklizt.streets.core.menu.Menu;
@@ -8,6 +7,7 @@ import net.blaklizt.streets.core.menu.MenuItem;
 import net.blaklizt.streets.core.session.UserSession;
 import net.blaklizt.streets.persistence.Module;
 import net.blaklizt.streets.persistence.ModuleTime;
+import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 

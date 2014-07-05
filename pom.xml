@@ -146,6 +146,26 @@
                 <version>2.2</version>
             </dependency>
 
+            <!-- Google dependancies -->
+            <dependency>
+                <groupId>com.google.android</groupId>
+                <artifactId>android</artifactId>
+                <version>2.3.3</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.android</groupId>
+                <artifactId>support-v4</artifactId>
+                <version>r7</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.android.gms</groupId>
+                <artifactId>google-play-services</artifactId>
+                <version>17.0.0</version>
+                <type>jar</type>
+            </dependency>
+
+            <!-- other dependancies -->
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>

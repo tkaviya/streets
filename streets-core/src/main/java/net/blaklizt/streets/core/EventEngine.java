@@ -1,9 +1,9 @@
 package net.blaklizt.streets.core;
 
-import net.blaklizt.streets.common.configuration.Configuration;
 import net.blaklizt.streets.core.event.Event;
 import net.blaklizt.streets.core.module.ModuleInterface;
 import net.blaklizt.streets.persistence.Module;
+import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
 import org.apache.log4j.Logger;
 
 import java.util.*;

@@ -9,7 +9,7 @@
     </bean>
 
     <bean id="configuration" factory-method="getInstance"
-          class="net.blaklizt.streets.common.configuration.Configuration" >
+          class="net.blaklizt.symbiosis.sym_common.configuration.Configuration" >
     </bean>
 
 </beans>
