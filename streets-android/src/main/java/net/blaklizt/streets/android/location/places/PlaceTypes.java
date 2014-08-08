@@ -1,7 +1,7 @@
 package net.blaklizt.streets.android.location.places;
 
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  * Created with IntelliJ IDEA.
@@ -108,8 +108,29 @@ public class PlaceTypes {
     public static final String veterinary_care = "";
     public static final String zoo = "";
 
-    public static ArrayList<String> getDefaultPlaces() {
-        ArrayList<String> defaultPlaces = new ArrayList<>();
+    public static String[] getAllPlaces() {
+        String[] allPlaces = new String[16];
+        allPlaces[0] = airport;
+        allPlaces[1] = atm;
+        allPlaces[2] = bank;
+        allPlaces[3] = bar;
+        allPlaces[4] = beauty_salon;
+        allPlaces[5] = bus_station;
+        allPlaces[6] = cafe;
+        allPlaces[7] = casino;
+        allPlaces[8] = doctor;
+        allPlaces[9] = food;
+        allPlaces[10] = gas_station;
+        allPlaces[11] = liquor_store;
+        allPlaces[12] = police;
+        allPlaces[13] = shopping_mall;
+        allPlaces[14] = store;
+        allPlaces[15] = train_station;
+        return allPlaces;
+    }
+
+    public static LinkedList<String> getDefaultPlaces() {
+        LinkedList<String> defaultPlaces = new LinkedList<>();
         defaultPlaces.add(airport);
         defaultPlaces.add(atm);
         defaultPlaces.add(bank);

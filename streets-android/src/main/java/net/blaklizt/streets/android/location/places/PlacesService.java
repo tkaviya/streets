@@ -11,6 +11,7 @@ package net.blaklizt.streets.android.location.places;
 import android.database.Cursor;
 import android.util.Log;
 import net.blaklizt.streets.android.MapLayout;
+import net.blaklizt.streets.android.StreetsLayout;
 import net.blaklizt.streets.android.persistence.Neighbourhood;
 import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
 import org.json.JSONArray;
@@ -22,7 +23,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
@@ -166,7 +166,7 @@ public class PlacesService {
 //        return resultList;
 //    }
 
-    public static LinkedList<Place> nearby_search(double lat, double lng, int radius, ArrayList<String> types) {
+    public static LinkedList<Place> nearby_search(double lat, double lng, int radius, LinkedList<String> types) {
         Log.i(MapLayout.TAG, "Searching for places near current location");
         LinkedList<Place> resultList = null;
 
@@ -229,9 +229,9 @@ public class PlacesService {
                     predsJsonArray.getJSONObject(i).getString("reference"),
                     predsJsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
                     predsJsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getDouble("lng"),
-                    CommonUtilities.toCamelCase(typeArray.getString(0).replaceAll("_", " "))
+                    CommonUtilities.toCamelCase(typeArray.getString(0).replaceAll("_", " ")),
+                    predsJsonArray.getJSONObject(i).getString("icon")
                 );
-                place.icon = predsJsonArray.getJSONObject(i).getString("icon");
                 place.formatted_address = predsJsonArray.getJSONObject(i).getString("vicinity");
                 Log.i(MapLayout.TAG, "Adding place to response: " + place.name + " : " + place.type.toString());
                 resultList.add(place);
@@ -247,10 +247,12 @@ public class PlacesService {
         LinkedList<Place> resultList = new LinkedList<>();
         try {
             Log.i(MapLayout.TAG, "Adding nearby friends.");
-            if (MapLayout.getInstance().getNeighbourhoodDB() != null) {
-                String[] fields = new String[]{"Name", "Reference", "Latitude", "Longitude", "Type"};
-                Cursor friends = MapLayout.getInstance().getNeighbourhoodDB().query(
-                        Neighbourhood.FRIEND_TABLE, fields, null, null, null, null, null);
+            if (StreetsLayout.getInstance().getNeighbourhoodDB() != null) {
+//                String[] fields = new String[]{"Name", "Reference", "Latitude", "Longitude", "Type"};
+                Cursor friends = StreetsLayout.getInstance().getNeighbourhoodDB().rawQuery(
+                    "SELECT ft.FriendlyName, pt.Reference, pt.Latitude, pt.Longitude, pt.Type " +
+                        " FROM " + Neighbourhood.FRIEND_TABLE + " ft, " + Neighbourhood.PLACE_TABLE + " pt " +
+                        " WHERE ft.HomePlaceID = pt.PlaceID", null);
 
                 Log.i(MapLayout.TAG, "Found " + friends.getCount() + " friends.");
                 friends.moveToFirst();
@@ -261,7 +263,8 @@ public class PlacesService {
                             friends.getString(1),
                             friends.getDouble(2),
                             friends.getDouble(3),
-                            friends.getString(4)));
+                            friends.getString(4),
+                            null));
                     friends.moveToNext();
                 }
             } else {
@@ -321,6 +324,7 @@ public class PlacesService {
 //                place.formatted_phone_number = jsonObj.getString("formatted_phone_number");
 //            }
 //        } catch (JSONException e) {
+//            Log.e(Mape) {
 //            Log.e(MapLayout.TAG, "Error processing JSON results", e);
 //        }
 //

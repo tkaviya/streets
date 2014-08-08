@@ -41,6 +41,8 @@ public class Streets
 		if (streets == null) streets = new Streets();
 		return streets;
 	}
+	
+	private Streets() {}
 
 	public Menu getMainMenu(UserSession userSession)
     {

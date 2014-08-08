@@ -14,7 +14,7 @@ public class Neighbourhood extends SQLiteOpenHelper {
      * Created by Tsungai on 2014/03/31.
      */
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "Neighbourhood.db";
 
     public static final String PLACE_TABLE = "Place";
@@ -41,8 +41,8 @@ public class Neighbourhood extends SQLiteOpenHelper {
                 "Longitude DOUBLE," +
                 "Type VARCHAR(50))");
 
-        db.execSQL("INSERT INTO " + PLACE_TABLE + " VALUES(0,'Tich de Blak',NULL,-26,092154565,28.216708950,'home'')");
-
+        db.execSQL("INSERT INTO " + PLACE_TABLE + " VALUES (0,'Tich de Blak',NULL,-26.092154565,28.216708950,'Friend')");
+        db.execSQL("INSERT INTO " + FRIEND_TABLE + " VALUES (0,'Tich de Blak',0,0)");
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

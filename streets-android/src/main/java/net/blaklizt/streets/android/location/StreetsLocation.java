@@ -1,7 +1,7 @@
 package net.blaklizt.streets.android.location;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 
 /**
  * Created with IntelliJ IDEA.
@@ -9,10 +9,10 @@ import android.os.Bundle;
  * Date: 6/22/14
  * Time: 12:05 AM
  */
-public class StreetsLocation extends Activity
+public class StreetsLocation extends Fragment
 {
     @Override
-    protected void onCreate(Bundle savedInstanceState)
+    public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
     }

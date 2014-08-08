@@ -95,5 +95,9 @@
 
     <!-- Location Strings -->
     <string name="location_image">Location Image</string>
+    <string name="drawer_open">Open Drawer</string>
+    <string name="drawer_close">Close Drawer</string>
+    <string name="map_tab">Map</string>
+    <string name="info_tab">Info</string>
 
 </resources>
