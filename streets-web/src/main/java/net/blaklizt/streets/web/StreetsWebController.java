@@ -5,6 +5,7 @@ import net.blaklizt.streets.core.menu.Menu;
 import net.blaklizt.streets.core.module.ModuleInterface;
 import net.blaklizt.streets.core.session.UserSession;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
+import net.blaklizt.symbiosis.sym_common.utilities.Format;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

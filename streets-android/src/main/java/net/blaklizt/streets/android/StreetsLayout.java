@@ -1,6 +1,7 @@
 package net.blaklizt.streets.android;
 
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -13,6 +14,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseUser;
+import com.parse.SignUpCallback;
 import net.blaklizt.streets.android.location.StreetsLocation;
 import net.blaklizt.streets.android.location.places.PlaceTypes;
 import net.blaklizt.streets.android.persistence.Neighbourhood;
@@ -22,42 +27,34 @@ import net.blaklizt.streets.android.persistence.Neighbourhood;
  * Date: 6/29/14
  * Time: 7:00 PM
  */
-<TabHost xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@android:id/tabhost"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:background="@color/background_activity">
-
-        <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:padding="0dp">
-
-        <FrameLayout
-        android:id="@android:id/tabcontent"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"/>
-
-        <TabWidget
-        android:id="@android:id/tabs"
-        style="@style/DropDownListView.Tabbar"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:layout_weight="0"/>
-
-        </LinearLayout>
-        </TabHost>
- 
- 
- 
- 
- 
- 
- 
- 
+//<TabHost xmlns:android="http://schemas.android.com/apk/res/android"
+//        android:id="@android:id/tabhost"
+//        android:layout_width="fill_parent"
+//        android:layout_height="fill_parent"
+//        android:background="@color/background_activity">
+//
+//        <LinearLayout
+//        android:orientation="vertical"
+//        android:layout_width="fill_parent"
+//        android:layout_height="fill_parent"
+//        android:padding="0dp">
+//
+//        <FrameLayout
+//        android:id="@android:id/tabcontent"
+//        android:layout_width="fill_parent"
+//        android:layout_height="wrap_content"
+//        android:layout_weight="1"/>
+//
+//        <TabWidget
+//        android:id="@android:id/tabs"
+//        style="@style/DropDownListView.Tabbar"
+//        android:layout_width="fill_parent"
+//        android:layout_height="wrap_content"
+//        android:layout_marginBottom="5dp"
+//        android:layout_weight="0"/>
+//
+//        </LinearLayout>
+//        </TabHost>
  
 public class StreetsLayout extends SherlockFragmentActivity {
 
@@ -71,6 +68,10 @@ public class StreetsLayout extends SherlockFragmentActivity {
     private ActionBarDrawerToggle mDrawerToggle;
 
     public static final String TAG = "StreetsLayout";
+
+    public static final String PARSE_APP_ID = "gfTj5m1WpiOo9ZBOVjjCqIa1YsB4MJiiU62l13WI";
+
+    public static final String PARSE_API_KEY = "osUp0339QGvFdkmvmVfNewzsxIWA5GFxJRx9GnvO";
 
     public static String ACTIVE_TAB = "MapLayout";
 
@@ -92,6 +93,8 @@ public class StreetsLayout extends SherlockFragmentActivity {
 
             streetsLayout = this;
             neighbourhoodDB = new Neighbourhood(getApplicationContext()).getWritableDatabase();
+
+            Parse.initialize(this, PARSE_APP_ID, PARSE_API_KEY);
 
             status_text_view = (TextView) findViewById(R.id.status_text_view);
 //            TabHost tabHost = getTabHost();
@@ -196,6 +199,48 @@ public class StreetsLayout extends SherlockFragmentActivity {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
         mDrawerToggle.syncState();
+
+        loginParseUser();
+    }
+
+    private void loginParseUser() {
+
+        try {
+            Log.i(TAG, "Logging in parse user.");
+            if (StreetsLayout.getInstance().getNeighbourhoodDB() != null) {
+                Cursor userData = StreetsLayout.getInstance().getNeighbourhoodDB().rawQuery(
+                        "SELECT ut.Username, ut.Password, ut.Email, pt.Latitude, pt.Longitude " +
+                                " FROM " + Neighbourhood.USER_TABLE + " ut, " + Neighbourhood.PLACE_TABLE + " pt " +
+                                " WHERE ut.LastPlaceID = pt.PlaceID", null);
+
+                userData.moveToFirst();
+                Log.i(TAG, "Logging in " + userData.getString(0));
+
+                ParseUser user = new ParseUser();
+                user.setUsername(userData.getString(0));
+                user.setPassword(userData.getString(1));
+                user.setEmail(userData.getString(2));
+                user.put("latitude", userData.getString(3));
+                user.put("longitude", userData.getString(4));
+
+                user.signUpInBackground(new SignUpCallback() {
+                    public void done(ParseException e) {
+                        if (e == null) {
+                            Log.i(MapLayout.TAG, "User logged into parse");
+                        } else {
+                            Log.e(TAG, e.getMessage(), e);
+                        }
+                    }
+                });
+            } else {
+                Log.i(MapLayout.TAG, "NeighbourhoodDB is null");
+            }
+        }
+        catch (Exception ex) {
+            Log.e(MapLayout.TAG, "Failed to login to parse", ex);
+        }
+
+
     }
 
     @Override

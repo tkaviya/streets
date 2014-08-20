@@ -39,7 +39,7 @@ public class PlacesService {
     private static final String OUT_JSON = "/json";
 
     // KEY!
-    private static final String API_KEY = "AIzaSyD3e6Act_-IHtKtWmtRwyt6ftLQ90eOvcE";//Configuration.getInstance().getProperty("googleAPIKey");
+    private static final String PLACES_API_KEY = "AIzaSyD3e6Act_-IHtKtWmtRwyt6ftLQ90eOvcE";//Configuration.getInstance().getProperty("googleAPIKey");
 
 //    public static ArrayList<Place> autocomplete(String input) {
 //        ArrayList<Place> resultList = null;
@@ -51,7 +51,7 @@ public class PlacesService {
 //            sb.append(TYPE_AUTOCOMPLETE);
 //            sb.append(OUT_JSON);
 //            sb.append("?sensor=true");
-//            sb.append("&key=" + API_KEY);
+//            sb.append("&key=" + PLACES_API_KEY);
 //            sb.append("&input=" + URLEncoder.encode(input, "utf8"));
 //
 //            URL url = new URL(sb.toString());
@@ -106,7 +106,7 @@ public class PlacesService {
 //            sb.append(TYPE_SEARCH);
 //            sb.append(OUT_JSON);
 //            sb.append("?sensor=false");
-//            sb.append("&key=" + API_KEY);
+//            sb.append("&key=" + PLACES_API_KEY);
 //            sb.append("&keyword=" + URLEncoder.encode(keyword, "utf8"));
 //            sb.append("&location=" + String.valueOf(lat) + "," + String.valueOf(lng));
 //            sb.append("&radius=" + String.valueOf(radius));
@@ -177,7 +177,7 @@ public class PlacesService {
             sb.append(TYPE_NEARBY_SEARCH);
             sb.append(OUT_JSON);
             sb.append("?sensor=false");
-            sb.append("&key=" + API_KEY);
+            sb.append("&key=" + PLACES_API_KEY);
             sb.append("&location=" + String.valueOf(lat) + "," + String.valueOf(lng));
             sb.append("&radius=" + String.valueOf(radius));
 
@@ -248,11 +248,10 @@ public class PlacesService {
         try {
             Log.i(MapLayout.TAG, "Adding nearby friends.");
             if (StreetsLayout.getInstance().getNeighbourhoodDB() != null) {
-//                String[] fields = new String[]{"Name", "Reference", "Latitude", "Longitude", "Type"};
                 Cursor friends = StreetsLayout.getInstance().getNeighbourhoodDB().rawQuery(
-                    "SELECT ft.FriendlyName, pt.Reference, pt.Latitude, pt.Longitude, pt.Type " +
-                        " FROM " + Neighbourhood.FRIEND_TABLE + " ft, " + Neighbourhood.PLACE_TABLE + " pt " +
-                        " WHERE ft.HomePlaceID = pt.PlaceID", null);
+                        "SELECT ft.Username, pt.Reference, pt.Latitude, pt.Longitude, pt.Type " +
+                                " FROM " + Neighbourhood.FRIEND_TABLE + " ft, " + Neighbourhood.PLACE_TABLE + " pt " +
+                                " WHERE ft.LastPlaceID = pt.PlaceID", null);
 
                 Log.i(MapLayout.TAG, "Found " + friends.getCount() + " friends.");
                 friends.moveToFirst();
@@ -286,7 +285,7 @@ public class PlacesService {
 //            sb.append(TYPE_DETAILS);
 //            sb.append(OUT_JSON);
 //            sb.append("?sensor=false");
-//            sb.append("&key=" + API_KEY);
+//            sb.append("&key=" + PLACES_API_KEY);
 //            sb.append("&reference=" + URLEncoder.encode(reference, "utf8"));
 //
 //            URL url = new URL(sb.toString());
