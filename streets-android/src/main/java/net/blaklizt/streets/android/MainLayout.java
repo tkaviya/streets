@@ -1,9 +1,10 @@
 package net.blaklizt.streets.android;
 
-import android.app.TabActivity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTabHost;
 import android.util.Log;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -14,7 +15,7 @@ import net.blaklizt.streets.android.location.StreetsLocation;
  * Date: 6/29/14
  * Time: 7:00 PM
  */
-public class MainLayout extends TabActivity {
+public class MainLayout extends FragmentActivity {
 
     public static final String TAG = "MainLayout";
 
@@ -27,9 +28,10 @@ public class MainLayout extends TabActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.streets_layout);
 
-        status_text_view = (TextView) findViewById(R.id.status_text_view);
+//        status_text_view = (TextView) findViewById(R.id.status_text_view);
 
-        TabHost tabHost = getTabHost();
+//        TabHost tabHost = getTabHost();
+		FragmentTabHost tabHost = (FragmentTabHost)findViewById(android.R.id.tabhost);
 
         // Tab for map
         TabHost.TabSpec mapSpec = tabHost.newTabSpec("MAP");

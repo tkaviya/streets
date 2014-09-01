@@ -19,12 +19,13 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <android.sdk.path>/opt/android-sdk-update-manager</android.sdk.path>
     </properties>
 
     <repositories>
         <repository>
             <id>android-support</id>
-            <url>file://${env.ANDROID_HOME}/extras/android/m2repository</url>
+            <url>/opt/android-sdk-update-manager/extras/android/m2repository</url>
         </repository>
     </repositories>
 
@@ -46,14 +47,15 @@
         <dependency>
             <groupId>com.google.android.gms</groupId>
             <artifactId>google-play-services</artifactId>
+            <version>17.0.0</version>
             <type>jar</type>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>com.actionbarsherlock</groupId>
             <artifactId>actionbarsherlock</artifactId>
             <version>4.4.0</version>
             <type>apklib</type>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>com.nostra13.universalimageloader</groupId>
             <artifactId>universal-image-loader</artifactId>
@@ -73,12 +75,12 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.9.0-rc.1</version>
+                <version>3.9.0-rc.2</version>
                 <configuration>
                     <sdk>
                         <platform>19</platform>
                     </sdk>
-                    <!--<deleteConflictingFiles>true</deleteConflictingFiles>-->
+                    <deleteConflictingFiles>true</deleteConflictingFiles>
                     <undeployBeforeDeploy>true</undeployBeforeDeploy>
                 </configuration>
                 <extensions>true</extensions>
