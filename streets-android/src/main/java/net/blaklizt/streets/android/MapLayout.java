@@ -6,13 +6,13 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.actionbarsherlock.app.SherlockFragment;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -39,7 +39,7 @@ import java.util.LinkedList;
  * Date: 6/21/14
  * Time: 5:58 PM
  */
-public class MapLayout extends SherlockFragment implements LocationListener, OnMarkerClickListener, Navigator.OnPathSetListener {
+public class MapLayout extends Fragment implements LocationListener, OnMarkerClickListener, Navigator.OnPathSetListener {
 
     public static final String TAG = "MapLayout";
     protected static MapLayout mapLayout = null;
@@ -53,7 +53,7 @@ public class MapLayout extends SherlockFragment implements LocationListener, OnM
     protected TextView location_address_text_view;
     protected TextView location_categories_text_view;
 
-    @Override
+//    @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -70,18 +70,18 @@ public class MapLayout extends SherlockFragment implements LocationListener, OnM
 
         mapLayout = this;
 
-        location_image = (ImageView)getView().findViewById(R.id.location_image_view);
-        location_name_text_view = (TextView)getView().findViewById(R.id.location_name_text_view);
-        location_address_text_view = (TextView)getView().findViewById(R.id.location_address_text_view);
-        location_categories_text_view = (TextView)getView().findViewById(R.id.location_categories_text_view);
+        location_image =  (ImageView)getActivity().findViewById(R.id.location_image_view);
+        location_name_text_view = (TextView)getActivity().findViewById(R.id.location_name_text_view);
+        location_address_text_view = (TextView)getActivity().findViewById(R.id.location_address_text_view);
+        location_categories_text_view = (TextView)getActivity().findViewById(R.id.location_categories_text_view);
 
         try
         {
             //Create global configuration and initialize ImageLoader with this configuration
-            ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getView().getContext()).build();
+            ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getActivity().getApplicationContext()).build();
             ImageLoader.getInstance().init(config);
 
-            int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getView().getContext());
+            int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity().getApplicationContext());
             // Showing status
             if (status != ConnectionResult.SUCCESS) // Google Play Services are not available
             {
@@ -96,6 +96,8 @@ public class MapLayout extends SherlockFragment implements LocationListener, OnM
                 // Getting reference to the SupportMapFragment of activity_main.xml
                 SupportMapFragment fm = (SupportMapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
 
+				//MapFragment fm = (MapFragment)getFragmentManager().findFragmentById(R.id.map_fragment);
+
                 // Getting GoogleMap object from the fragment
                 googleMap = fm.getMap();
                 Log.i(TAG, "Got Google map");
@@ -105,7 +107,7 @@ public class MapLayout extends SherlockFragment implements LocationListener, OnM
                 googleMap.setOnMarkerClickListener(this);
 
                 // Getting LocationManager object from System Service LOCATION_SERVICE
-                LocationManager locationManager = (LocationManager) getView().getContext().getSystemService(Context.LOCATION_SERVICE);
+                LocationManager locationManager = (LocationManager)getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
                 Log.i(TAG, "Got LocationManager");
                 // Creating a criteria object to retrieve provider
                 Criteria criteria = new Criteria();
