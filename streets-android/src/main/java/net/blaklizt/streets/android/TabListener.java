@@ -1,9 +1,9 @@
 package net.blaklizt.streets.android;
 
+import android.app.ActionBar;
 import android.app.Activity;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import com.actionbarsherlock.app.ActionBar;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 
 /**
  * User: tkaviya

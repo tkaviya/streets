@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">The Streets</string>
-    <string name="location_activity_name">Location</string>
+    <string name="map_tab_name">MAP</string>
+    <string name="navigation_tab_name">NAVIGATION</string>
+    <!--<string name="location_activity_name">Location</string>-->
     <!--
 
   Copyright (C) 2013 The Android Open Source Project

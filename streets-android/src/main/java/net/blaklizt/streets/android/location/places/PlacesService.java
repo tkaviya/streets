@@ -11,7 +11,7 @@ package net.blaklizt.streets.android.location.places;
 import android.database.Cursor;
 import android.util.Log;
 import net.blaklizt.streets.android.MapLayout;
-import net.blaklizt.streets.android.StreetsLayout;
+import net.blaklizt.streets.android.Streets;
 import net.blaklizt.streets.android.persistence.Neighbourhood;
 import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
 import org.json.JSONArray;
@@ -129,7 +129,7 @@ public class PlacesService {
 //                jsonResults.append(buff, 0, read);
 //            }
 //
-//            Log.i(MapLayout.TAG, "Got result: " + jsonResults.toString());
+//            Log.d(MapLayout.TAG, "Got result: " + jsonResults.toString());
 //
 //        } catch (MalformedURLException e) {
 //            Log.e(MapLayout.TAG, "Error processing Places API URL", e);
@@ -199,7 +199,7 @@ public class PlacesService {
                 jsonResults.append(buff, 0, read);
             }
 
-            Log.i(MapLayout.TAG, "Got result: " + jsonResults.toString());
+            Log.d(MapLayout.TAG, "Got result: " + jsonResults.toString());
 
         } catch (MalformedURLException e) {
             Log.e(MapLayout.TAG, "Error processing Places API URL for nearby search", e);
@@ -247,8 +247,8 @@ public class PlacesService {
         LinkedList<Place> resultList = new LinkedList<>();
         try {
             Log.i(MapLayout.TAG, "Adding nearby friends.");
-            if (StreetsLayout.getInstance().getNeighbourhoodDB() != null) {
-                Cursor friends = StreetsLayout.getInstance().getNeighbourhoodDB().rawQuery(
+            if (Streets.getInstance().getNeighbourhoodDB() != null) {
+                Cursor friends = Streets.getInstance().getNeighbourhoodDB().rawQuery(
                         "SELECT ft.Username, pt.Reference, pt.Latitude, pt.Longitude, pt.Type " +
                                 " FROM " + Neighbourhood.FRIEND_TABLE + " ft, " + Neighbourhood.PLACE_TABLE + " pt " +
                                 " WHERE ft.LastPlaceID = pt.PlaceID", null);

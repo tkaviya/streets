@@ -1,10 +1,12 @@
 package net.blaklizt.streets.android;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -41,6 +43,45 @@ import java.util.LinkedList;
  */
 public class MapLayout extends Fragment implements LocationListener, OnMarkerClickListener, Navigator.OnPathSetListener {
 
+    private class LocationTask extends AsyncTask<Void, Void, Void> {
+
+        LinkedList<Place> nearbyPlaces;
+
+        ProgressDialog progressDialog;
+
+        @Override
+        protected Void doInBackground(Void... param) {
+            nearbyPlaces = PlacesService.nearby_search(
+                    currentLocation.getLatitude(), currentLocation.getLongitude(), 5000, PlaceTypes.getDefaultPlaces());
+
+            firstLocationUpdate = false;
+
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute()
+        {
+            progressDialog = ProgressDialog.show(Streets.getInstance(), "Updating location", "Updating location...", true, true);
+            progressDialog.setCancelable(true);
+            progressDialog.setIndeterminate(true);
+            progressDialog.show();
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... progress) { }
+
+        @Override
+        protected void onPostExecute(Void result)
+        {
+            progressDialog.hide();
+
+            if (nearbyPlaces != null) for (Place place : nearbyPlaces) { drawPlaceMarker(place); }
+        }
+    }
+
+
+
     public static final String TAG = "MapLayout";
     protected static MapLayout mapLayout = null;
     protected GoogleMap googleMap;
@@ -53,12 +94,21 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
     protected TextView location_address_text_view;
     protected TextView location_categories_text_view;
 
-//    @Override
-    public View onCreateView(LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.i(TAG, "+++ ON CREATE VIEW +++");
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.map_layout, container, false);
         // do your view initialization here
+        mapLayout = this;
+
+        location_image =  (ImageView) view.findViewById(R.id.location_image_view);
+        location_name_text_view = (TextView) view.findViewById(R.id.location_name_text_view);
+        location_address_text_view = (TextView) view.findViewById(R.id.location_address_text_view);
+        location_categories_text_view = (TextView) view.findViewById(R.id.location_categories_text_view);
+
+        initializeMap();
+
         return view;
     }
 
@@ -66,15 +116,10 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "+++ ON CREATE +++");
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.map_layout);
+    }
 
-        mapLayout = this;
-
-        location_image =  (ImageView)getActivity().findViewById(R.id.location_image_view);
-        location_name_text_view = (TextView)getActivity().findViewById(R.id.location_name_text_view);
-        location_address_text_view = (TextView)getActivity().findViewById(R.id.location_address_text_view);
-        location_categories_text_view = (TextView)getActivity().findViewById(R.id.location_categories_text_view);
-
+    private void initializeMap()
+    {
         try
         {
             //Create global configuration and initialize ImageLoader with this configuration
@@ -86,17 +131,12 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
             if (status != ConnectionResult.SUCCESS) // Google Play Services are not available
             {
                 Log.i(TAG, "Google Play Services are not available");
-                int requestCode = 10;
-//                Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status, this, requestCode);
-//                dialog.show();
             }
             else // Google Play Services are available
             {
                 Log.i(TAG, "Google Play Services are available");
                 // Getting reference to the SupportMapFragment of activity_main.xml
-                SupportMapFragment fm = (SupportMapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
-
-				//MapFragment fm = (MapFragment)getFragmentManager().findFragmentById(R.id.map_fragment);
+                SupportMapFragment fm = (SupportMapFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
                 // Getting GoogleMap object from the fragment
                 googleMap = fm.getMap();
@@ -106,6 +146,7 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
 
                 googleMap.setOnMarkerClickListener(this);
 
+                Log.i(TAG, "Starting location updates");
                 // Getting LocationManager object from System Service LOCATION_SERVICE
                 LocationManager locationManager = (LocationManager)getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
                 Log.i(TAG, "Got LocationManager");
@@ -123,13 +164,13 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
                 //                 drawMarker(location);
                 //            }
                 locationManager.requestLocationUpdates(provider, 20000, 0, this);
+
             }
         }
         catch (Exception ex)
         {
-            Log.e(TAG, "Failed to execute streets on start", ex);
+            Log.e(TAG, "Failed to initialize Google Map", ex);
         }
-
     }
 
     public static MapLayout getInstance() { return mapLayout; }
@@ -177,10 +218,7 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
         try
         {
             if (currentLocation != null) {
-                LinkedList<Place> nearbyPlaces = PlacesService.nearby_search(
-                        currentLocation.getLatitude(), currentLocation.getLongitude(), 5000, PlaceTypes.getDefaultPlaces());
-
-                for (Place place : nearbyPlaces) { drawPlaceMarker(place); }
+                new LocationTask().execute();
             }
         }
         catch (Exception ex)
@@ -191,7 +229,7 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.i(TAG, "+++ ON LOCATION CHANGED +++");
+        Log.d(TAG, "+++ ON LOCATION CHANGED +++");
 
         try
         {
@@ -204,7 +242,7 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
             // Getting longitude of the current location
             double longitude = location.getLongitude();
 
-            Log.i(TAG, "New location " + latitude + ":" + longitude);
+            Log.d(TAG, "New location " + latitude + ":" + longitude);
 
             // Creating a LatLng object for the current location
             LatLng latLng = new LatLng(latitude, longitude);
@@ -226,12 +264,7 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
 
                 drawMarker(location);
 
-                LinkedList<Place> nearbyPlaces = PlacesService.nearby_search(
-                        currentLocation.getLatitude(), currentLocation.getLongitude(), 5000, PlaceTypes.getDefaultPlaces());
-
-                for (Place place : nearbyPlaces) { drawPlaceMarker(place); }
-
-                firstLocationUpdate = false;
+                new LocationTask().execute();
             }
         }
         catch (Exception ex)
