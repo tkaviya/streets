@@ -46,6 +46,7 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
 	private ActionBar actionBar;
     private ActionBar.Tab mapTab;
     private ActionBar.Tab navigationTab;
+	ArrayAdapter<String> placeListAdapater;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -104,12 +105,12 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
 
             // Creating an ArrayAdapter to add items to the listview mDrawerList
             Log.i(TAG, "Getting all places");
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+            placeListAdapater = new ArrayAdapter<>(
                     getBaseContext(),
                     R.layout.drawer_list_item, PlaceTypes.getAllPlaces()
             );
 
-            mDrawerList.setAdapter(adapter);
+            mDrawerList.setAdapter(placeListAdapater);
 
             // enable ActionBar app icon to behave as action to toggle nav drawer
             getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -303,9 +304,12 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
 
 		//int row_id = (Integer) checkedTextView.getTag();
 
+		ListView listView = (ListView)adapterView;
+
+		listView.setItemChecked(position, !listView.isItemChecked(position));
+
 		if (checkedTextView.isSelected() || checkedTextView.isChecked())
 		{
-			//checkedTextView.setCompoundDrawables(getResources().getDrawable(android.R.drawable.checkbox_on_background), null, null, null);
 			checkedTextView.setSelected(false);
 			checkedTextView.setChecked(false);
 			checkedTextView.setBackgroundColor(android.R.color.background_light);
@@ -313,12 +317,12 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
 		}
 		else
 		{
-			//checkedTextView.setCompoundDrawables(getResources().getDrawable(android.R.drawable.checkbox_off_background), null, null, null);
 			checkedTextView.setSelected(true);
 			checkedTextView.setChecked(true);
 			checkedTextView.setBackgroundColor(android.R.color.black);
 			Toast.makeText(Streets.getInstance(), item + " not selected", Toast.LENGTH_SHORT).show();
 		}
 
+		placeListAdapater.notifyDataSetChanged();
 	}
 }
