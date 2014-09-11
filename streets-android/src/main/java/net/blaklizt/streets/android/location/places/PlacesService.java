@@ -8,10 +8,8 @@ package net.blaklizt.streets.android.location.places;
  * To change this template use File | Settings | File Templates.
  */
 
-import android.database.Cursor;
 import android.util.Log;
 import net.blaklizt.streets.android.Streets;
-import net.blaklizt.streets.android.persistence.Neighbourhood;
 import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -221,7 +219,7 @@ public class PlacesService {
             Log.i(TAG, "Response Array: " + jsonObj.toString());
 
             // Extract the Place descriptions from the results
-            resultList = addNearbyFriendLocations();
+            resultList = Streets.getInstance().getStreetsDBHelper().getNearbyFriendLocations();
 
             for (int i = 0; i < predsJsonArray.length(); i++) {
                 JSONArray typeArray = predsJsonArray.getJSONObject(i).getJSONArray("types");
@@ -243,40 +241,6 @@ public class PlacesService {
 
         return resultList;
     }
-
-    private static LinkedList<Place> addNearbyFriendLocations() {
-        LinkedList<Place> resultList = new LinkedList<>();
-        try {
-            Log.i(TAG, "Adding nearby friends.");
-            if (Streets.getInstance().getNeighbourhoodDB() != null) {
-                Cursor friends = Streets.getInstance().getNeighbourhoodDB().rawQuery(
-                        "SELECT ft.Username, pt.Reference, pt.Latitude, pt.Longitude, pt.Type " +
-                                " FROM " + Neighbourhood.FRIEND_TABLE + " ft, " + Neighbourhood.PLACE_TABLE + " pt " +
-                                " WHERE ft.LastPlaceID = pt.PlaceID", null);
-
-                Log.i(TAG, "Found " + friends.getCount() + " friends.");
-                friends.moveToFirst();
-                while (!friends.isAfterLast()) {
-                    Log.i(TAG, "Adding friend: " + friends.getString(0));
-                    resultList.add(new Place(
-                            friends.getString(0),
-                            friends.getString(1),
-                            friends.getDouble(2),
-                            friends.getDouble(3),
-                            friends.getString(4),
-                            null));
-                    friends.moveToNext();
-                }
-            } else {
-                Log.i(TAG, "NeighbourhoodDB is null");
-            }
-        }
-        catch (Exception ex) {
-            Log.e(TAG, "Failed to add nearby friends", ex);
-        }
-        return resultList;
-    }
-
 
 //    public static Place details(String reference) {
 //        HttpURLConnection conn = null;

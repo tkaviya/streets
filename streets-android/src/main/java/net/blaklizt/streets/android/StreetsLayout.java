@@ -21,7 +21,7 @@
 //import com.parse.SignUpCallback;
 //import net.blaklizt.streets.android.NavigationLayout;
 //import net.blaklizt.streets.android.location.places.PlaceTypes;
-//import net.blaklizt.streets.android.persistence.Neighbourhood;
+//import net.blaklizt.streets.android.persistence.StreetsDBHelper;
 //
 ///**
 // * User: tkaviya
@@ -76,7 +76,7 @@
 //		try {
 //
 //            streetsLayout = this;
-//            neighbourhoodDB = new Neighbourhood(getApplicationContext()).getWritableDatabase();
+//            neighbourhoodDB = new StreetsDBHelper(getApplicationContext()).getWritableDatabase();
 //
 //            Parse.initialize(this, PARSE_APP_ID, PARSE_API_KEY);
 //
@@ -193,7 +193,7 @@
 //			if (StreetsLayout.getInstance().getNeighbourhoodDB() != null) {
 //				Cursor userData = StreetsLayout.getInstance().getNeighbourhoodDB().rawQuery(
 //						"SELECT ut.Username, ut.Password, ut.Email, pt.Latitude, pt.Longitude " +
-//								" FROM " + Neighbourhood.USER_TABLE + " ut, " + Neighbourhood.PLACE_TABLE + " pt " +
+//								" FROM " + StreetsDBHelper.USER_TABLE + " ut, " + StreetsDBHelper.PLACE_TABLE + " pt " +
 //								" WHERE ut.LastPlaceID = pt.PlaceID", null);
 //
 //				userData.moveToFirst();
