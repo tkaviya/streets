@@ -13,6 +13,7 @@
     <ListView android:id="@+id/drawer_list"
         android:layout_width="240dp"
         android:layout_height="match_parent"
+        android:icon="@android:drawable/ic_menu_preferences"
         android:layout_gravity="start"
         android:choiceMode="multipleChoice"
         android:divider="@android:color/transparent"

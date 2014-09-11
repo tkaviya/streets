@@ -13,9 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.*;
 import net.blaklizt.streets.android.location.places.PlaceTypes;
 import net.blaklizt.streets.android.persistence.Neighbourhood;
 
@@ -25,7 +23,7 @@ import net.blaklizt.streets.android.persistence.Neighbourhood;
  * Date: 8/31/14
  * Time: 1:40 AM
  */
-public class Streets extends FragmentActivity implements ActionBar.TabListener {
+public class Streets extends FragmentActivity implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
 
     public static final String TAG = "Streets";
 
@@ -38,7 +36,7 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener {
 	// ActionBarDrawerToggle indicates the presence of Navigation Drawer in the action bar
 	ActionBarDrawerToggle mDrawerToggle;
 
-//    protected TextView status_text_view;
+    protected TextView status_text_view;
     protected SQLiteDatabase neighbourhoodDB = null;
     protected static Streets streets = null;
 
@@ -78,6 +76,9 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener {
     {
         streets = this;
         neighbourhoodDB = new Neighbourhood(getApplicationContext()).getWritableDatabase();
+
+        status_text_view = (TextView)findViewById(R.id.status_text_view);
+//        status_text_view.setText(R.string.startup_status);
     }
 
     private void initializeSideMenu()
@@ -165,38 +166,65 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener {
         try
         {
             Log.i(TAG, "Initializing tabs");
-            viewPager = (ViewPager) findViewById(R.id.pager);
             actionBar = getActionBar();
+
             mAdapter = new TabsPagerAdapter(getSupportFragmentManager());
 
             Log.i(TAG, "Adding tabs to action bar");
 
             // Adding Tabs
-            mapTab          = actionBar.newTab();
-            navigationTab   = actionBar.newTab();
+//            mapTab          = actionBar.newTab();
+//            navigationTab   = actionBar.newTab();
+//
+//            mapTab          .setCustomView(R.layout.tab_layout);
+//            navigationTab   .setCustomView(R.layout.tab_layout);
+//
+//            mapTab          .setText(R.string.map_tab_name);
+//            navigationTab   .setText(R.string.navigation_tab_name);
+//
+//            mapTab          .setTabListener(this);
+//            navigationTab   .setTabListener(this);
 
-            mapTab          .setText(R.string.map_tab_name);
-            navigationTab   .setText(R.string.navigation_tab_name);
+//            mapTab          .setIcon(R.drawable.applications_internet);
+//            navigationTab   .setIcon(R.drawable.navigation);
 
-            mapTab          .setTabListener(this);
-            navigationTab   .setTabListener(this);
+            mapTab          = createActionBarTab(R.string.map_tab_name,          R.drawable.applications_internet);
+	        navigationTab   = createActionBarTab(R.string.navigation_tab_name,   R.drawable.navigation);
 
-            mapTab          .setIcon(R.drawable.applications_internet);
-            navigationTab   .setIcon(R.drawable.navigation);
-
-            actionBar       .addTab(mapTab);
-            actionBar       .addTab(navigationTab);
+            actionBar.addTab(mapTab);
+            actionBar.addTab(navigationTab);
 
 
+            viewPager = (ViewPager) findViewById(R.id.pager);
             viewPager.setAdapter(mAdapter);
+            viewPager.setOnPageChangeListener(this);
+
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-            actionBar.selectTab(navigationTab);
+            actionBar.selectTab(mapTab);
         }
         catch (Exception ex)
         {
             ex.printStackTrace();
             Log.e(TAG, "Failed to initialize app tabs", ex);
         }
+    }
+
+    private ActionBar.Tab createActionBarTab(int tabName, int iconResource)
+    {
+        ActionBar.Tab newTab = actionBar.newTab();
+
+        View tabViewItem = getLayoutInflater().inflate(R.layout.tab_layout, null);
+
+        TextView tabText = (TextView) tabViewItem.findViewById(R.id.tabText);
+        tabText.setText(getResources().getString(tabName));
+
+        ImageView tabImage = (ImageView) tabViewItem.findViewById(R.id.tabIcon);
+        tabImage.setImageDrawable(getResources().getDrawable(iconResource));
+
+        newTab.setCustomView(tabViewItem);
+        newTab.setTabListener(this);
+
+        return newTab;
     }
 
     public static ActionBar getMainActionBar() { return getInstance().actionBar; }
@@ -210,10 +238,18 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener {
 	/** Handling the touch event of app icon */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (mDrawerToggle.onOptionsItemSelected(item)) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
+		if (mDrawerToggle.onOptionsItemSelected(item)) { return true; }
+        switch (item.getItemId())
+        {
+            case R.id.action_search:
+                return true;
+            case R.id.action_settings:
+                return true;
+            case R.id.action_get_location:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
 	}
 
 
@@ -223,7 +259,9 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener {
 		// If the drawer is open, hide action items related to the content view
 		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
 
-		menu.findItem(R.id.location).setVisible(!drawerOpen);
+		menu.findItem(R.id.action_get_location).setVisible(!drawerOpen);
+        menu.findItem(R.id.action_search).setVisible(!drawerOpen);
+        menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -232,22 +270,37 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.option_menu, menu);
-		return true;
+        return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-		//To change body of implemented methods use File | Settings | File Templates.
-        //actionBar.selectTab(tab);
+        Log.i(TAG, "Switching to tab " + tab.getText());
+        viewPager.setCurrentItem(tab.getPosition());
 	}
 
 	@Override
 	public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-		//To change body of implemented methods use File | Settings | File Templates.
+        Log.i(TAG, "Leaving tab " + tab.getText());
 	}
 
 	@Override
 	public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-		//To change body of implemented methods use File | Settings | File Templates.
+        Log.i(TAG, "Reselecting tab " + tab.getText());
 	}
+
+    @Override
+    public void onPageScrolled(int i, float v, int i2) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        actionBar.setSelectedNavigationItem(position);
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int i) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

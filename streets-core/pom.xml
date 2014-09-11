@@ -11,21 +11,21 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.blaklizt.streets</groupId>
-    <artifactId>core</artifactId>
+    <artifactId>streets-core</artifactId>
     <version>${project.parent.version}</version>
     <packaging>jar</packaging>
     <name>Streets Core</name>
     <description>Streets Core</description>
 
     <build>
-        <finalName>core</finalName>
+        <finalName>streets-core</finalName>
     </build>
 
     <dependencies>
 
         <dependency>
             <groupId>net.blaklizt.streets</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>streets-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
@@ -36,7 +36,7 @@
 
         <dependency>
             <groupId>net.blaklizt.streets</groupId>
-            <artifactId>persistence</artifactId>
+            <artifactId>streets-persistence</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

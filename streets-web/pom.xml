@@ -11,14 +11,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.blaklizt.streets</groupId>
-    <artifactId>web</artifactId>
+    <artifactId>streets-web</artifactId>
     <version>${project.parent.version}</version>
     <packaging>war</packaging>
     <name>Streets WEB</name>
     <description>Streets WEB</description>
 
     <build>
-        <finalName>web</finalName>
+        <finalName>streets-web</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -42,7 +42,7 @@
 
         <dependency>
             <groupId>net.blaklizt.streets</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>streets-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

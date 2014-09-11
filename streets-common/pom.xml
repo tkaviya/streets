@@ -11,14 +11,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.blaklizt.streets</groupId>
-    <artifactId>common</artifactId>
+    <artifactId>streets-common</artifactId>
     <version>${project.parent.version}</version>
     <packaging>jar</packaging>
     <name>Streets Common</name>
     <description>Streets Common</description>
 
     <build>
-        <finalName>common</finalName>
+        <finalName>streets-common</finalName>
     </build>
     <dependencies>
         <!-- Streets Dependencies -->

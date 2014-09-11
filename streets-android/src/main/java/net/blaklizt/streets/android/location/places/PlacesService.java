@@ -10,7 +10,6 @@ package net.blaklizt.streets.android.location.places;
 
 import android.database.Cursor;
 import android.util.Log;
-import net.blaklizt.streets.android.MapLayout;
 import net.blaklizt.streets.android.Streets;
 import net.blaklizt.streets.android.persistence.Neighbourhood;
 import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
@@ -29,6 +28,8 @@ import java.util.LinkedList;
  * @author saxman
  */
 public class PlacesService {
+
+    private static final String TAG = Streets.TAG + "_" + PlacesService.class.getSimpleName();
     private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
 
     private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
@@ -64,10 +65,10 @@ public class PlacesService {
 //                jsonResults.append(buff, 0, read);
 //            }
 //        } catch (MalformedURLException e) {
-//            Log.e(MapLayout.TAG, "Error processing Places API URL", e);
+//            Log.e(TAG, "Error processing Places API URL", e);
 //            return resultList;
 //        } catch (IOException e) {
-//            Log.e(MapLayout.TAG, "Error connecting to Places API", e);
+//            Log.e(TAG, "Error connecting to Places API", e);
 //            return resultList;
 //        } finally {
 //            if (conn != null) {
@@ -89,14 +90,14 @@ public class PlacesService {
 //                resultList.add(place);
 //            }
 //        } catch (JSONException e) {
-//            Log.e(MapLayout.TAG, "Error processing JSON results", e);
+//            Log.e(TAG, "Error processing JSON results", e);
 //        }
 //
 //        return resultList;
 //    }
 
 //    public static ArrayList<Place> search(String keyword, double lat, double lng, int radius, ArrayList<String> types) {
-//        Log.i(MapLayout.TAG, "Searching for places near current location");
+//        Log.i(TAG, "Searching for places near current location");
 //        ArrayList<Place> resultList = null;
 //
 //        HttpURLConnection conn = null;
@@ -117,7 +118,7 @@ public class PlacesService {
 //                if (c != types.size() - 1) sb.append("|");
 //            }
 //
-//            Log.i(MapLayout.TAG, "Connecting to URL " + sb.toString());
+//            Log.i(TAG, "Connecting to URL " + sb.toString());
 //
 //            URL url = new URL(sb.toString());
 //            conn = (HttpURLConnection) url.openConnection();
@@ -129,13 +130,13 @@ public class PlacesService {
 //                jsonResults.append(buff, 0, read);
 //            }
 //
-//            Log.d(MapLayout.TAG, "Got result: " + jsonResults.toString());
+//            Log.d(TAG, "Got result: " + jsonResults.toString());
 //
 //        } catch (MalformedURLException e) {
-//            Log.e(MapLayout.TAG, "Error processing Places API URL", e);
+//            Log.e(TAG, "Error processing Places API URL", e);
 //            return resultList;
 //        } catch (IOException e) {
-//            Log.e(MapLayout.TAG, "Error connecting to Places API", e);
+//            Log.e(TAG, "Error connecting to Places API", e);
 //            return resultList;
 //        } finally {
 //            if (conn != null) {
@@ -147,7 +148,7 @@ public class PlacesService {
 //            // Create a JSON object hierarchy from the results
 //            JSONObject jsonObj = new JSONObject(jsonResults.toString());
 //            JSONArray predsJsonArray = jsonObj.getJSONArray("results");
-//            Log.i(MapLayout.TAG, "Response Array: " + jsonObj.toString());
+//            Log.i(TAG, "Response Array: " + jsonObj.toString());
 //
 //            // Extract the Place descriptions from the results
 //            resultList = new ArrayList<Place>(predsJsonArray.length());
@@ -155,19 +156,19 @@ public class PlacesService {
 //                Place place = new Place(
 //                        predsJsonArray.getJSONObject(i).getString("name"),
 //                        predsJsonArray.getJSONObject(i).getString("reference"), lat, lng, null);
-//                Log.i(MapLayout.TAG, "Adding place to response: " + place.name + " : " + place.reference);
+//                Log.i(TAG, "Adding place to response: " + place.name + " : " + place.reference);
 //
 //                resultList.add(place);
 //            }
 //        } catch (JSONException e) {
-//            Log.e(MapLayout.TAG, "Error processing JSON results", e);
+//            Log.e(TAG, "Error processing JSON results", e);
 //        }
 //
 //        return resultList;
 //    }
 
     public static LinkedList<Place> nearby_search(double lat, double lng, int radius, LinkedList<String> types) {
-        Log.i(MapLayout.TAG, "Searching for places near current location");
+        Log.i(TAG, "Searching for places near current location");
         LinkedList<Place> resultList = null;
 
         HttpURLConnection conn = null;
@@ -187,7 +188,7 @@ public class PlacesService {
                 if (c != types.size() - 1) sb.append("|");
             }
 
-            Log.i(MapLayout.TAG, "Connecting to URL " + sb.toString());
+            Log.i(TAG, "Connecting to URL " + sb.toString());
 
             URL url = new URL(sb.toString());
             conn = (HttpURLConnection) url.openConnection();
@@ -199,13 +200,13 @@ public class PlacesService {
                 jsonResults.append(buff, 0, read);
             }
 
-            Log.d(MapLayout.TAG, "Got result: " + jsonResults.toString());
+            Log.d(TAG, "Got result: " + jsonResults.toString());
 
         } catch (MalformedURLException e) {
-            Log.e(MapLayout.TAG, "Error processing Places API URL for nearby search", e);
+            Log.e(TAG, "Error processing Places API URL for nearby search", e);
             return resultList;
         } catch (IOException e) {
-            Log.e(MapLayout.TAG, "Error connecting to Places API for nearby search", e);
+            Log.e(TAG, "Error connecting to Places API for nearby search", e);
             return resultList;
         } finally {
             if (conn != null) {
@@ -217,7 +218,7 @@ public class PlacesService {
             // Create a JSON object hierarchy from the results
             JSONObject jsonObj = new JSONObject(jsonResults.toString());
             JSONArray predsJsonArray = jsonObj.getJSONArray("results");
-            Log.i(MapLayout.TAG, "Response Array: " + jsonObj.toString());
+            Log.i(TAG, "Response Array: " + jsonObj.toString());
 
             // Extract the Place descriptions from the results
             resultList = addNearbyFriendLocations();
@@ -233,11 +234,11 @@ public class PlacesService {
                     predsJsonArray.getJSONObject(i).getString("icon")
                 );
                 place.formatted_address = predsJsonArray.getJSONObject(i).getString("vicinity");
-                Log.i(MapLayout.TAG, "Adding place to response: " + place.name + " : " + place.type.toString());
+                Log.i(TAG, "Adding place to response: " + place.name + " : " + place.type.toString());
                 resultList.add(place);
             }
         } catch (JSONException e) {
-            Log.e(MapLayout.TAG, "Error processing nearby search JSON results", e);
+            Log.e(TAG, "Error processing nearby search JSON results", e);
         }
 
         return resultList;
@@ -246,17 +247,17 @@ public class PlacesService {
     private static LinkedList<Place> addNearbyFriendLocations() {
         LinkedList<Place> resultList = new LinkedList<>();
         try {
-            Log.i(MapLayout.TAG, "Adding nearby friends.");
+            Log.i(TAG, "Adding nearby friends.");
             if (Streets.getInstance().getNeighbourhoodDB() != null) {
                 Cursor friends = Streets.getInstance().getNeighbourhoodDB().rawQuery(
                         "SELECT ft.Username, pt.Reference, pt.Latitude, pt.Longitude, pt.Type " +
                                 " FROM " + Neighbourhood.FRIEND_TABLE + " ft, " + Neighbourhood.PLACE_TABLE + " pt " +
                                 " WHERE ft.LastPlaceID = pt.PlaceID", null);
 
-                Log.i(MapLayout.TAG, "Found " + friends.getCount() + " friends.");
+                Log.i(TAG, "Found " + friends.getCount() + " friends.");
                 friends.moveToFirst();
                 while (!friends.isAfterLast()) {
-                    Log.i(MapLayout.TAG, "Adding friend: " + friends.getString(0));
+                    Log.i(TAG, "Adding friend: " + friends.getString(0));
                     resultList.add(new Place(
                             friends.getString(0),
                             friends.getString(1),
@@ -267,11 +268,11 @@ public class PlacesService {
                     friends.moveToNext();
                 }
             } else {
-                Log.i(MapLayout.TAG, "NeighbourhoodDB is null");
+                Log.i(TAG, "NeighbourhoodDB is null");
             }
         }
         catch (Exception ex) {
-            Log.e(MapLayout.TAG, "Failed to add nearby friends", ex);
+            Log.e(TAG, "Failed to add nearby friends", ex);
         }
         return resultList;
     }
@@ -299,10 +300,10 @@ public class PlacesService {
 //                jsonResults.append(buff, 0, read);
 //            }
 //        } catch (MalformedURLException e) {
-//            Log.e(MapLayout.TAG, "Error processing Places API URL", e);
+//            Log.e(TAG, "Error processing Places API URL", e);
 //            return null;
 //        } catch (IOException e) {
-//            Log.e(MapLayout.TAG, "Error connecting to Places API", e);
+//            Log.e(TAG, "Error connecting to Places API", e);
 //            return null;
 //        } finally {
 //            if (conn != null) {
@@ -314,7 +315,7 @@ public class PlacesService {
 //        try {
 //            // Create a JSON object hierarchy from the results
 //            JSONObject jsonObj = new JSONObject(jsonResults.toString()).getJSONObject("result");
-//            Log.i(MapLayout.TAG, "Response Array: " + jsonObj.toString());
+//            Log.i(TAG, "Response Array: " + jsonObj.toString());
 //            place = new Place();
 //            place.icon = jsonObj.getString("icon");
 //            place.name = jsonObj.getString("name");
@@ -324,7 +325,7 @@ public class PlacesService {
 //            }
 //        } catch (JSONException e) {
 //            Log.e(Mape) {
-//            Log.e(MapLayout.TAG, "Error processing JSON results", e);
+//            Log.e(TAG, "Error processing JSON results", e);
 //        }
 //
 //        return place;

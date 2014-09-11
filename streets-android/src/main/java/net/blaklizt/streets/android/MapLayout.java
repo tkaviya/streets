@@ -21,10 +21,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.*;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import net.blaklizt.streets.android.location.navigation.Directions;
@@ -80,13 +77,13 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
         }
     }
 
+    private static final String TAG = Streets.TAG + "_" + MapLayout.class.getSimpleName();
 
-
-    public static final String TAG = "MapLayout";
     protected static MapLayout mapLayout = null;
     protected GoogleMap googleMap;
     protected Navigator navigator;
     protected Location currentLocation;
+    protected LocationManager locationManager;
     protected HashMap<Marker, Place> map = new HashMap<>();
     protected boolean firstLocationUpdate = true;
     protected ImageView location_image;
@@ -148,21 +145,27 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
 
                 Log.i(TAG, "Starting location updates");
                 // Getting LocationManager object from System Service LOCATION_SERVICE
-                LocationManager locationManager = (LocationManager)getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+                locationManager = (LocationManager)getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
                 Log.i(TAG, "Got LocationManager");
                 // Creating a criteria object to retrieve provider
                 Criteria criteria = new Criteria();
 
+                criteria.setAccuracy(Criteria.ACCURACY_FINE);
+                criteria.setPowerRequirement(Criteria.POWER_LOW);
+
                 // Getting the name of the best provider
                 String provider = locationManager.getBestProvider(criteria, true);
 
-                //            // Getting Current Location
-                //            Location location = locationManager.getLastKnownLocation(provider);
-                //
-                //             if(location!=null){
-                //                //PLACE THE INITIAL MARKER
-                //                 drawMarker(location);
-                //            }
+                Log.i(TAG, "Using provider " + provider);
+
+                // Getting Current Location
+                Location location = locationManager.getLastKnownLocation(provider);
+
+                 if(location!=null){
+                    //PLACE THE INITIAL MARKER
+                     drawMarker(location);
+                }
+
                 locationManager.requestLocationUpdates(provider, 20000, 0, this);
 
             }
@@ -176,13 +179,13 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
     public static MapLayout getInstance() { return mapLayout; }
 
     private void drawMarker(Location location){
-//        Log.i(TAG, "Found current location at " + location.getLatitude() + " : " + location.getLongitude());
-//        googleMap.clear();
-//        LatLng currentPosition = new LatLng(location.getLatitude(),location.getLongitude());
-//        googleMap.addMarker(new MarkerOptions()
-//                .position(currentPosition)
-//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-//                .title("Your current location"));
+        Log.i(TAG, "Found current location at " + location.getLatitude() + " : " + location.getLongitude());
+        googleMap.clear();
+        LatLng currentPosition = new LatLng(location.getLatitude(),location.getLongitude());
+        googleMap.addMarker(new MarkerOptions()
+                .position(currentPosition)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                .title("Your current location"));
     }
 
     private void drawPlaceMarker(Place place){

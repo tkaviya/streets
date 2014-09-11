@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent">
+
+        <ImageView
+                android:id="@+id/nav_location_image"
+                android:layout_width="100dip"
+                android:layout_height="100dip"
+                android:contentDescription="@string/location_image"
+                android:src="@drawable/default_icon" />
+
+        <TableLayout android:orientation="vertical"
+                     android:layout_width="fill_parent"
+                     android:layout_height="fill_parent">
+            <TableRow>
+                <TextView
+                        android:id="@+id/nav_location_name"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:padding="3dip" />
+            </TableRow>
+            <TableRow>
+                <TextView
+                        android:id="@+id/nav_location_address"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:padding="3dip" />
+            </TableRow>
+            <TableRow>
+                <TextView
+                        android:id="@+id/nav_location_categories"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:padding="3dip" />
+            </TableRow>
+        </TableLayout>
+</TableLayout>

@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.blaklizt.streets</groupId>
-    <artifactId>persistence</artifactId>
+    <artifactId>streets-persistence</artifactId>
     <version>${project.parent.version}</version>
     <packaging>jar</packaging>
     <name>Streets Persistence</name>
@@ -24,7 +24,7 @@
 
         <dependency>
             <groupId>net.blaklizt.streets</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>streets-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
