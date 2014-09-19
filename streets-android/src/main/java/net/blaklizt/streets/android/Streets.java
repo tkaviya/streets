@@ -2,6 +2,7 @@ package net.blaklizt.streets.android;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.FragmentActivity;
@@ -9,6 +10,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -16,6 +18,8 @@ import android.view.View;
 import android.widget.*;
 import net.blaklizt.streets.android.location.places.PlaceTypes;
 import net.blaklizt.streets.android.persistence.StreetsDBHelper;
+
+import java.util.LinkedList;
 
 /**
  * Created with IntelliJ IDEA.
@@ -47,6 +51,7 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
     private ActionBar.Tab mapTab;
     private ActionBar.Tab navigationTab;
 	ArrayAdapter<String> placeListAdapater;
+	ExpandableListAdapter sidebarListAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -103,14 +108,28 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
             mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
             // set up the drawer's list view with items and click listener
 
+	        String[] allPlaces = PlaceTypes.getAllPlaces();
+
             // Creating an ArrayAdapter to add items to the listview mDrawerList
             Log.i(TAG, "Getting all places");
-            placeListAdapater = new ArrayAdapter<>(
-                    getBaseContext(),
-                    R.layout.drawer_list_item, PlaceTypes.getAllPlaces()
-            );
+            placeListAdapater = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_multiple_choice /*R.layout.drawer_list_item*/, allPlaces);
+	        sidebarListAdapter = new SidebarMenuAdapter(this, new SparseArray<Group>());
 
-            mDrawerList.setAdapter(placeListAdapater);
+//            mDrawerList.setAdapter(placeListAdapater);
+
+	        mDrawerList.setAdapter((ListAdapter) sidebarListAdapter);
+
+	        LinkedList placesOfInterest = streetsDBHelper.getPlacesOfInterest();
+
+	        Log.i(TAG, "User has " + placesOfInterest.size() + " places of interest");
+	        Log.i(TAG, "mDrawerList has " + mDrawerList.getCount() + " items, " + mDrawerList.getChildCount() + " children.");
+
+//	        for (int c = 0; c < mDrawerList.getCount(); c++)
+//	        {
+//		        CheckedTextView checkedTextView = (CheckedTextView)mDrawerList.getItemAtPosition(c);
+//		        Log.i(TAG, "CheckedTextView @ " + c + " = " + checkedTextView.getText());
+//		        checkedTextView.setChecked(placesOfInterest.contains(checkedTextView.getText()));
+//	        }
 
             // enable ActionBar app icon to behave as action to toggle nav drawer
             getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -299,28 +318,28 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
 	@Override
 	public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
 	{
-		String item = (String) adapterView.getAdapter().getItem(position);
 		CheckedTextView checkedTextView = (CheckedTextView) view;
 
-		//int row_id = (Integer) checkedTextView.getTag();
+		boolean isCheckedState = !checkedTextView.isChecked();
 
-		ListView listView = (ListView)adapterView;
+		Log.i(TAG, checkedTextView.getText() + " clicked. Setting new state " + isCheckedState);
 
-		listView.setItemChecked(position, !listView.isItemChecked(position));
-
-		if (checkedTextView.isSelected() || checkedTextView.isChecked())
+		//toggle checked state
+		if (isCheckedState)
 		{
-			checkedTextView.setSelected(false);
-			checkedTextView.setChecked(false);
+			checkedTextView.setChecked(isCheckedState);
+			Drawable checkedBox = getResources().getDrawable(android.R.drawable.checkbox_off_background);
+			checkedTextView.setCompoundDrawablesWithIntrinsicBounds(checkedBox,null,null,null);
 			checkedTextView.setBackgroundColor(android.R.color.background_light);
-			Toast.makeText(Streets.getInstance(), item + " selected", Toast.LENGTH_SHORT).show();
+			Toast.makeText(Streets.getInstance(), checkedTextView.getText() + " removed", Toast.LENGTH_SHORT).show();
 		}
 		else
 		{
-			checkedTextView.setSelected(true);
-			checkedTextView.setChecked(true);
+			checkedTextView.setChecked(isCheckedState);
+			Drawable checkedBox = getResources().getDrawable(android.R.drawable.checkbox_on_background);
+			checkedTextView.setCompoundDrawablesWithIntrinsicBounds(checkedBox,null,null,null);
 			checkedTextView.setBackgroundColor(android.R.color.black);
-			Toast.makeText(Streets.getInstance(), item + " not selected", Toast.LENGTH_SHORT).show();
+			Toast.makeText(Streets.getInstance(), checkedTextView.getText() + " added", Toast.LENGTH_SHORT).show();
 		}
 
 		placeListAdapater.notifyDataSetChanged();

@@ -148,7 +148,7 @@ public class PlaceTypes {
         defaultPlaces.add(atm);
         defaultPlaces.add(bank);
         defaultPlaces.add(bar);
-//        defaultPlaces.add(beauty_salon);
+        defaultPlaces.add(beauty_salon);
         defaultPlaces.add(bus_station);
         defaultPlaces.add(cafe);
         defaultPlaces.add(casino);
@@ -159,7 +159,7 @@ public class PlaceTypes {
         defaultPlaces.add(police);
         defaultPlaces.add(shopping_mall);
         defaultPlaces.add(store);
-//        defaultPlaces.add(train_station);
+        defaultPlaces.add(train_station);
         return defaultPlaces;
     }
 }
