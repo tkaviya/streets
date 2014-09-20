@@ -3,14 +3,17 @@
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent">
+    <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:padding="5dip" >
 
         <ImageView
                 android:id="@+id/nav_location_image"
                 android:layout_width="100dip"
                 android:layout_height="100dip"
                 android:contentDescription="@string/location_image"
-                android:src="@drawable/default_icon" />
-
+                android:src="@drawable/compass" />
         <TableLayout android:orientation="vertical"
                      android:layout_width="fill_parent"
                      android:layout_height="fill_parent">
@@ -36,4 +39,10 @@
                         android:padding="3dip" />
             </TableRow>
         </TableLayout>
+    </TableRow>
+    <ExpandableListView
+        android:id="@+id/nav_location_steps"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:padding="3dip" />
 </TableLayout>

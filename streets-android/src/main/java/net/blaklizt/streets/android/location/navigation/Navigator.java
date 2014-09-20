@@ -5,12 +5,15 @@ package net.blaklizt.streets.android.location.navigation;
  * Date: 7/1/14
  * Time: 7:50 PM
  */
+
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.util.Log;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import net.blaklizt.streets.android.Streets;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -24,10 +27,14 @@ import java.util.ArrayList;
 
 public class Navigator {
 
+	private static final String TAG = Streets.TAG + "_" + Navigator.class.getSimpleName();
     private LatLng startPosition, endPosition;
     private String mode;
     private GoogleMap map;
     private Directions directions;
+	private String placeName;
+	private String address;
+	private String type;
     private int pathColor = Color.BLUE;
     private int secondPath = Color.CYAN;
     private int thirdPath = Color.RED;
@@ -38,14 +45,17 @@ public class Navigator {
     private String avoid;
     private ArrayList<Polyline> lines = new ArrayList<>();
 
-    public Navigator(GoogleMap map, LatLng startLocation, LatLng endLocation){
+    public Navigator(GoogleMap map, String placeName, String address, String type, LatLng startLocation, LatLng endLocation){
         this.startPosition = startLocation;
         this.endPosition = endLocation;
+	    this.placeName = placeName;
+	    this.address = address;
+	    this.type = type;
         this.map = map;
     }
 
     public interface OnPathSetListener{
-        public void onPathSetListener(Directions directions);
+        public void onPathSetListener(String placeName, String Address, String Type, Directions directions);
     }
 
     public void setOnPathSetListener(OnPathSetListener listener){
@@ -173,7 +183,10 @@ public class Navigator {
             String url = "http://maps.googleapis.com/maps/api/directions/json?"
                     + "origin=" + startPosition.latitude + "," + startPosition.longitude
                     + "&destination=" + endPosition.latitude + "," + endPosition.longitude
-                    + "&sensor=false&units=metric&mode="+mode+"&alternatives="+String.valueOf(alternatives);
+                    + "&units=metric&mode="+mode+"&alternatives="+String.valueOf(alternatives);
+
+	        Log.i(TAG, "Getting directions from " + startPosition.latitude + ":" + startPosition.longitude
+		        + " to " + endPosition.latitude + ":" + endPosition.latitude + " using " + mode);
 
             if(mode.equals("transit")){
                 if(arrivalTime > 0){
@@ -196,6 +209,7 @@ public class Navigator {
                 if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK){
 
                     String s = EntityUtils.toString(response.getEntity());
+	                Log.i(TAG, "Got directions");
                     return new Directions(s);
                 }
 
@@ -225,7 +239,7 @@ public class Navigator {
                 }
 
                 if(listener != null){
-                    listener.onPathSetListener(directions);
+                    listener.onPathSetListener(placeName, address, type, directions);
                 }
 
             }

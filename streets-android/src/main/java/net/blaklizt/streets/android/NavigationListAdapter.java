@@ -1,12 +1,13 @@
 package net.blaklizt.streets.android;
 
 /**
- * User: tkaviya
- * Date: 9/13/14
- * Time: 1:56 PM
- */
+* User: tkaviya
+* Date: 9/13/14
+* Time: 1:56 PM
+*/
 
 import android.app.Activity;
+import android.speech.tts.TextToSpeech;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,16 +16,15 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckedTextView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-public class SidebarMenuAdapter extends BaseExpandableListAdapter
+public class NavigationListAdapter extends BaseExpandableListAdapter
 {
 
 	private final SparseArray<Group> groups;
 	public LayoutInflater inflater;
 	public Activity activity;
 
-	public SidebarMenuAdapter(Activity act, SparseArray<Group> groups) {
+	public NavigationListAdapter(Activity act, SparseArray<Group> groups) {
 		activity = act;
 		this.groups = groups;
 		inflater = act.getLayoutInflater();
@@ -53,8 +53,7 @@ public class SidebarMenuAdapter extends BaseExpandableListAdapter
 		convertView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(activity, children,
-					Toast.LENGTH_SHORT).show();
+				Streets.getInstance().getTTSEngine().speak(children, TextToSpeech.QUEUE_FLUSH, null);
 			}
 		});
 		return convertView;

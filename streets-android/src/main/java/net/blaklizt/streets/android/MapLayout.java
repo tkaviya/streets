@@ -21,13 +21,15 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.*;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import net.blaklizt.streets.android.location.navigation.Directions;
 import net.blaklizt.streets.android.location.navigation.Navigator;
 import net.blaklizt.streets.android.location.places.Place;
-import net.blaklizt.streets.android.location.places.PlaceTypes;
 import net.blaklizt.streets.android.location.places.PlacesService;
 
 import java.util.HashMap;
@@ -40,7 +42,7 @@ import java.util.LinkedList;
  */
 public class MapLayout extends Fragment implements LocationListener, OnMarkerClickListener, Navigator.OnPathSetListener {
 
-    private class LocationTask extends AsyncTask<Void, Void, Void> {
+	private class LocationTask extends AsyncTask<Void, Void, Void> {
 
         LinkedList<Place> nearbyPlaces;
 
@@ -49,7 +51,7 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
         @Override
         protected Void doInBackground(Void... param) {
             nearbyPlaces = PlacesService.nearby_search(
-                    currentLocation.getLatitude(), currentLocation.getLongitude(), 5000, PlaceTypes.getDefaultPlaces());
+                    currentLocation.getLatitude(), currentLocation.getLongitude(), 5000, Streets.getInstance().getStreetsDBHelper().getPlacesOfInterest());
 
             firstLocationUpdate = false;
 
@@ -115,6 +117,12 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
         super.onCreate(savedInstanceState);
     }
 
+	public void refreshLocation()
+	{
+		googleMap.clear();
+		new LocationTask().execute();
+	}
+
     private void initializeMap()
     {
         try
@@ -159,12 +167,12 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
                 Log.i(TAG, "Using provider " + provider);
 
                 // Getting Current Location
-                Location location = locationManager.getLastKnownLocation(provider);
+//                Location location = locationManager.getLastKnownLocation(provider);
 
-                 if(location!=null){
-                    //PLACE THE INITIAL MARKER
-                     drawMarker(location);
-                }
+//                 if(location!=null){
+//                    //PLACE THE INITIAL MARKER
+//                     drawMarker(location);
+//                }
 
                 locationManager.requestLocationUpdates(provider, 20000, 0, this);
 
@@ -178,15 +186,15 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
 
     public static MapLayout getInstance() { return mapLayout; }
 
-    private void drawMarker(Location location){
-        Log.i(TAG, "Found current location at " + location.getLatitude() + " : " + location.getLongitude());
-        googleMap.clear();
-        LatLng currentPosition = new LatLng(location.getLatitude(),location.getLongitude());
-        googleMap.addMarker(new MarkerOptions()
-                .position(currentPosition)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                .title("Your current location"));
-    }
+//    private void drawMarker(Location location){
+//        Log.i(TAG, "Found current location at " + location.getLatitude() + " : " + location.getLongitude());
+//        googleMap.clear();
+//        LatLng currentPosition = new LatLng(location.getLatitude(),location.getLongitude());
+//        googleMap.addMarker(new MarkerOptions()
+//                .position(currentPosition)
+//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+//                .title("Your current location"));
+//    }
 
     private void drawPlaceMarker(Place place){
         try
@@ -221,7 +229,7 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
         try
         {
             if (currentLocation != null) {
-                new LocationTask().execute();
+                refreshLocation();
             }
         }
         catch (Exception ex)
@@ -265,9 +273,9 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
                 location_address_text_view.setText("Latitude: " + latitude);
                 location_categories_text_view.setText("Longitude: " + longitude);
 
-                drawMarker(location);
+                //drawMarker(location);
 
-                new LocationTask().execute();
+	            refreshLocation();
             }
         }
         catch (Exception ex)
@@ -302,13 +310,13 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
                     polyline.remove();
                 }
             }
-            navigator = new Navigator(googleMap,
+            navigator = new Navigator(googleMap, clickedPlace.name, clickedPlace.formatted_address, clickedPlace.type,
                 new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
                 new LatLng(clickedPlace.latitude, clickedPlace.longitude));
 
+	        navigator.setOnPathSetListener(this);
             navigator.findDirections(false);
 
-            navigator.setOnPathSetListener(this);
 
             return true;
         }
@@ -335,7 +343,9 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
     }
 
     @Override
-    public void onPathSetListener(Directions directions) {
+    public void onPathSetListener(String placeName, String address, String type, Directions directions) {
         //displace route paths
+	    Log.d(TAG, "New path set");
+	    NavigationLayout.getInstance().setDirections(placeName, address, type, directions.getRoutes().get(0).getLegs().get(0).getSteps());
     }
 }

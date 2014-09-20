@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:p1="http://schemas.android.com/apk/res/android"
-                p1:minWidth="50dp"
-                p1:minHeight="50dp"
+                p1:minWidth="70dp"
+                p1:minHeight="70dp"
                 p1:layout_width="wrap_content"
                 p1:layout_height="wrap_content"
                 p1:id="@+id/tabRelative"
                 p1:gravity="center">
     <ImageView
             p1:src="@drawable/navigation"
-            p1:layout_width="20dp"
-            p1:layout_height="20dp"
+            p1:layout_width="fill_parent"
+            p1:layout_height="40dp"
+            p1:minHeight="40dp"
             p1:id="@+id/tabImage"
             p1:layout_centerHorizontal="true"
             p1:scaleType="centerInside"
@@ -18,8 +19,9 @@
             p1:contentDescription="@string/tab_icon"/>
     <TextView
             p1:text="@string/tab_name"
-            p1:layout_width="wrap_content"
-            p1:layout_height="wrap_content"
+            p1:layout_width="fill_parent"
+            p1:layout_height="fill_parent"
+            p1:minHeight="40dp"
             p1:id="@+id/tabText"
             p1:layout_centerHorizontal="true"
             p1:layout_below="@+id/tabImage"

@@ -2,24 +2,27 @@ package net.blaklizt.streets.android;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.*;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 import net.blaklizt.streets.android.location.places.PlaceTypes;
 import net.blaklizt.streets.android.persistence.StreetsDBHelper;
 
 import java.util.LinkedList;
+import java.util.Locale;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,18 +30,9 @@ import java.util.LinkedList;
  * Date: 8/31/14
  * Time: 1:40 AM
  */
-public class Streets extends FragmentActivity implements ActionBar.TabListener, ViewPager.OnPageChangeListener, AdapterView.OnItemClickListener {
+public class Streets extends FragmentActivity implements ActionBar.TabListener, ViewPager.OnPageChangeListener/*, AdapterView.OnItemClickListener */{
 
     public static final String TAG = "Streets";
-
-	// Within which the entire activity is enclosed
-	DrawerLayout mDrawerLayout;
-
-	// ListView represents Navigation Drawer
-	ListView mDrawerList;
-
-	// ActionBarDrawerToggle indicates the presence of Navigation Drawer in the action bar
-	ActionBarDrawerToggle mDrawerToggle;
 
     protected TextView status_text_view;
 	protected StreetsDBHelper streetsDBHelper = null;
@@ -47,11 +41,17 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
     //tab data
 	private ViewPager viewPager;
 	private TabsPagerAdapter mAdapter;
-	private ActionBar actionBar;
     private ActionBar.Tab mapTab;
     private ActionBar.Tab navigationTab;
+
+	//sidebardata
 	ArrayAdapter<String> placeListAdapater;
-	ExpandableListAdapter sidebarListAdapter;
+	DrawerLayout mDrawerLayout; // Within which the entire activity is enclosed
+	ListView mDrawerList; // ListView represents Navigation Drawer
+	ActionBarDrawerToggle mDrawerToggle; // Navigation Drawer in the action bar
+
+	//TextToSpeech
+	private static TextToSpeech ttsEngine;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +76,8 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
 
 	public StreetsDBHelper getStreetsDBHelper() { return streetsDBHelper; }
 
+	public TextToSpeech getTTSEngine() { return ttsEngine; }
+
     public static Streets getInstance() { return streets; }
 
     private void initializeStreetsData()
@@ -85,6 +87,14 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
 		    Log.i(TAG, "Initializing streets core data");
 			streets = this;
 		    streetsDBHelper = new StreetsDBHelper(getApplicationContext());
+		    ttsEngine = new TextToSpeech(this, new TextToSpeech.OnInitListener()
+		    {
+			    @Override
+			    public void onInit(int i)
+			    {
+				    ttsEngine.setLanguage(Locale.US);
+			    }
+		    });
 //			status_text_view = (TextView)findViewById(R.id.status_text_view);
 	    }
 	    catch (Exception ex)
@@ -113,27 +123,25 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
             // Creating an ArrayAdapter to add items to the listview mDrawerList
             Log.i(TAG, "Getting all places");
             placeListAdapater = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_multiple_choice /*R.layout.drawer_list_item*/, allPlaces);
-	        sidebarListAdapter = new SidebarMenuAdapter(this, new SparseArray<Group>());
 
-//            mDrawerList.setAdapter(placeListAdapater);
-
-	        mDrawerList.setAdapter((ListAdapter) sidebarListAdapter);
-
+            mDrawerList.setAdapter(placeListAdapater);
 	        LinkedList placesOfInterest = streetsDBHelper.getPlacesOfInterest();
 
 	        Log.i(TAG, "User has " + placesOfInterest.size() + " places of interest");
 	        Log.i(TAG, "mDrawerList has " + mDrawerList.getCount() + " items, " + mDrawerList.getChildCount() + " children.");
 
-//	        for (int c = 0; c < mDrawerList.getCount(); c++)
-//	        {
-//		        CheckedTextView checkedTextView = (CheckedTextView)mDrawerList.getItemAtPosition(c);
-//		        Log.i(TAG, "CheckedTextView @ " + c + " = " + checkedTextView.getText());
-//		        checkedTextView.setChecked(placesOfInterest.contains(checkedTextView.getText()));
-//	        }
+	        for (int c = 0; c < mDrawerList.getCount(); c++)
+	        {
+		        if (placesOfInterest.contains(mDrawerList.getItemAtPosition(c)))
+		        {
+			        Log.d(TAG, "Selecting " + mDrawerList.getItemAtPosition(c));
+			        mDrawerList.setItemChecked(c, true);
+		        }
+	        }
 
             // enable ActionBar app icon to behave as action to toggle nav drawer
             getActionBar().setDisplayHomeAsUpEnabled(true);
-            getActionBar().setHomeButtonEnabled(true);
+	        getActionBar().setHomeButtonEnabled(true);
 
             // Getting reference to the ActionBarDrawerToggle
             mDrawerToggle = new ActionBarDrawerToggle(	this,
@@ -144,14 +152,14 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
 
                 /** Called when drawer is closed */
                 public void onDrawerClosed(View view) {
-                    getActionBar().setTitle(R.string.app_name);
+	                getActionBar().setTitle(R.string.app_name);
                     invalidateOptionsMenu();
 
                 }
 
                 /** Called when a drawer is opened */
                 public void onDrawerOpened(View drawerView) {
-                    getActionBar().setTitle("What are you interested in?");
+	                getActionBar().setTitle("What are you interested in?");
                     invalidateOptionsMenu();
                 }
 
@@ -161,7 +169,7 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
             mDrawerLayout.setDrawerListener(mDrawerToggle);
 
             // Setting item click listener for the listview mDrawerList
-            mDrawerList.setOnItemClickListener(this);
+//            mDrawerList.setOnItemClickListener(this);
         }
         catch (Exception ex)
         {
@@ -175,24 +183,23 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
         try
         {
             Log.i(TAG, "Initializing tabs");
-            actionBar = getActionBar();
 
             mAdapter = new TabsPagerAdapter(getSupportFragmentManager());
 
             Log.i(TAG, "Adding tabs to action bar");
 
             mapTab          = createActionBarTab(R.string.map_tab_name,          R.drawable.applications_internet);
-	        navigationTab   = createActionBarTab(R.string.navigation_tab_name,   R.drawable.compass);
+	        navigationTab   = createActionBarTab(R.string.navigation_tab_name,   R.drawable.navigation);
 
-            actionBar.addTab(mapTab);
-            actionBar.addTab(navigationTab);
+            getActionBar().addTab(mapTab);
+            getActionBar().addTab(navigationTab);
 
             viewPager = (ViewPager) findViewById(R.id.pager);
             viewPager.setAdapter(mAdapter);
             viewPager.setOnPageChangeListener(this);
 
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-            actionBar.selectTab(mapTab);
+            getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+            getActionBar().selectTab(mapTab);
         }
         catch (Exception ex)
         {
@@ -201,15 +208,15 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
         }
     }
 
-	private void initializeSearch()
-	{
-		final AutoCompleteTextView keyword = (AutoCompleteTextView) findViewById(R.id.txt_search);
-		keyword.setOnTouchListener(new RightDrawableOnTouchListener(keyword)
-		{
-			@Override
-			public boolean onDrawableTouch(final MotionEvent event) { return onClickSearch(event, keyword); }
-		});
-	}
+//	private void initializeSearch()
+//	{
+//		final AutoCompleteTextView keyword = (AutoCompleteTextView) findViewById(R.id.txt_search);
+//		keyword.setOnTouchListener(new RightDrawableOnTouchListener(keyword)
+//		{
+//			@Override
+//			public boolean onDrawableTouch(final MotionEvent event) { return onClickSearch(event, keyword); }
+//		});
+//	}
 
 	private boolean onClickSearch(final MotionEvent event, final View view) {
 		// do something
@@ -221,7 +228,7 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
     {
 	    Log.i(TAG, "Creating tab " + getResources().getString(tabName));
 
-        ActionBar.Tab newTab = actionBar.newTab();
+        ActionBar.Tab newTab = getActionBar().newTab();
         View tabViewItem = getLayoutInflater().inflate(R.layout.tab_layout, null);
 	    tabViewItem.setMinimumHeight(140);
 
@@ -244,7 +251,7 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
         return newTab;
     }
 
-    public static ActionBar getMainActionBar() { return getInstance().actionBar; }
+    public static ActionBar getMainActionBar() { return getInstance().getActionBar(); }
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
@@ -258,12 +265,13 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
 		if (mDrawerToggle.onOptionsItemSelected(item)) { return true; }
         switch (item.getItemId())
         {
-            case R.id.action_search:
-                return true;
-            case R.id.action_settings:
-                return true;
+//            case R.id.action_search:
+//                return true;
+//            case R.id.action_settings:
+//                return true;
             case R.id.action_get_location:
-                return true;
+                getActionBar().selectTab(mapTab);
+	            MapLayout.getInstance().refreshLocation();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -277,8 +285,8 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
 		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
 
 		menu.findItem(R.id.action_get_location).setVisible(!drawerOpen);
-        menu.findItem(R.id.action_search).setVisible(!drawerOpen);
-        menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
+//        menu.findItem(R.id.action_search).setVisible(!drawerOpen);
+//        menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -310,38 +318,38 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
     public void onPageScrolled(int i, float v, int i2) {}
 
     @Override
-    public void onPageSelected(int position) { actionBar.setSelectedNavigationItem(position); }
+    public void onPageSelected(int position) { getActionBar().setSelectedNavigationItem(position); }
 
     @Override
     public void onPageScrollStateChanged(int i) {}
 
-	@Override
-	public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
-	{
-		CheckedTextView checkedTextView = (CheckedTextView) view;
-
-		boolean isCheckedState = !checkedTextView.isChecked();
-
-		Log.i(TAG, checkedTextView.getText() + " clicked. Setting new state " + isCheckedState);
-
-		//toggle checked state
-		if (isCheckedState)
-		{
-			checkedTextView.setChecked(isCheckedState);
-			Drawable checkedBox = getResources().getDrawable(android.R.drawable.checkbox_off_background);
-			checkedTextView.setCompoundDrawablesWithIntrinsicBounds(checkedBox,null,null,null);
-			checkedTextView.setBackgroundColor(android.R.color.background_light);
-			Toast.makeText(Streets.getInstance(), checkedTextView.getText() + " removed", Toast.LENGTH_SHORT).show();
-		}
-		else
-		{
-			checkedTextView.setChecked(isCheckedState);
-			Drawable checkedBox = getResources().getDrawable(android.R.drawable.checkbox_on_background);
-			checkedTextView.setCompoundDrawablesWithIntrinsicBounds(checkedBox,null,null,null);
-			checkedTextView.setBackgroundColor(android.R.color.black);
-			Toast.makeText(Streets.getInstance(), checkedTextView.getText() + " added", Toast.LENGTH_SHORT).show();
-		}
-
-		placeListAdapater.notifyDataSetChanged();
-	}
+//	@Override
+//	public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
+//	{
+//		CheckedTextView checkedTextView = (CheckedTextView) view;
+//
+//		boolean isCheckedState = !checkedTextView.isChecked();
+//
+//		Log.i(TAG, checkedTextView.getText() + " clicked. Setting new state " + isCheckedState);
+//
+//		//toggle checked state
+//		if (isCheckedState)
+//		{
+//			checkedTextView.setChecked(isCheckedState);
+//			Drawable checkedBox = getResources().getDrawable(android.R.drawable.checkbox_off_background);
+//			checkedTextView.setCompoundDrawablesWithIntrinsicBounds(checkedBox,null,null,null);
+//			checkedTextView.setBackgroundColor(android.R.color.background_light);
+//			Toast.makeText(Streets.getInstance(), checkedTextView.getText() + " removed", Toast.LENGTH_SHORT).show();
+//		}
+//		else
+//		{
+//			checkedTextView.setChecked(isCheckedState);
+//			Drawable checkedBox = getResources().getDrawable(android.R.drawable.checkbox_on_background);
+//			checkedTextView.setCompoundDrawablesWithIntrinsicBounds(checkedBox,null,null,null);
+//			checkedTextView.setBackgroundColor(android.R.color.black);
+//			Toast.makeText(Streets.getInstance(), checkedTextView.getText() + " added", Toast.LENGTH_SHORT).show();
+//		}
+//
+//		placeListAdapater.notifyDataSetChanged();
+//	}
 }
