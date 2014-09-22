@@ -40,8 +40,8 @@ import java.util.LinkedList;
  * Date: 6/21/14
  * Time: 5:58 PM
  */
-public class MapLayout extends Fragment implements LocationListener, OnMarkerClickListener, Navigator.OnPathSetListener {
-
+public class MapLayout extends Fragment implements LocationListener, OnMarkerClickListener, Navigator.OnPathSetListener, GoogleMap.InfoWindowAdapter
+{
 	private class LocationTask extends AsyncTask<Void, Void, Void> {
 
         LinkedList<Place> nearbyPlaces;
@@ -92,10 +92,13 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
     protected TextView location_name_text_view;
     protected TextView location_address_text_view;
     protected TextView location_categories_text_view;
+	protected LayoutInflater inflater;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.i(TAG, "+++ ON CREATE VIEW +++");
+
+	    this.inflater = inflater;
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.map_layout, container, false);
         // do your view initialization here
@@ -150,6 +153,8 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
                 googleMap.setMyLocationEnabled(true);
 
                 googleMap.setOnMarkerClickListener(this);
+
+	            googleMap.setInfoWindowAdapter(this);
 
                 Log.i(TAG, "Starting location updates");
                 // Getting LocationManager object from System Service LOCATION_SERVICE
@@ -348,4 +353,25 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
 	    Log.d(TAG, "New path set");
 	    NavigationLayout.getInstance().setDirections(placeName, address, type, directions.getRoutes().get(0).getLegs().get(0).getSteps());
     }
+
+	@Override
+	public View getInfoWindow(Marker marker)
+	{
+		return null;
+	}
+
+	@Override
+	public View getInfoContents(Marker marker)
+	{
+		// Getting view from the layout file info_window_layout
+		View v = inflater.inflate(R.layout.info_window_layout, null);
+
+		// Getting reference to the TextView to set title
+		TextView note = (TextView) v.findViewById(R.id.note);
+
+		note.setText(marker.getTitle() );
+
+		// Returning the view containing InfoWindow contents
+		return v;
+	}
 }
