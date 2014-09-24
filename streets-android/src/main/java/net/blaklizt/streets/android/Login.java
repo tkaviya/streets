@@ -41,8 +41,6 @@ public class Login extends Activity implements View.OnClickListener
 
 			String loginResponse = ServerCommunication.sendServerRequest("action=Login&channel=SMARTPHONE&username=" + username.getText().toString() + "&password=" + password.getText().toString());
 
-			Log.i(TAG, "Got server response: " + loginResponse);
-
 			if (loginResponse == null)
 			{
 				Toast.makeText(getLogin(), "Login Failed. Check Internet Connection.", Toast.LENGTH_SHORT).show();

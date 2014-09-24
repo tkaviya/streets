@@ -54,18 +54,24 @@ public class ServerCommunication
 		try
 		{
 			connection = getConnection();
-			Log.i(TAG, "Sending request: " + postParams);
 
-			connection.setRequestProperty("Content-Length", "" + Integer.toString(postParams.getBytes().length));
+			Log.i(TAG, "Sending request of " + postParams.length() + " bytes: " + postParams);
+
+			connection.setRequestProperty("Content-Length", String.valueOf(postParams.length()));
 			DataOutputStream writer = new DataOutputStream(connection.getOutputStream());
 			writer.writeBytes(postParams);
 			writer.flush();
+
+			Log.i(TAG, "Request sent");
 
 			String line;
 			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
 			communicationResult = "";
 			while ((line = reader.readLine()) != null) { communicationResult += line; }
+
+			Log.i(TAG, "Got response of " + communicationResult.length() + " bytes:");
+			Log.i(TAG, communicationResult);
 
 			writer.close();
 			reader.close();
