@@ -59,7 +59,7 @@
         </dependency>
         <dependency>
             <groupId>net.blaklizt.streets</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>streets-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>

@@ -62,8 +62,6 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
         protected void onPreExecute()
         {
             progressDialog = ProgressDialog.show(Streets.getInstance(), "Updating location", "Updating location...", true, true);
-            progressDialog.setCancelable(true);
-            progressDialog.setIndeterminate(true);
             progressDialog.show();
         }
 
@@ -173,7 +171,7 @@ public class MapLayout extends Fragment implements LocationListener, OnMarkerCli
 
                 // Getting Current Location
 //                Location location = locationManager.getLastKnownLocation(provider);
-
+//
 //                 if(location!=null){
 //                    //PLACE THE INITIAL MARKER
 //                     drawMarker(location);

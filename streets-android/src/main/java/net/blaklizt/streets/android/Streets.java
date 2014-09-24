@@ -74,6 +74,13 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
         super.onStart();
     }
 
+	@Override
+	public void onDestroy()
+	{
+		if (ttsEngine != null) ttsEngine.shutdown();
+		super.onDestroy();
+	}
+
 	public StreetsDBHelper getStreetsDBHelper() { return streetsDBHelper; }
 
 	public TextToSpeech getTTSEngine() { return ttsEngine; }
@@ -87,11 +94,12 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
 		    Log.i(TAG, "Initializing streets core data");
 			streets = this;
 		    streetsDBHelper = new StreetsDBHelper(getApplicationContext());
-		    ttsEngine = new TextToSpeech(this, new TextToSpeech.OnInitListener()
+		    ttsEngine = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener()
 		    {
 			    @Override
 			    public void onInit(int i)
 			    {
+				    Log.i(TAG, "Initialized text to speech engine");
 				    ttsEngine.setLanguage(Locale.US);
 			    }
 		    });
