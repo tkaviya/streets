@@ -118,6 +118,16 @@ public class Login extends Activity implements View.OnClickListener
 		password = (EditText)findViewById(R.id.loginPassword);
 		loginBtn = (Button)findViewById(R.id.btnLogin);
 		loginBtn.setOnClickListener(this);
+
+		findViewById(R.id.btnLinkToRegisterScreen).setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				Intent registerActivity = new Intent(getLogin(), Register.class);
+				startActivity(registerActivity);
+			}
+		});
 	}
 
 	private static Login getLogin() { return login; }

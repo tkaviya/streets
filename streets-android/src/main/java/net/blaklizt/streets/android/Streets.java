@@ -130,8 +130,8 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
 
             // Creating an ArrayAdapter to add items to the listview mDrawerList
             Log.i(TAG, "Getting all places");
-            placeListAdapater = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_multiple_choice /*R.layout.drawer_list_item*/, allPlaces);
-
+//            placeListAdapater = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_multiple_choice /*R.layout.drawer_list_item*/, allPlaces);
+	        placeListAdapater = new ArrayAdapter<>(getBaseContext(), R.layout.drawer_list_item, allPlaces);
             mDrawerList.setAdapter(placeListAdapater);
 	        LinkedList placesOfInterest = streetsDBHelper.getPlacesOfInterest();
 

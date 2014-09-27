@@ -21,7 +21,7 @@
         <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="Email" />
+                android:text="Username/Email" />
         <!--  Email TextField -->
         <EditText
                 android:id="@+id/loginEmail"
@@ -39,6 +39,7 @@
                 android:id="@+id/loginPassword"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:inputType="textPassword"
                 android:password="true" />
 
         <!--  Error message -->
@@ -64,8 +65,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dip"
                 android:background="@null"
-                android:text="I don&apos;t have account. Register Me!"
-                android:textColor="#21dbd4"
+                android:text="Register Me"
+                android:textColor="@color/wallet_holo_blue_light"
                 android:textStyle="bold" />
     </LinearLayout>
 
