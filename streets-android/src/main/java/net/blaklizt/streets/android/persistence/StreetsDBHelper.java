@@ -88,6 +88,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 	    }
 
     }
+
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + USER_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + PLACE_TABLE);
@@ -95,6 +96,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 	    db.execSQL("DROP TABLE IF EXISTS " + SELECTED_PLACES);
         onCreate(db);
     }
+
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + USER_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + PLACE_TABLE);
@@ -173,6 +175,26 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 			e.printStackTrace();
 			Log.e(TAG, "Failed to get nearby friend locations: " + e.getMessage(), e);
 			return null;
+		}
+	}
+
+	public void persistPlacesOfInterest(LinkedList<String> places)
+	{
+		//truncate the database before any new insert
+		//getStreetsWritableDatabase().execSQL("DELETE FROM " + SELECTED_PLACES);
+
+		if (places.size() >= 1)
+		{
+			//create bulk insert SQL
+			String sql = "INSERT INTO " + SELECTED_PLACES + " SELECT '" + places.pop() + "' AS PlaceType ";
+			for (String place : places)
+			{
+				sql += " UNION SELECT '" + place + "' ";
+			}
+
+			Log.d(TAG, "Inserting mew places of interest. SQL:\n" + sql);
+
+			getStreetsWritableDatabase().execSQL(sql);
 		}
 	}
 }

@@ -18,7 +18,7 @@ public class ServerCommunication
 	private static final String TAG = Streets.TAG + "_" + ServerCommunication.class.getSimpleName();
 
 //	private static final String SERVER_ADDRESS = "http://streets.blaklizt.net/streets_controller.php";
-	private static final String SERVER_ADDRESS = "http://192.168.43.8/streets_controller.php";
+	private static final String SERVER_ADDRESS = "http://192.168.43.132/streets_controller.php";
 
 	private static HttpURLConnection connection = null;
 

@@ -14,10 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.*;
 import net.blaklizt.streets.android.location.places.PlaceTypes;
 import net.blaklizt.streets.android.persistence.StreetsDBHelper;
 
@@ -30,7 +27,7 @@ import java.util.Locale;
  * Date: 8/31/14
  * Time: 1:40 AM
  */
-public class Streets extends FragmentActivity implements ActionBar.TabListener, ViewPager.OnPageChangeListener/*, AdapterView.OnItemClickListener */{
+public class Streets extends FragmentActivity implements ActionBar.TabListener, ViewPager.OnPageChangeListener, AdapterView.OnItemClickListener/*, AdapterView.OnItemClickListener */{
 
     public static final String TAG = "Streets";
 
@@ -177,7 +174,7 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
             mDrawerLayout.setDrawerListener(mDrawerToggle);
 
             // Setting item click listener for the listview mDrawerList
-//            mDrawerList.setOnItemClickListener(this);
+            mDrawerList.setOnItemClickListener(this);
         }
         catch (Exception ex)
         {
@@ -331,10 +328,10 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
     @Override
     public void onPageScrollStateChanged(int i) {}
 
-//	@Override
-//	public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
-//	{
-//		CheckedTextView checkedTextView = (CheckedTextView) view;
+	@Override
+	public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
+	{
+ //		CheckedTextView checkedTextView = (CheckedTextView) view;
 //
 //		boolean isCheckedState = !checkedTextView.isChecked();
 //
@@ -345,7 +342,7 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
 //		{
 //			checkedTextView.setChecked(isCheckedState);
 //			Drawable checkedBox = getResources().getDrawable(android.R.drawable.checkbox_off_background);
-//			checkedTextView.setCompoundDrawablesWithIntrinsicBounds(checkedBox,null,null,null);
+////			checkedTextView.setCompoundDrawablesWithIntrinsicBounds(checkedBox,null,null,null);
 //			checkedTextView.setBackgroundColor(android.R.color.background_light);
 //			Toast.makeText(Streets.getInstance(), checkedTextView.getText() + " removed", Toast.LENGTH_SHORT).show();
 //		}
@@ -353,11 +350,11 @@ public class Streets extends FragmentActivity implements ActionBar.TabListener, 
 //		{
 //			checkedTextView.setChecked(isCheckedState);
 //			Drawable checkedBox = getResources().getDrawable(android.R.drawable.checkbox_on_background);
-//			checkedTextView.setCompoundDrawablesWithIntrinsicBounds(checkedBox,null,null,null);
+////			checkedTextView.setCompoundDrawablesWithIntrinsicBounds(checkedBox,null,null,null);
 //			checkedTextView.setBackgroundColor(android.R.color.black);
 //			Toast.makeText(Streets.getInstance(), checkedTextView.getText() + " added", Toast.LENGTH_SHORT).show();
 //		}
 //
 //		placeListAdapater.notifyDataSetChanged();
-//	}
+	}
 }
