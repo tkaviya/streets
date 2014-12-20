@@ -16,7 +16,7 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager" inherit-compiler-output="false">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
     <output url="file://C:/production/~apklib-com.google.android.gms_google-play-services_17.0.0" />
     <output-test url="file://C:/test/~apklib-com.google.android.gms_google-play-services_17.0.0" />
     <exclude-output />
