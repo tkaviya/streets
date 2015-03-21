@@ -1,6 +1,4 @@
-./idea
-./streets-android/target
-./streets-common/target
-./streets-core/target
-./streets-persistence/target
-./streets-web/target
+.idea/*
+*/*.class
+*.iml
+*/target
