@@ -19,15 +19,13 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <android.sdk.path>C:\Program Files\Android\android-sdk</android.sdk.path>
-        <!--<android.sdk.path>/opt/android-sdk-update-manager</android.sdk.path>-->
+        <android.sdk.path>${env.ANDROID_SDK_PATH}</android.sdk.path>
     </properties>
 
     <repositories>
         <repository>
             <id>android-support</id>
-            <!--<url>/opt/android-sdk-update-manager/extras/android/m2repository</url>-->
-            <url>C:\Program Files\Android\android-sdk\extras\android\m2repository</url>
+            <url>${env.ANDROID_REPOSITORY}</url>
         </repository>
     </repositories>
 
