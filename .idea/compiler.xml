@@ -25,6 +25,7 @@
         <module name="common" />
         <module name="core" />
         <module name="persistence" />
+        <module name="streets-android" />
         <module name="streets-common" />
         <module name="streets-core" />
         <module name="streets-persistence" />
