@@ -13,7 +13,9 @@
     <url>http://www.blaklizt.net</url>
 
     <properties>
-        <spring.version>3.1.3.RELEASE</spring.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.version>4.1.5.RELEASE</spring.version>
+        <spring.security.version>3.2.6.RELEASE</spring.security.version>
     </properties>
 
     <developers>
@@ -68,25 +70,25 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
-                <version>${spring.version}</version>
+                <version>${spring.security.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
-                <version>${spring.version}</version>
+                <version>${spring.security.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-taglibs</artifactId>
-                <version>${spring.version}</version>
+                <version>${spring.security.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-config</artifactId>
-                <version>${spring.version}</version>
+                <version>${spring.security.version}</version>
             </dependency>
 
             <dependency>
@@ -202,7 +204,7 @@
         <module>streets-common</module>
         <module>streets-core</module>
         <module>streets-web</module>
-        <module>streets-android</module>
+        <!--<module>streets-android</module>-->
     </modules>
 
 </project>
