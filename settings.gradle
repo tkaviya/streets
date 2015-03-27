@@ -1,0 +1,12 @@
+rootProject.name = 'streets'
+include ':streets-persistence'
+include ':streets-common'
+include ':streets-core'
+include ':streets-web'
+//include ':streets-android'
+
+project(':streets-persistence').projectDir = "$rootDir/streets-persistence" as File
+project(':streets-common').projectDir = "$rootDir/streets-common" as File
+project(':streets-core').projectDir = "$rootDir/streets-core" as File
+project(':streets-web').projectDir = "$rootDir/streets-web" as File
+//project(':streets-android').projectDir = "$rootDir/streets-android" as File
