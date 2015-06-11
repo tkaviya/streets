@@ -24,7 +24,7 @@ import java.util.List;
 
 /**
 * Created with IntelliJ IDEA.
-* User: tkaviya
+* SymbiosisUser: tkaviya
 * Date: 8/6/13
 * Time: 7:06 PM
 */
@@ -35,7 +35,7 @@ public class StreetAuthenticator implements UserDetailsService, PasswordEncoder 
 
 	@Autowired
 	private UserDao userDao;
-	
+
 	@Autowired
 	private UserGroupRoleDao userGroupRoleDao;
 

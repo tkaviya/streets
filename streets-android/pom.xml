@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>streets</artifactId>
         <groupId>net.blaklizt</groupId>
@@ -20,6 +21,16 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <android.sdk.path>${env.ANDROID_SDK_PATH}</android.sdk.path>
+        <android.sdk.platform>19</android.sdk.platform>
+        <compatibility.version>18.0.0</compatibility.version>
+        <!-- maven.compiler.plugin.version>3.2</maven.compiler.plugin.version -->
+        <maven.compiler.plugin.version>3.1</maven.compiler.plugin.version>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.ear.plugin.version>2.10</maven.ear.plugin.version>
+        <maven.ejb.plugin.version>2.3</maven.ejb.plugin.version>
+        <maven.ejb.version>3.1</maven.ejb.version>
+        <maven.war.plugin.version>2.5</maven.war.plugin.version>
     </properties>
 
     <repositories>
@@ -31,6 +42,27 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>android</artifactId>
+            <version>4.1.1.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.android.support</groupId>
+            <artifactId>appcompat-v7</artifactId>
+            <version>${compatibility.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.android.support</groupId>
+            <artifactId>com.android.support</artifactId>
+            <version>${compatibility.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.blaklizt.streets</groupId>
+            <artifactId>streets-common</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <!-- dependency>
             <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
         </dependency>
@@ -54,12 +86,7 @@
             <groupId>com.nostra13.universalimageloader</groupId>
             <artifactId>universal-image-loader</artifactId>
             <version>1.9.2</version>
-        </dependency>
-        <dependency>
-            <groupId>net.blaklizt.streets</groupId>
-            <artifactId>streets-common</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
+        </dependency -->
     </dependencies>
 
 
@@ -72,7 +99,7 @@
                 <version>3.9.0-rc.2</version>
                 <configuration>
                     <sdk>
-                        <platform>19</platform>
+                        <platform>${android.sdk.platform}</platform>
                     </sdk>
                     <!--<deleteConflictingFiles>true</deleteConflictingFiles>-->
                     <undeployBeforeDeploy>true</undeployBeforeDeploy>
@@ -81,10 +108,10 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>${maven.compiler.plugin.version}</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                     <compilerArgument>-proc:none</compilerArgument>
                 </configuration>
             </plugin>

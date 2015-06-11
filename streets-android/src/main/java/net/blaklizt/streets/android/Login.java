@@ -10,7 +10,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import net.blaklizt.streets.common.ResponseCode;
 import org.json.JSONObject;
 
 /**
@@ -39,11 +38,16 @@ public class Login extends Activity implements View.OnClickListener
 		{
 			Log.i(TAG, "Authenticating " + username.getText().toString() + " with password " + password.getText().toString());
 
-			String loginResponse = ServerCommunication.sendServerRequest("action=Login&channel=SMARTPHONE&username=" + username.getText().toString() + "&password=" + password.getText().toString());
+//			String loginResponse = ServerCommunication.sendServerRequest("action=Login&channel=SMARTPHONE&username=" + username.getText().toString() + "&password=" + password.getText().toString());
+			String loginResponse = "{response_code:1, response_message:\"success\"}";
 
 			if (loginResponse == null)
 			{
-				Toast.makeText(getLogin(), "Login Failed. Check Internet Connection.", Toast.LENGTH_SHORT).show();
+				runOnUiThread(new Runnable() {
+					@Override public void run() {
+						Toast.makeText(getLogin(), "Login Failed. Check Internet Connection.", Toast.LENGTH_SHORT).show();
+					}
+				});
 				return null;
 			}
 
@@ -51,7 +55,7 @@ public class Login extends Activity implements View.OnClickListener
 			{
 				JSONObject responseJSON = new JSONObject(loginResponse);
 
-				if (responseJSON.getInt("response_code") == ResponseCode.SUCCESS.getValue())
+				if (responseJSON.getInt("response_code") == 1)//ResponseCode.SUCCESS.getValue())
 				{
 					Log.i(TAG, "Login successful");
 					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getLogin(), "Login successful", Toast.LENGTH_SHORT).show(); } });

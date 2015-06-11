@@ -44,6 +44,8 @@ public class NavigationLayout extends Fragment
 	    nav_location_address = (TextView)view.findViewById(R.id.nav_location_address);
 	    nav_location_categories = (TextView)view.findViewById(R.id.nav_location_categories);
 
+		nav_location_name.setText("This page will show directions to any location/person you select on the MAP page");
+
         return view;
     }
 
@@ -63,7 +65,7 @@ public class NavigationLayout extends Fragment
 		nav_location_name.setText(placeName);
 		nav_location_address.setText(address);
 		nav_location_categories.setText(type);
-		String header = "NAVIGATION [Click on each item for speech]";
+		String header = "NAVIGATION [Click on item for speech]";
 
 		directionsList.put(0, new Group(header));
 

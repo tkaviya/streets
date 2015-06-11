@@ -21,7 +21,7 @@
     </tr>
     <tr>
         <td colspan="2" style="text-align: center; text-transform: uppercase; font-size: 11px">
-            Welcome ${userSession.user.name}<br />
+            Welcome ${userSession.symbiosisUser.name}<br />
         </td>
     </tr>
     <tr>
@@ -29,10 +29,10 @@
             <table width="100%">
                 <tr>
                     <td style="text-align: left; text-transform: uppercase; font-size: 10px; width: 50%">
-                        Gang: <b>${userSession.user.userAttribute.gangName}</b><br />
+                        Gang: <b>${userSession.symbiosisUser.userAttribute.gangName}</b><br />
                     </td>
                     <td style="text-align: left; text-transform: uppercase; font-size: 10px; width: 50%">
-                        Location: <b>${userSession.user.userAttribute.location.locationName}</b><br />
+                        Location: <b>${userSession.symbiosisUser.userAttribute.location.locationName}</b><br />
                     </td>
                 </tr>
             </table>

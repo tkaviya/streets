@@ -10,7 +10,6 @@ package net.blaklizt.streets.android.location.places;
 
 import android.util.Log;
 import net.blaklizt.streets.android.Streets;
-import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -228,7 +227,8 @@ public class PlacesService {
                     predsJsonArray.getJSONObject(i).getString("reference"),
                     predsJsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
                     predsJsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getDouble("lng"),
-                    CommonUtilities.toCamelCase(typeArray.getString(0).replaceAll("_", " ")),
+                    typeArray.getString(0).replaceAll("_", " "),
+//					CommonUtilities.toCamelCase(typeArray.getString(0).replaceAll("_", " ")),
                     predsJsonArray.getJSONObject(i).getString("icon")
                 );
                 place.formatted_address = predsJsonArray.getJSONObject(i).getString("vicinity");

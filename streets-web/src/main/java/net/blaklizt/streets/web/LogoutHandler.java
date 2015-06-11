@@ -11,7 +11,7 @@ import java.io.IOException;
 
 /**
  * Created with IntelliJ IDEA.
- * User: tkaviya
+ * SymbiosisUser: tkaviya
  * Date: 9/17/13
  * Time: 5:29 PM
  */
@@ -40,7 +40,7 @@ public class LogoutHandler implements Filter {
 	{
 		UserSession userSession = (UserSession)servletRequest.getAttribute("userSession");
 		userSession.setLoggedIn(false);
-		log4j.info("User " + userSession.getUser().getUsername() + " logged out");
+		log4j.info("SymbiosisUser " + userSession.getUser().getUsername() + " logged out");
 		streets.removeLoggedInUser(userSession);
 	}
 

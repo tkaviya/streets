@@ -13,7 +13,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import net.blaklizt.streets.common.ResponseCode;
 import org.json.JSONObject;
 
 /**
@@ -66,7 +65,7 @@ public class Register extends Activity implements View.OnClickListener
 			{
 				JSONObject responseJSON = new JSONObject(registerResponse);
 
-				if (responseJSON.getInt("response_code") == ResponseCode.SUCCESS.getValue())
+				if (responseJSON.getInt("response_code") == 1)//ResponseCode.SUCCESS.getValue())
 				{
 					Log.i(TAG, "Registration successful");
 					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getRegister(), "Registration successful", Toast.LENGTH_SHORT).show(); } });

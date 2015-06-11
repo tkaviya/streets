@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
- * User: tkaviya
+ * SymbiosisUser: tkaviya
  * Date: 2013/07/09
  * Time: 12:27 AM
  */
@@ -31,7 +31,7 @@ public class BankEngine extends ModuleInterface {
 	public String getModuleShortcut() { return "xb"; }
 
 	@Override
-    public Menu execute(UserSession userSession) 
+    public Menu execute(UserSession userSession)
 	{
         return MenuItem.createFinalMenu("You currently have " + CommonUtilities.formatDoubleToMoney(
 				userSession.getUser().getUserAttribute().getBankBalance(),

@@ -14,6 +14,12 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.ear.plugin.version>2.10</maven.ear.plugin.version>
+        <maven.ejb.plugin.version>2.3</maven.ejb.plugin.version>
+        <maven.ejb.version>3.1</maven.ejb.version>
+        <maven.war.plugin.version>2.5</maven.war.plugin.version>
         <spring.version>4.1.5.RELEASE</spring.version>
         <spring.security.version>3.2.6.RELEASE</spring.security.version>
     </properties>
@@ -31,8 +37,8 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                 </configuration>
                 <version>2.3.2</version>
             </plugin>
@@ -202,6 +208,7 @@
     <modules>
         <module>streets-persistence</module>
         <module>streets-common</module>
+        <module>streets-android</module>
         <module>streets-core</module>
         <module>streets-web</module>
         <!--<module>streets-android</module>-->

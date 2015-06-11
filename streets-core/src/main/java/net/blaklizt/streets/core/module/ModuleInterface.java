@@ -17,7 +17,7 @@ import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
- * User: tkaviya
+ * SymbiosisUser: tkaviya
  * Date: 11/10/13
  * Time: 5:09 PM
  */
@@ -34,11 +34,11 @@ public abstract class ModuleInterface extends MenuItem
 	protected Streets streets;
 
 	protected MenuItem instance = null;
-	
+
 	protected Logger log4j;
 
 	protected Module module;
-	
+
 	protected ModuleInterface(String name)
 	{
 		super(name); instance = this;

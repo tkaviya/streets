@@ -17,6 +17,8 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckedTextView;
 import android.widget.TextView;
 
+import java.util.Date;
+
 public class NavigationListAdapter extends BaseExpandableListAdapter
 {
 
@@ -53,7 +55,7 @@ public class NavigationListAdapter extends BaseExpandableListAdapter
 		convertView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Streets.getInstance().getTTSEngine().speak(children, TextToSpeech.QUEUE_FLUSH, null);
+				Streets.getInstance().getTTSEngine().speak(children, TextToSpeech.QUEUE_FLUSH, null, String.valueOf(new Date().getTime()));
 			}
 		});
 		return convertView;

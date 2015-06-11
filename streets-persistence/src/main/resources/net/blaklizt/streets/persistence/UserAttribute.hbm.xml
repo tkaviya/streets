@@ -5,7 +5,7 @@
 <hibernate-mapping>
 
     <class name="net.blaklizt.streets.persistence.UserAttribute" table="userattribute" schema="" catalog="streets">
-        <id name="userID" column="UserID" length="10" />
+        <id name="symbiosisUserID" column="UserID" length="10" />
         <property name="gangName" column="GangName" length="30" insert="false" update="false"/>
         <property name="bankBalance" column="BankBalance" length="22" not-null="true"/>
         <property name="healthPoints" column="HealthPoints" length="10" not-null="true"/>
