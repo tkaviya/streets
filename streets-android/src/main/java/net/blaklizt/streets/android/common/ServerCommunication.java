@@ -1,4 +1,4 @@
-package net.blaklizt.streets.android;
+package net.blaklizt.streets.android.common;
 
 import android.util.Log;
 
@@ -15,7 +15,7 @@ import java.net.URL;
  */
 public class ServerCommunication
 {
-	private static final String TAG = Streets.TAG + "_" + ServerCommunication.class.getSimpleName();
+	private static final String TAG = StreetsCommon.getTag(ServerCommunication.class);
 
 //	private static final String SERVER_ADDRESS = "http://streets.blaklizt.net/streets_controller.php";
 	private static final String SERVER_ADDRESS = "http://BLAK-WIDOW/streets/streets_controller.php";

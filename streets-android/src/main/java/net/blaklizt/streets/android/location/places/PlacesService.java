@@ -9,7 +9,8 @@ package net.blaklizt.streets.android.location.places;
  */
 
 import android.util.Log;
-import net.blaklizt.streets.android.Streets;
+import net.blaklizt.streets.android.activity.Streets;
+import net.blaklizt.streets.android.common.StreetsCommon;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,7 +27,7 @@ import java.util.LinkedList;
  */
 public class PlacesService {
 
-    private static final String TAG = Streets.TAG + "_" + PlacesService.class.getSimpleName();
+    private static final String TAG = StreetsCommon.getTag(PlacesService.class);
     private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
 
     private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
@@ -218,7 +219,7 @@ public class PlacesService {
             Log.i(TAG, "Response Array: " + jsonObj.toString());
 
             // Extract the Place descriptions from the results
-            resultList = Streets.getInstance().getStreetsDBHelper().getNearbyFriendLocations();
+            resultList = Streets.getStreetsCommon().getStreetsDBHelper().getNearbyFriendLocations();
 
             for (int i = 0; i < predsJsonArray.length(); i++) {
                 JSONArray typeArray = predsJsonArray.getJSONObject(i).getJSONArray("types");

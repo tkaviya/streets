@@ -5,7 +5,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import net.blaklizt.streets.android.Streets;
+import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.common.UserPreference;
 import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.location.places.PlaceTypes;
 
@@ -20,10 +21,10 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
     /**
      * Created by Tsungai on 2014/03/31.
      */
-    private static final String TAG = Streets.TAG + "_" + StreetsDBHelper.class.getSimpleName();
+    private static final String TAG = StreetsCommon.getTag(StreetsDBHelper.class);
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 1;
 
 	private static final String DATABASE_NAME = "Neighbourhood.db";
 
@@ -32,6 +33,8 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 	private static final String USER_TABLE = "User";
 
 	private static final String FRIEND_TABLE = "Friend";
+
+	private static final String USER_PREFERENCES = "UserPreferences";
 
 	private static final String SELECTED_PLACES = "SelectedPlaces";
 
@@ -66,10 +69,17 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
                 "Longitude DOUBLE," +
                 "Type VARCHAR(50))");
 
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + USER_PREFERENCES + " (" +
+				"SymbiosisID INT(11)," +
+				"ShowIntro TINYINT(1) DEFAULT 1," +
+				"SuggestGPS TINYINT(1) DEFAULT 1," +
+				"AutoEnableGPS TINYINT(1) DEFAULT 1)");
+
 	    db.execSQL("CREATE TABLE IF NOT EXISTS " + SELECTED_PLACES + " (PlaceType VARCHAR(50))");
 
         db.execSQL("INSERT INTO " + PLACE_TABLE + " VALUES (0,'Home',NULL,-26.092154565,28.216708950,'ME')");
         db.execSQL("INSERT INTO " + USER_TABLE + " VALUES (0,'tkaviya','ImTheStreets','tsungai.kaviya@gmail.com',0,0,'ME')");
+		db.execSQL("INSERT INTO " + USER_PREFERENCES + " (SymbiosisID,ShowIntro,SuggestGPS,AutoEnableGPS) VALUES (0,1,1,1)");
 
 	    LinkedList <String> defaultPlaces = PlaceTypes.getDefaultPlaces();
 
@@ -93,16 +103,13 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + USER_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + PLACE_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + FRIEND_TABLE);
+		db.execSQL("DROP TABLE IF EXISTS " + USER_PREFERENCES);
 	    db.execSQL("DROP TABLE IF EXISTS " + SELECTED_PLACES);
         onCreate(db);
     }
 
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + USER_TABLE);
-        db.execSQL("DROP TABLE IF EXISTS " + PLACE_TABLE);
-        db.execSQL("DROP TABLE IF EXISTS " + FRIEND_TABLE);
-	    db.execSQL("DROP TABLE IF EXISTS " + SELECTED_PLACES);
-        onCreate(db);
+		onUpgrade(db, oldVersion, newVersion);
     }
 
 	private SQLiteDatabase getStreetsWritableDatabase()
@@ -115,6 +122,47 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 	}
 
 	//database functions
+	public LinkedList<UserPreference> getUserPreferences(Integer symbiosisUserID)
+	{
+		try
+		{
+			Log.i(TAG, "Checking user preferences.");
+			LinkedList<UserPreference> userPreferences = new LinkedList<>();
+
+			Cursor preferences = getStreetsWritableDatabase().rawQuery(
+				"SELECT * FROM " + USER_PREFERENCES + " WHERE SymbiosisID = '" + symbiosisUserID + "'", null);
+
+			Log.i(TAG, "Found " + preferences.getCount() + " preferences.");
+			preferences.moveToFirst();
+			while (!preferences.isAfterLast())
+			{
+				for (int c = 0; c < preferences.getColumnCount(); c++) {
+					Log.i(TAG, "Adding preference: " + preferences.getColumnName(c) + " = " + preferences.getString(c));
+					userPreferences.add(new UserPreference(preferences.getColumnName(c), preferences.getString(c)));
+				}
+				preferences.moveToNext();
+			}
+
+			return userPreferences;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			Log.e(TAG, "Failed to get user preferences: " + e.getMessage(), e);
+			return null;
+		}
+	}
+
+	public void setUserPreference(Integer symbiosisUserID, String preference, String value)
+	{
+		Log.i(TAG, "Updating user preference " + preference + " to " + value + " for user " + symbiosisUserID);
+
+		getStreetsWritableDatabase().execSQL(
+				"UPDATE " + USER_PREFERENCES
+						+ " SET " + preference + " = '" + value + "'"
+						+ " WHERE SymbiosisID = '" + symbiosisUserID + "'");
+	}
+
 	public LinkedList<Place> getNearbyFriendLocations()
 	{
 		try
@@ -197,4 +245,5 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 			getStreetsWritableDatabase().execSQL(sql);
 		}
 	}
+
 }

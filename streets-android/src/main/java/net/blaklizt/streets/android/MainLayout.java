@@ -54,7 +54,7 @@
 //    @Override
 //    public void onStart() {
 //        Log.i(TAG, "+++ ON START +++");
-//        status_text_view.setText("I'm the streets, look both way before you cross me!");
+//        status_text_view.setText("I'm the streets, look both ways before you cross me!");
 //        super.onStart();
 //    }
 //}

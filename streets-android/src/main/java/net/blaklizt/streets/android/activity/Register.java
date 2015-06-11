@@ -1,4 +1,4 @@
-package net.blaklizt.streets.android;
+package net.blaklizt.streets.android.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -13,6 +13,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import net.blaklizt.streets.android.R;
+import net.blaklizt.streets.android.common.ServerCommunication;
+import net.blaklizt.streets.android.common.StreetsCommon;
 import org.json.JSONObject;
 
 /**
@@ -22,7 +25,7 @@ import org.json.JSONObject;
  */
 public class Register extends Activity implements View.OnClickListener
 {
-	private static final String TAG = Streets.TAG + "_" + Register.class.getSimpleName();
+	private static final String TAG = StreetsCommon.getTag(Register.class);
 
 	private static Register register;
 
@@ -46,18 +49,18 @@ public class Register extends Activity implements View.OnClickListener
 			Log.i(TAG, "Registering " + username.getText().toString() + " with password " + password.getText().toString());
 
 			String registerResponse = ServerCommunication.sendServerRequest(
-				"action=Register&channel=SMARTPHONE" +
-				"&firstname=" + firstname.getText().toString() +
-				"&lastname=" + lastname.getText().toString() +
-				"&username=" + username.getText().toString() +
-				"&msisdn=" + msisdn.getText().toString() +
-				"&email=" + email.getText().toString() +
-				"&password=" + password.getText().toString() +
-				"&imei=" + getIMEI() + "&imsi=" + getIMSI());
+					"action=Register&channel=" + StreetsCommon.CHANNEL +
+							"&firstname=" + firstname.getText().toString() +
+							"&lastname=" + lastname.getText().toString() +
+							"&username=" + username.getText().toString() +
+							"&msisdn=" + msisdn.getText().toString() +
+							"&email=" + email.getText().toString() +
+							"&password=" + password.getText().toString() +
+							"&imei=" + getIMEI() + "&imsi=" + getIMSI());
 
 			if (registerResponse == null)
 			{
-				Toast.makeText(getRegister(), "Registration Failed. Check Internet Connection.", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getInstance(), "Registration Failed. Check Internet Connection.", Toast.LENGTH_SHORT).show();
 				return null;
 			}
 
@@ -68,27 +71,28 @@ public class Register extends Activity implements View.OnClickListener
 				if (responseJSON.getInt("response_code") == 1)//ResponseCode.SUCCESS.getValue())
 				{
 					Log.i(TAG, "Registration successful");
-					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getRegister(), "Registration successful", Toast.LENGTH_SHORT).show(); } });
-					Intent mainActivity = new Intent(getRegister(), Streets.class);
+					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), "Registration successful", Toast.LENGTH_SHORT).show(); } });
+					Intent mainActivity = new Intent(getInstance(), Streets.class);
 					startActivity(mainActivity);
+					StreetsCommon.registerStreetsActivity(Streets.getInstance());
 				}
 				else if (responseJSON.getInt("response_code") < 0)
 				{
 					Log.i(TAG, "Registration failed with internal error: " + responseJSON.getString("response_message"));
-					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getRegister(), "Registration Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show(); } });
+					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), "Registration Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show(); } });
 				}
 				else
 				{
 					final String registerResponseStr = responseJSON.getString("response_message");
 					Log.i(TAG, "Registration failed: " + responseJSON.getString("response_message"));
-					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getRegister(), registerResponseStr, Toast.LENGTH_SHORT).show(); } });
+					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), registerResponseStr, Toast.LENGTH_SHORT).show(); } });
 				}
 			}
 			catch (Exception e)
 			{
 				Log.e(TAG, "Registration failed: " + e.getMessage(), e);
 				e.printStackTrace();
-				runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getRegister(), "Registration Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show(); } });
+				runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), "Registration Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show(); } });
 			}
 			return null;
 		}
@@ -97,7 +101,7 @@ public class Register extends Activity implements View.OnClickListener
 		@Override
 		protected void onPreExecute()
 		{
-			progressDialog = ProgressDialog.show(getRegister(), "Registering", "Registering...", true, false);
+			progressDialog = ProgressDialog.show(getInstance(), "Registering", "Registering...", true, false);
 			progressDialog.show();
 		}
 
@@ -113,32 +117,43 @@ public class Register extends Activity implements View.OnClickListener
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		register = this;
-		setContentView(R.layout.register_layout);
-		firstname = (EditText)findViewById(R.id.registerFirstname);
-		lastname = (EditText)findViewById(R.id.registerLastname);
-		username = (EditText)findViewById(R.id.registerUsername);
-		msisdn = (EditText)findViewById(R.id.registerMsisdn);
-		email = (EditText)findViewById(R.id.registerEmail);
-		password = (EditText)findViewById(R.id.registerPassword);
-		confirmPassword = (EditText)findViewById(R.id.registerConfirmPassword);
-		register_error = (TextView)findViewById(R.id.register_error);
-		registerBtn = (Button)findViewById(R.id.btnRegister);
-		registerBtn.setOnClickListener(this);
+		try {
+			super.onCreate(savedInstanceState);
+			register = this;
+			setContentView(R.layout.register_layout);
+			firstname = (EditText) findViewById(R.id.registerFirstname);
+			lastname = (EditText) findViewById(R.id.registerLastname);
+			username = (EditText) findViewById(R.id.registerUsername);
+			msisdn = (EditText) findViewById(R.id.registerMsisdn);
+			email = (EditText) findViewById(R.id.registerEmail);
+			password = (EditText) findViewById(R.id.registerPassword);
+			confirmPassword = (EditText) findViewById(R.id.registerConfirmPassword);
+			register_error = (TextView) findViewById(R.id.register_error);
+			registerBtn = (Button) findViewById(R.id.btnRegister);
+			registerBtn.setOnClickListener(this);
 
-		findViewById(R.id.btnLinkToLoginScreen).setOnClickListener(new View.OnClickListener()
+			findViewById(R.id.btnLinkToLoginScreen).setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					Intent loginActivity = new Intent(getInstance(), Login.class);
+					startActivity(loginActivity);
+				}
+			});
+		}
+		catch (Exception ex)
 		{
-			@Override
-			public void onClick(View view)
-			{
-				Intent loginActivity = new Intent(getRegister(), Login.class);
-				startActivity(loginActivity);
-			}
-		});
+			ex.printStackTrace();
+			Log.e(TAG, "Failed to create register dialogue: " + ex.getMessage(), ex);
+			runOnUiThread(new Runnable() {
+				@Override public void run() {
+					Toast.makeText(getApplication(), "Failed to create register dialogue! An error occurred.",
+					Toast.LENGTH_SHORT).show();
+				}
+			});
+		}
 	}
 
-	private static Register getRegister() { return register; }
+	public static Register getInstance() { return register; }
 
 	@Override
 	public void onClick(View view)

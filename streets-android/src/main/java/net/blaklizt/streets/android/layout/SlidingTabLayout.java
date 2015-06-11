@@ -1,4 +1,4 @@
-package net.blaklizt.streets.android;
+package net.blaklizt.streets.android.layout;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import net.blaklizt.streets.android.R;
 
 
 public class SlidingTabLayout extends HorizontalScrollView {

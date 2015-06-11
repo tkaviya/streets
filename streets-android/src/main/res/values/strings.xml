@@ -2,12 +2,15 @@
 <resources>
 
     <!-- App Strings -->
-    <string name="app_name">The Streets</string>
+    <string name="app_name">Tha Streetz</string>
+    <string name="app_settings">User Settings</string>
     <string name="map_tab_name">MAP</string>
     <string name="navigation_tab_name">NAV</string>
-    <string name="startup_status">I\'m the streets, look both ways before you cross me!</string>
+    <string name="startup_status">I\'m the streets look both ways before you cross me!</string>
     <string name="tab_name">Tab Name</string>
     <string name="tab_icon">Tab Icon</string>
+    <string name="blaklizt_logo">Blaklizt Logo</string>
+    <string name="blaklizt_website">http://www.blaklizt.net</string>
 
     <!-- Menu titles -->
     <string name="action_search">Search</string>

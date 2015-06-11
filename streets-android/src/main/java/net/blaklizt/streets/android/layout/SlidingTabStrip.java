@@ -1,4 +1,4 @@
-package net.blaklizt.streets.android;
+package net.blaklizt.streets.android.layout;
 
 import android.R;
 import android.content.Context;

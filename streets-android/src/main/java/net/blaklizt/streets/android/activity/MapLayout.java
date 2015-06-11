@@ -1,18 +1,23 @@
-package net.blaklizt.streets.android;
+package net.blaklizt.streets.android.activity;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.location.*;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -22,25 +27,29 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.*;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import net.blaklizt.streets.android.R;
+import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.location.navigation.Directions;
 import net.blaklizt.streets.android.location.navigation.Navigator;
 import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.location.places.PlacesService;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * User: tkaviya
  * Date: 6/21/14
  * Time: 5:58 PM
  */
-public class MapLayout
-		extends Fragment
-		implements LocationListener, OnMarkerClickListener, Navigator.OnPathSetListener, GoogleMap.InfoWindowAdapter, GpsStatus.Listener
+public class MapLayout extends Fragment
+	implements	LocationListener, OnMarkerClickListener, 
+				Navigator.OnPathSetListener, GoogleMap.InfoWindowAdapter,
+				GpsStatus.Listener
 {
+	private LinkedList<String> randomNews = new LinkedList<>();
+
+	private LinkedList<AsyncTask> runningTasks = new LinkedList<>();
+
 	private class LocationTask extends AsyncTask<Void, Void, Void> {
 
         LinkedList<Place> nearbyPlaces;
@@ -49,12 +58,23 @@ public class MapLayout
 
         @Override
         protected Void doInBackground(Void... param) {
-            nearbyPlaces = PlacesService.nearby_search(
-                    currentLocation.getLatitude(),
-					currentLocation.getLongitude(), 5000,
-					Streets.getInstance().getStreetsDBHelper().getPlacesOfInterest()
-			);
 
+			if (currentLocation != null) {
+				nearbyPlaces = PlacesService.nearby_search(
+						currentLocation.getLatitude(),
+						currentLocation.getLongitude(), 5000,
+						Streets.getStreetsCommon().getStreetsDBHelper().getPlacesOfInterest()
+				);
+			}
+			else {
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						Toast.makeText(getActivity(), "Current location unknown.\n" +
+								"Check location settings.", Toast.LENGTH_LONG).show();
+					}
+				});
+			}
             return null;
         }
 
@@ -75,13 +95,18 @@ public class MapLayout
         @Override
         protected void onPostExecute(Void result)
         {
-            progressDialog.hide();
+			googleMap.clear();
 
             if (nearbyPlaces != null) for (Place place : nearbyPlaces) { drawPlaceMarker(place); }
+
+			progressDialog.hide();
+
+			runningTasks.remove(this);
         }
     }
 
-    private static final String TAG = Streets.TAG + "_" + MapLayout.class.getSimpleName();
+    private static final String TAG = StreetsCommon.getTag(MapLayout.class);
+
 
 	protected static MapLayout mapLayout = null;
     protected GoogleMap googleMap;
@@ -94,10 +119,12 @@ public class MapLayout
     protected TextView location_name_text_view;
     protected TextView location_address_text_view;
     protected TextView location_categories_text_view;
+	protected TextView status_text_view;
 	protected LayoutInflater inflater;
 
+	protected Random generator = new Random(new Date().getTime());
+
 	//location provider data
-	protected final static String PROVIDER_GPS = "gps";
 	protected final static String PROVIDER_CHEAPEST = "passive";
 	protected final static Integer MINIMUM_REFRESH_TIME = 20000;
 	protected String defaultProvider = PROVIDER_CHEAPEST;		//default working provider
@@ -113,6 +140,16 @@ public class MapLayout
         // do your view initialization here
         mapLayout = this;
 
+		randomNews.add("Weather is 17 degrees");
+		randomNews.add("Traffic expected for 2 hours");
+		randomNews.add("DoubleBurger special @Wimpy 2day");
+		randomNews.add("C.Nyovest @ Bar9 2night");
+		randomNews.add("Your friend Ntwaizen is nearby");
+		randomNews.add("Yo fav. food (KFC) is nearby!");
+		randomNews.add("Distance 2 home: 10m | 1 min");
+		randomNews.add("Distance 2 work: 1km | 5 min");
+
+		status_text_view = (TextView) view.findViewById(R.id.status_text_view);
         location_image =  (ImageView) view.findViewById(R.id.location_image_view);
         location_name_text_view = (TextView) view.findViewById(R.id.location_name_text_view);
         location_address_text_view = (TextView) view.findViewById(R.id.location_address_text_view);
@@ -129,10 +166,16 @@ public class MapLayout
         super.onCreate(savedInstanceState);
     }
 
+	@Override
+	public void onDestroy()
+	{
+		for (AsyncTask runningTask : runningTasks) { runningTask.cancel(true); }
+		runningTasks.clear();
+	}
+
 	public void refreshLocation()
 	{
-		googleMap.clear();
-		new LocationTask().execute();
+		runningTasks.add(new LocationTask().execute());
 	}
 
     private void initializeMap()
@@ -175,6 +218,28 @@ public class MapLayout
 
 				locationManager.addGpsStatusListener(this);
 
+
+				if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+				{
+					if (Streets.getStreetsCommon().getUserPreference("SuggestGPS").equals("1"))
+					{
+						GPSDialogueListener gpsDialogueListener = new GPSDialogueListener(getActivity());
+						GPSDialogueListener.GPSDialogueOptionsListener gpsDialogueOptionsListener = new GPSDialogueListener.GPSDialogueOptionsListener();
+						CharSequence[] items = new CharSequence[]{"Never ask again"};
+
+						AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+						builder.setMessage("Turn on GPS?")
+								.setMultiChoiceItems(items, new boolean[]{true}, gpsDialogueOptionsListener)
+								.setPositiveButton("Yes", gpsDialogueListener)
+								.setNegativeButton("No", gpsDialogueListener).show();
+					}
+					else if (Streets.getStreetsCommon().getUserPreference("AutoEnableGPS").equals("1"))
+					{
+						Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+						startActivity(myIntent);
+					}
+				}
+
 				updateLocationProvider(true);
             }
         }
@@ -193,19 +258,19 @@ public class MapLayout
 			{
 				// Creating a criteria object to retrieve provider
 				Log.i(TAG, "Checking for preferred location provider 'GPS' for best accuracy.");
-				Location location = locationManager.getLastKnownLocation(PROVIDER_GPS);
+				Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
 				if (location != null)
 				{
 					//PLACE THE INITIAL MARKER
 					Log.i(TAG, "Found location using GPS.");
-					currentProvider = locationManager.getProvider(PROVIDER_GPS);
+					currentProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
 
 					Log.i(TAG, "Provider accuracy: " + currentProvider.getAccuracy());
 					Log.i(TAG, "Provider power: " + currentProvider.getPowerRequirement());
 
-					Log.i(TAG, "Starting location update requests with provider: " + PROVIDER_GPS);
-					locationManager.requestLocationUpdates(PROVIDER_GPS, MINIMUM_REFRESH_TIME, 0, this);
+					Log.i(TAG, "Starting location update requests with provider: " + LocationManager.GPS_PROVIDER);
+					locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MINIMUM_REFRESH_TIME, 0, this);
 
 					Log.i(TAG, "Placing initial marker.");
 					drawMarker(location);
@@ -240,7 +305,7 @@ public class MapLayout
 				while (location == null && providerIterator.hasNext())
 				{
 					providerName = (String)providerIterator.next();
-					if (providerName.equalsIgnoreCase(PROVIDER_GPS))	continue; //skip PROVIDER_GPS,		we just tried it above
+					if (providerName.equalsIgnoreCase(LocationManager.GPS_PROVIDER))	continue; //skip LocationManager.GPS_PROVIDER,		we just tried it above
 					if (providerName.equalsIgnoreCase(defaultProvider))	continue; //skip defaultProvider,	we just tried it above
 					Log.i(TAG, "Trying provider " + providerName);
 					location = locationManager.getLastKnownLocation(providerName);
@@ -283,13 +348,13 @@ public class MapLayout
 	public void onGpsStatusChanged(int i)
 	{
 		String currentProviderName = currentProvider == null ? null : currentProvider.getName();
-		if ((i == GpsStatus.GPS_EVENT_STARTED || i == GpsStatus.GPS_EVENT_FIRST_FIX) && !PROVIDER_GPS.equalsIgnoreCase(currentProviderName))
+		if ((i == GpsStatus.GPS_EVENT_STARTED || i == GpsStatus.GPS_EVENT_FIRST_FIX) && !LocationManager.GPS_PROVIDER.equalsIgnoreCase(currentProviderName))
 		{
 			//GPS was turned on/is now ready, it may now be best location provider
 			Log.i(TAG, "GPS started, trying switch to GPS as preferred location provider from current provider: " + currentProviderName);
 			updateLocationProvider(true);
 		}
-		else if (i == GpsStatus.GPS_EVENT_STOPPED && PROVIDER_GPS.equalsIgnoreCase(currentProviderName))
+		else if (i == GpsStatus.GPS_EVENT_STOPPED && LocationManager.GPS_PROVIDER.equalsIgnoreCase(currentProviderName))
 		{
 			//GPS was turned off, we need another location provider
 			Log.i(TAG, "GPS was turned off and was current location provider. Trying to find alternative location provider.");
@@ -335,8 +400,8 @@ public class MapLayout
     public void onStart() {
         Log.i(TAG, "+++ ON START +++");
         super.onStart();
+		status_text_view.setText("I'm the streets look both way before you cross me");
     }
-
 
     @Override
     public void onResume() {
@@ -375,20 +440,25 @@ public class MapLayout
             // Creating a LatLng object for the current location
             LatLng latLng = new LatLng(latitude, longitude);
 
+			//show a random news items
+			generator.setSeed(new Date().getTime());
+			String info = randomNews.get(generator.nextInt(randomNews.size()));
+			status_text_view.setText(">>> " + info);
+
             if (firstLocationUpdate)
             {
 				//immediately prevent all other processes from updating
 				firstLocationUpdate = false;
 
-                // Showing the current location in Google Map
-                googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+				// Showing the current location in Google Map
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
                 Log.i(TAG, "Camera moved to new location");
 
                 // Zoom in the Google Map
-                googleMap.animateCamera(CameraUpdateFactory.zoomTo(10));
+                googleMap.animateCamera(CameraUpdateFactory.zoomTo(12), 3000, null);
                 Log.i(TAG, "Camera zoomed to view");
 
-                location_image.setImageDrawable(getResources().getDrawable(R.drawable.default_icon));
+                location_image.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.default_icon));
                 location_name_text_view.setText("Current Location");
                 location_address_text_view.setText("Latitude: " + latitude);
                 location_categories_text_view.setText("Longitude: " + longitude);

@@ -1,4 +1,4 @@
-package net.blaklizt.streets.android;
+package net.blaklizt.streets.android.adapter;
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,10 +10,12 @@ package net.blaklizt.streets.android;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import net.blaklizt.streets.android.activity.MapLayout;
+import net.blaklizt.streets.android.activity.NavigationLayout;
 
 public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
-	CharSequence Titles[]; // This will Store the Titles of the Tabs which are Going to be passed when ViewPagerAdapter is created
+	CharSequence Titles[]; // This will Store the TAB_TITLES of the Tabs which are Going to be passed when ViewPagerAdapter is created
 	int NumbOfTabs; // Store the number of tabs, this will also be passed when the ViewPagerAdapter is created
 
 
@@ -34,7 +36,8 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 		{
 			MapLayout mapLayout = new MapLayout();
 			return mapLayout;
-		} else // As we are having 2 tabs if the position is now 0 it must be 1 so we are returning second tab
+		}
+		else // As we are having 2 tabs if the position is now 0 it must be 1 so we are returning second tab
 		{
 			NavigationLayout navigationLayout = new NavigationLayout();
 			return navigationLayout;

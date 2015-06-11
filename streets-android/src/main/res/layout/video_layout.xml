@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:background="#000000"
+              tools:context=".Startup">
+
+    <ImageView android:layout_width="fill_parent"
+               android:layout_height="wrap_content"
+               android:layout_margin="10dip"
+               android:layout_marginTop="100dip"
+               android:layout_marginBottom="30dip"
+               android:gravity="center_horizontal"
+               android:background="@drawable/blaklizt_logo"
+               android:contentDescription="@string/blaklizt_logo"/>
+
+    <VideoView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/videoView"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dip"
+        android:gravity="center_horizontal|center_vertical"
+        android:clickable="false" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dip"
+        android:text="@string/blaklizt_website"
+        android:autoLink="web"
+        android:linksClickable="true"
+        android:gravity="bottom|center_horizontal" />
+
+</LinearLayout>

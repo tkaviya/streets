@@ -13,7 +13,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import net.blaklizt.streets.android.Streets;
+import net.blaklizt.streets.android.common.StreetsCommon;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 public class Navigator {
 
-	private static final String TAG = Streets.TAG + "_" + Navigator.class.getSimpleName();
+	private static final String TAG = StreetsCommon.getTag(Navigator.class);
     private LatLng startPosition, endPosition;
     private String mode;
     private GoogleMap map;

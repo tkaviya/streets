@@ -1,4 +1,4 @@
-package net.blaklizt.streets.android;
+package net.blaklizt.streets.android.activity;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,6 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
+import net.blaklizt.streets.android.common.Group;
+import net.blaklizt.streets.android.adapter.NavigationListAdapter;
+import net.blaklizt.streets.android.R;
+import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.location.navigation.Steps;
 
 import java.util.ArrayList;
@@ -22,7 +26,7 @@ import java.util.ArrayList;
  */
 public class NavigationLayout extends Fragment
 {
-    private static final String TAG = Streets.TAG + "_" + NavigationLayout.class.getSimpleName();
+    private static final String TAG = StreetsCommon.getTag(NavigationLayout.class);
 	private static NavigationLayout navigationLayout;
 	ExpandableListView navigation_steps;
 	TextView nav_location_name;
@@ -44,7 +48,12 @@ public class NavigationLayout extends Fragment
 	    nav_location_address = (TextView)view.findViewById(R.id.nav_location_address);
 	    nav_location_categories = (TextView)view.findViewById(R.id.nav_location_categories);
 
-		nav_location_name.setText("This page will show directions to any location/person you select on the MAP page");
+		nav_location_name.setText("This page will show\n" +
+								  "you directions to any\n" +
+								  "location/person you\n" +
+								  "select on the MAP page.");
+
+//		navigation_steps.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.tstv_bg));
 
         return view;
     }
@@ -77,6 +86,8 @@ public class NavigationLayout extends Fragment
 		navStepsAdapter = new NavigationListAdapter(getActivity(), directionsList);
 
 		navigation_steps.setAdapter(navStepsAdapter);
+
+		navigation_steps.expandGroup(0);
 	}
 
 	public static NavigationLayout getInstance() { return navigationLayout; }

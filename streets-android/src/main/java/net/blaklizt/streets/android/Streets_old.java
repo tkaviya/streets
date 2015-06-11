@@ -25,12 +25,13 @@
 //import java.util.Locale;
 //
 ///**
-// * Created with IntelliJ IDEA.
-// * User: tkaviya
-// * Date: 8/31/14
-// * Time: 1:40 AM
-// */
-//public class Streets extends FragmentActivity implements ActionBar.TabListener, ViewPager.OnPageChangeListener/*, AdapterView.OnItemClickListener */{
+//* Created with IntelliJ IDEA.
+//* User: tkaviya
+//* Date: 8/31/14
+//* Time: 1:40 AM
+//*/
+//public class Streets_old extends FragmentActivity
+//		implements ActionBar.TabListener, ViewPager.OnPageChangeListener/*, AdapterView.OnItemClickListener */{
 //
 //    public static final String TAG = "Streets";
 //

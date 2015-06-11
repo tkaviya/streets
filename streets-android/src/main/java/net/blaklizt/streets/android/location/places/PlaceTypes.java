@@ -1,6 +1,9 @@
 package net.blaklizt.streets.android.location.places;
 
 
+import android.util.Log;
+import net.blaklizt.streets.android.common.StreetsCommon;
+
 import java.lang.reflect.Field;
 import java.util.LinkedList;
 
@@ -12,6 +15,9 @@ import java.util.LinkedList;
  * To change this template use File | Settings | File Templates.
  */
 public class PlaceTypes {
+
+	private static final String TAG = StreetsCommon.getTag(PlaceTypes.class);
+
     public static final String accounting = "";
     public static final String airport = "airport";
     public static final String amusement_park = "";
@@ -23,24 +29,24 @@ public class PlaceTypes {
     public static final String bar = "bar";
     public static final String beauty_salon = "beauty_salon";
     public static final String bicycle_store = "";
-    public static final String book_store = "";
+    public static final String book_store = "book_store";
     public static final String bowling_alley = "";
     public static final String bus_station = "bus_station";
     public static final String cafe = "cafe";
     public static final String campground = "";
-    public static final String car_dealer = "";
+    public static final String car_dealer = "car_dealer";
     public static final String car_rental = "";
-    public static final String car_repair = "";
+    public static final String car_repair = "car_repair";
     public static final String car_wash = "car_wash";
     public static final String casino = "casino";
     public static final String cemetery = "";
     public static final String church = "church";
     public static final String city_hall = "";
-    public static final String clothing_store = "";
-    public static final String convenience_store = "";
+    public static final String clothing_store = "clothing_store";
+    public static final String convenience_store = "convenience_store";
     public static final String courthouse = "courthouse";
-    public static final String dentist = "";
-    public static final String department_store = "";
+    public static final String dentist = "dentist";
+    public static final String department_store = "department_store";
     public static final String doctor = "doctor";
     public static final String electrician = "";
     public static final String electronics_store = "";
@@ -110,7 +116,7 @@ public class PlaceTypes {
     public static final String zoo = "";
 
     public static String[] getAllPlaces() {
-
+		Log.i(TAG, "Getting all places");
 	    Field[] placeTypes = PlaceTypes.class.getDeclaredFields();
 	    String[] allPlaces = new String[placeTypes.length];
 
@@ -118,31 +124,13 @@ public class PlaceTypes {
 	    {
 		    allPlaces[c] = placeTypes[c].getName();
 	    }
-
-//        allPlaces[0] = airport;
-//        allPlaces[1] = atm;
-//        allPlaces[2] = bank;
-//        allPlaces[3] = bar;
-//        allPlaces[4] = beauty_salon;
-//        allPlaces[5] = bus_station;
-//        allPlaces[6] = cafe;
-//        allPlaces[7] = casino;
-//        allPlaces[8] = doctor;
-//        allPlaces[9] = food;
-//        allPlaces[10] = gas_station;
-//        allPlaces[11] = liquor_store;
-//        allPlaces[12] = police;
-//        allPlaces[13] = shopping_mall;
-//        allPlaces[14] = store;
-//        allPlaces[15] = train_station;
-
-//	    allPlaces[16] = church;
-//	    allPlaces[17] = car_wash;
-//	    allPlaces[18] = courthouse;
+		Log.i(TAG, "Returning " + allPlaces.length + " places");
         return allPlaces;
     }
 
     public static LinkedList<String> getDefaultPlaces() {
+
+		Log.i(TAG, "Getting list of default places");
         LinkedList<String> defaultPlaces = new LinkedList<>();
         defaultPlaces.add(airport);
         defaultPlaces.add(atm);
@@ -160,6 +148,7 @@ public class PlaceTypes {
         defaultPlaces.add(shopping_mall);
         defaultPlaces.add(store);
         defaultPlaces.add(train_station);
+		Log.i(TAG, "Returning " + defaultPlaces.size() + " places");
         return defaultPlaces;
     }
 }

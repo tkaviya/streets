@@ -19,7 +19,7 @@
 //import com.parse.ParseException;
 //import com.parse.ParseUser;
 //import com.parse.SignUpCallback;
-//import net.blaklizt.streets.android.NavigationLayout;
+//import net.blaklizt.streets.android.activity.NavigationLayout;
 //import net.blaklizt.streets.android.location.places.PlaceTypes;
 //import net.blaklizt.streets.android.persistence.StreetsDBHelper;
 //
