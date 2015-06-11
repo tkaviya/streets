@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,10 +28,7 @@ import net.blaklizt.streets.android.location.navigation.Navigator;
 import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.location.places.PlacesService;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * User: tkaviya
@@ -41,6 +39,8 @@ public class MapLayout
 		extends Fragment
 		implements LocationListener, OnMarkerClickListener, Navigator.OnPathSetListener, GoogleMap.InfoWindowAdapter, GpsStatus.Listener
 {
+	private LinkedList<String> randomNews = new LinkedList<>();
+
 	private class LocationTask extends AsyncTask<Void, Void, Void> {
 
         LinkedList<Place> nearbyPlaces;
@@ -94,7 +94,10 @@ public class MapLayout
     protected TextView location_name_text_view;
     protected TextView location_address_text_view;
     protected TextView location_categories_text_view;
+	protected TextView status_text_view;
 	protected LayoutInflater inflater;
+
+	protected Random generator = new Random(new Date().getTime());
 
 	//location provider data
 	protected final static String PROVIDER_GPS = "gps";
@@ -113,6 +116,17 @@ public class MapLayout
         // do your view initialization here
         mapLayout = this;
 
+		randomNews.add("Weather is 17 degrees");
+		randomNews.add("Traffic expected for 2 hours");
+		randomNews.add("DoubleBurger special @Wimpy 2day");
+		randomNews.add("C.Nyovest @ Bar9 2night");
+		randomNews.add("Your friend Ntwaizen is nearby");
+		randomNews.add("Yo fav. food (KFC) is nearby!");
+		randomNews.add("Transport: Taxi|Gautrain|CAB");
+		randomNews.add("Distance 2 home: 10m | 1 min");
+		randomNews.add("Distance 2 work: 1km | 5 min");
+
+		status_text_view = (TextView) view.findViewById(R.id.status_text_view);
         location_image =  (ImageView) view.findViewById(R.id.location_image_view);
         location_name_text_view = (TextView) view.findViewById(R.id.location_name_text_view);
         location_address_text_view = (TextView) view.findViewById(R.id.location_address_text_view);
@@ -335,6 +349,7 @@ public class MapLayout
     public void onStart() {
         Log.i(TAG, "+++ ON START +++");
         super.onStart();
+		status_text_view.setText("I'm the streets, look both way before you cross me!");
     }
 
 
@@ -375,6 +390,11 @@ public class MapLayout
             // Creating a LatLng object for the current location
             LatLng latLng = new LatLng(latitude, longitude);
 
+			//show a random news items
+			int rand = generator.nextInt() % randomNews.size();
+			String info = randomNews.get(rand);
+			status_text_view.setText(">>> " + info);
+
             if (firstLocationUpdate)
             {
 				//immediately prevent all other processes from updating
@@ -388,7 +408,7 @@ public class MapLayout
                 googleMap.animateCamera(CameraUpdateFactory.zoomTo(10));
                 Log.i(TAG, "Camera zoomed to view");
 
-                location_image.setImageDrawable(getResources().getDrawable(R.drawable.default_icon));
+                location_image.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.default_icon));
                 location_name_text_view.setText("Current Location");
                 location_address_text_view.setText("Latitude: " + latitude);
                 location_categories_text_view.setText("Longitude: " + longitude);

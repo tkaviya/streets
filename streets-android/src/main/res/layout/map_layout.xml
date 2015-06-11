@@ -3,6 +3,13 @@
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent">
+    <TextView
+            android:id="@+id/status_text_view"
+            android:layout_width="fill_parent"
+            android:layout_height="30dip"
+            android:layout_margin="5dip"
+            android:padding="3dip" />
+
     <TableRow
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
@@ -41,17 +48,12 @@
             </TableRow>
         </TableLayout>
     </TableRow>
-    <TableRow
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:padding="5dip" >
 
-        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:id="@+id/map_fragment"
-                  android:name="com.google.android.gms.maps.MapFragment"
-                  android:layout_width="fill_parent"
-                  android:layout_height="fill_parent"
-                  android:padding="5dip" />
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/map_fragment"
+              android:name="com.google.android.gms.maps.MapFragment"
+              android:layout_height="fill_parent"
+              android:layout_width="fill_parent"
+              android:layout_margin="10dip" />
 
-    </TableRow>
 </TableLayout>

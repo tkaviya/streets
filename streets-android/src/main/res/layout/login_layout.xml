@@ -7,24 +7,32 @@
     <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:orientation="vertical"
-            android:padding="10dip" >
+            android:orientation="vertical">
+
         <!--  View Title Label -->
+        <ImageView android:layout_width="fill_parent"
+                   android:layout_height="wrap_content"
+                   android:layout_margin="10dip"
+                   android:background="@drawable/tstv_logo" />
+
         <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dip"
+                android:layout_margin="10dip"
                 android:text="LOGIN"
                 android:textSize="25dip"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textAlignment="center" />
         <!--  Email Label -->
         <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="10dip"
                 android:text="Username/Email" />
         <!--  Email TextField -->
         <EditText
                 android:id="@+id/loginEmail"
+                android:layout_margin="10dip"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" />
 
@@ -32,13 +40,14 @@
         <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dip"
+                android:layout_margin="10dip"
                 android:text="Password" />
         <!--  Password TextField -->
         <EditText
                 android:id="@+id/loginPassword"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="10dip"
                 android:inputType="textPassword"
                 android:password="true" />
 
@@ -47,7 +56,7 @@
                   android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
                   android:textColor="#e30000"
-                  android:padding="10dip"
+                  android:layout_margin="10dip"
                   android:textStyle="bold"/>
 
         <!--  Login Button -->
@@ -55,7 +64,9 @@
                 android:id="@+id/btnLogin"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dip"
+                android:layout_margin="10dip"
+                android:textColor="#000000"
+                android:textStyle="bold"
                 android:text="Login" />
 
         <!--  Link to Registration Screen -->
@@ -63,10 +74,10 @@
                 android:id="@+id/btnLinkToRegisterScreen"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dip"
+                android:layout_margin="5dip"
                 android:background="@null"
                 android:text="Register Me"
-                android:textColor="@color/wallet_holo_blue_light"
+                android:textColor="#21dbd4"
                 android:textStyle="bold" />
     </LinearLayout>
 

@@ -5,14 +5,14 @@ description = 'Streets Android'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "21.1.1"
+    buildToolsVersion "21.0.2"
 
     defaultConfig {
         applicationId "net.blaklizt.streets.android"
-        minSdkVersion 16
-        targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+//        minSdkVersion 16
+//        targetSdkVersion 22
+//        versionCode 1
+//        versionName "1.0"
     }
     buildTypes {
         release {
@@ -25,11 +25,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile group: 'com.android.support', name: 'appcompat-v7', version:'22.0.0'
-//    compile group: 'com.android.support', name: 'support-v4', version:'22.0.0'
-    compile group: 'com.google.android.gms', name: 'play-services', version:'7.0.0'
-//    compile 'com.google.android.gms:play-services:7.0.0@aar'
-//    compile group: 'com.google.android', name: 'support-v4', version:'r13'
-//    compile group: 'com.google.android.gms', name: 'google-play-services', version:'17.0.0'
+    compile group: 'com.google.android.gms', name: 'play-services', version:'7.5.0'
     compile group: 'com.nostra13.universalimageloader', name: 'universal-image-loader', version:'1.9.2'
     compile group: 'com.google.android', name: 'android', version:'4.1.1.4'
 }

@@ -7,6 +7,7 @@ package net.blaklizt.streets.android;
 */
 
 import android.app.Activity;
+import android.os.Build;
 import android.speech.tts.TextToSpeech;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -55,7 +56,16 @@ public class NavigationListAdapter extends BaseExpandableListAdapter
 		convertView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Streets.getInstance().getTTSEngine().speak(children, TextToSpeech.QUEUE_FLUSH, null, String.valueOf(new Date().getTime()));
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+				{
+					Streets.getInstance().getTTSEngine().speak(children,
+							TextToSpeech.QUEUE_FLUSH, null, String.valueOf(new Date().getTime()));
+				}
+				else
+				{
+					Streets.getInstance().getTTSEngine().speak(children,
+							TextToSpeech.QUEUE_FLUSH, null);
+				}
 			}
 		});
 		return convertView;

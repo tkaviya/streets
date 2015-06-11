@@ -44,7 +44,12 @@ public class NavigationLayout extends Fragment
 	    nav_location_address = (TextView)view.findViewById(R.id.nav_location_address);
 	    nav_location_categories = (TextView)view.findViewById(R.id.nav_location_categories);
 
-		nav_location_name.setText("This page will show directions to any location/person you select on the MAP page");
+		nav_location_name.setText("This page will show\n" +
+								  "you directions to any\n" +
+								  "location/person you\n" +
+								  "select on the MAP page.");
+
+//		navigation_steps.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.tstv_bg));
 
         return view;
     }
