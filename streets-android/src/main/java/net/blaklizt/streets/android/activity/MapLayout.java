@@ -125,6 +125,7 @@ public class MapLayout extends Fragment
 	protected Random generator = new Random(new Date().getTime());
 
 	//location provider data
+	protected final static String PROVIDER_GPS = "gps";
 	protected final static String PROVIDER_CHEAPEST = "passive";
 	protected final static Integer MINIMUM_REFRESH_TIME = 20000;
 	protected String defaultProvider = PROVIDER_CHEAPEST;		//default working provider

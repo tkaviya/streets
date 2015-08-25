@@ -1,4 +1,4 @@
-package net.blaklizt.streets.android.adapter;
+package net.blaklizt.streets.android;
 
 /**
 * User: tkaviya
