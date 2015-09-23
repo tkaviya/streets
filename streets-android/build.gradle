@@ -1,18 +1,32 @@
-
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.1.1'
+    }
+}
 apply plugin: 'com.android.application'
 
-description = 'Streets Android'
+repositories {
+    jcenter()
+}
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "21.0.2"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.0"
 
     defaultConfig {
-        applicationId "net.blaklizt.streets.android"
-//        minSdkVersion 16
-//        targetSdkVersion 22
-//        versionCode 1
-//        versionName "1.0"
+        applicationId "net.blaklizt.symbiosis.streets"
+        minSdkVersion 16
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
     }
     buildTypes {
         release {
@@ -24,9 +38,5 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile group: 'com.android.support', name: 'recyclerview-v7', version: '22.0.0'
-    compile group: 'com.android.support', name: 'appcompat-v7', version:'22.0.0'
-    compile group: 'com.google.android.gms', name: 'play-services', version:'7.5.0'
-    compile group: 'com.nostra13.universalimageloader', name: 'universal-image-loader', version:'1.9.2'
-    compile group: 'com.google.android', name: 'android', version:'4.1.1.4'
+    compile 'com.android.support:appcompat-v7:23.0.0'
 }
