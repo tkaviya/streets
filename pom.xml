@@ -208,7 +208,7 @@
     <modules>
         <module>streets-persistence</module>
         <module>streets-common</module>
-        <module>streets-android</module>
+        <!--<module>streets-android</module>-->
         <module>streets-core</module>
         <module>streets-web</module>
         <!--<module>streets-android</module>-->

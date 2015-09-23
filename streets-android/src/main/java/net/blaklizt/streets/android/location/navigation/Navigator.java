@@ -14,15 +14,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import net.blaklizt.streets.android.common.StreetsCommon;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
+//import org.apache.http.HttpResponse;
+//import org.apache.http.HttpStatus;
+//import org.apache.http.client.HttpClient;
+//import org.apache.http.client.methods.HttpPost;
+//import org.apache.http.impl.client.DefaultHttpClient;
+//import org.apache.http.protocol.BasicHttpContext;
+//import org.apache.http.protocol.HttpContext;
+//import org.apache.http.util.EntityUtils;
 
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class Navigator {
@@ -201,16 +204,30 @@ public class Navigator {
             }
 
             try {
-                HttpClient httpClient = new DefaultHttpClient();
-                HttpContext localContext = new BasicHttpContext();
-                HttpPost httpPost = new HttpPost(url);
-                HttpResponse response = httpClient.execute(httpPost, localContext);
+//                HttpClient httpClient = new DefaultHttpClient();
+//                HttpContext localContext = new BasicHttpContext();
+//                HttpPost httpPost = new HttpPost(url);
+//                HttpResponse response = httpClient.execute(httpPost, localContext);
+                StringBuilder responseStr = new StringBuilder();
 
-                if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK){
+                URL googleURL = new URL(url);
+                HttpURLConnection urlConnection = (HttpURLConnection) googleURL.openConnection();
+                urlConnection.setDoOutput(true);
+                urlConnection.setDoInput(true);
+                urlConnection.setRequestMethod("POST");
 
-                    String s = EntityUtils.toString(response.getEntity());
-	                Log.i(TAG, "Got directions");
-                    return new Directions(s);
+                InputStreamReader in = new InputStreamReader(urlConnection.getInputStream());
+
+                int read;
+                char[] buff = new char[1024];
+                while ((read = in.read(buff)) != -1) {
+                    responseStr.append(buff, 0, read);
+                }
+
+                if(urlConnection.getResponseCode() == 200){
+
+	                Log.d(TAG, "Got directions:\n" + responseStr.toString());
+                    return new Directions(responseStr.toString());
                 }
 
 

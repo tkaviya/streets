@@ -8,9 +8,7 @@ package net.blaklizt.streets.android.activity;
  */
 
 import android.os.Bundle;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
@@ -55,8 +53,6 @@ public class Streets extends ActionBarActivity implements FragmentDrawer.Fragmen
 	//Sidebar
 	protected ExpandableListView placesList;
 	protected PlacesListAdapter placesAdapter;
-	protected DrawerLayout mDrawerLayout; // Within which the entire activity is enclosed
-//	private RecyclerView recyclerView;
 	protected ActionBarDrawerToggle mDrawerToggle; // Navigation Drawer in the action bar
 
 	@Override
@@ -75,7 +71,7 @@ public class Streets extends ActionBarActivity implements FragmentDrawer.Fragmen
 
 		initializeTabs();
 
-		initializeSideMenu();
+//		initializeSideMenu();
 
 		initializeSideMenuItems();
 
@@ -92,7 +88,7 @@ public class Streets extends ActionBarActivity implements FragmentDrawer.Fragmen
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-		mDrawerToggle.syncState();
+//		mDrawerToggle.syncState();
 	}
 
 	@Override
@@ -191,42 +187,42 @@ public class Streets extends ActionBarActivity implements FragmentDrawer.Fragmen
         {
             Log.i(TAG, "Initializing side menu");
             // Getting reference to the DrawerLayout
-            mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+//            mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
 //			getSupportActionBar().setDisplayUseLogoEnabled(true);
 			getSupportActionBar().setHomeButtonEnabled(true);
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-			mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close)
-			{
-                /** Called when drawer is closed */
-				@Override
-                public void onDrawerClosed(View drawerView) {
-					super.onDrawerClosed(drawerView);
-					getSupportActionBar().setTitle(R.string.app_name);
-                    invalidateOptionsMenu();
-
-                }
-
-                /** Called when a drawer is opened */
-				@Override
-                public void onDrawerOpened(View drawerView) {
-					super.onDrawerOpened(drawerView);
-					getSupportActionBar().setTitle("Change Settings");
-                    invalidateOptionsMenu();
-                }
-
-				@Override
-				public void onDrawerSlide(View drawerView, float slideOffset) {
-					Log.i(TAG, "+++ ON DRAWER SLIDE +++");
-					super.onDrawerSlide(drawerView, slideOffset);
-					toolbar.setAlpha(1 - slideOffset / 2);
-				}
-
-            };
+//			mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close)
+//			{
+//                /** Called when drawer is closed */
+//				@Override
+//                public void onDrawerClosed(View drawerView) {
+//					super.onDrawerClosed(drawerView);
+//					getSupportActionBar().setTitle(R.string.app_name);
+//                    invalidateOptionsMenu();
+//
+//                }
+//
+//                /** Called when a drawer is opened */
+//				@Override
+//                public void onDrawerOpened(View drawerView) {
+//					super.onDrawerOpened(drawerView);
+//					getSupportActionBar().setTitle("Change Settings");
+//                    invalidateOptionsMenu();
+//                }
+//
+//				@Override
+//				public void onDrawerSlide(View drawerView, float slideOffset) {
+//					Log.i(TAG, "+++ ON DRAWER SLIDE +++");
+//					super.onDrawerSlide(drawerView, slideOffset);
+//					toolbar.setAlpha(1 - slideOffset / 2);
+//				}
+//
+//            };
 
             // Setting DrawerToggle on DrawerLayout
-            mDrawerLayout.setDrawerListener(mDrawerToggle);
+//            mDrawerLayout.setDrawerListener(mDrawerToggle);
         }
         catch (Exception ex)
         {
@@ -244,7 +240,7 @@ public class Streets extends ActionBarActivity implements FragmentDrawer.Fragmen
 //			recyclerView = (RecyclerView) findViewById(R.id.drawerList);
 
             // set a custom shadow that overlays the main content when the drawer opens
-            mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+//            mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
             // set up the drawer's list view with items and click listener
 
 	        String[] allPlaces = PlaceTypes.getAllPlaces();

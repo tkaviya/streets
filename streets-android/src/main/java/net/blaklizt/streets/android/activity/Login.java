@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import net.blaklizt.streets.android.R;
+import net.blaklizt.streets.android.common.ServerCommunication;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import org.json.JSONObject;
 
@@ -40,7 +41,7 @@ public class Login extends Activity implements View.OnClickListener
 		{
 			Log.i(TAG, "Authenticating " + username.getText().toString() + " with password " + password.getText().toString());
 
-//			String loginResponse = ServerCommunication.sendServerRequest("action=Login&channel=" + StreetsCommon.CHANNEL + "&username=" + username.getText().toString() + "&password=" + password.getText().toString());
+			ServerCommunication.sendServerRequest("action=Login&channel=" + StreetsCommon.CHANNEL + "&username=" + username.getText().toString() + "&password=" + password.getText().toString());
 			String loginResponse = "{response_code:1, response_message:\"success\"}";
 
 			if (loginResponse == null)
