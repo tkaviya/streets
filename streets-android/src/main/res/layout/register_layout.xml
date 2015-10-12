@@ -1,95 +1,117 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
-              android:layout_centerInParent="true"
-              android:padding="10dp"
-              android:background="#000000">
+              android:padding="10dip"
+              android:background="#000000"
+              android:orientation="vertical">
 
     <!--  View Title Label -->
     <ImageView android:layout_width="fill_parent"
                android:layout_height="wrap_content"
-               android:layout_margin="0dip"
-               android:paddingBottom="30dip"
+               android:layout_margin="10dip"
                android:background="@drawable/tstv_logo" />
 
+    <!--  View Title Label -->
+    <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dip"
+            android:text="REGISTER"
+            android:textSize="25dip"
+            android:textStyle="bold" />
+
+    <!--  Firstname Label -->
+    <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dip"
+            android:text="Firstname"/>
+    <!--  Firstname TextField -->
     <EditText
             android:id="@+id/registerFirstname"
-            android:layout_width="match_parent"
+            android:layout_margin="5dip"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+    <!--  Lastname Label -->
+    <TextView
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/edittext_top_bg"
-            android:padding="10dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
-            android:hint="Firstname"
-            android:textColor="#212121"
-            android:textColorHint="#555555"/>
+            android:layout_margin="5dip"
+            android:text="Lastname" />
+    <!--  Lastname TextField -->
     <EditText
             android:id="@+id/registerLastname"
-            android:layout_width="match_parent"
+            android:layout_margin="5dip"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+    <!--  Username Label -->
+    <TextView
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/edittext_default_bg"
-            android:padding="10dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
-            android:hint="Surname"
-            android:textColor="#212121"
-            android:textColorHint="#555555"/>
+            android:layout_margin="5dip"
+            android:text="Username" />
+    <!--  Username TextField -->
     <EditText
             android:id="@+id/registerUsername"
-            android:layout_width="match_parent"
+            android:layout_margin="5dip"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+    <!--  Msisdn Label -->
+    <TextView
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/edittext_default_bg"
-            android:padding="10dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
-            android:hint="Username"
-            android:textColor="#212121"
-            android:textColorHint="#555555"/>
+            android:layout_margin="5dip"
+            android:text="Phone Number" />
+    <!--  Msisdn TextField -->
     <EditText
             android:id="@+id/registerMsisdn"
-            android:layout_width="match_parent"
+            android:layout_margin="5dip"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+    <!--  Email Label -->
+    <TextView
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/edittext_default_bg"
-            android:padding="10dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
-            android:hint="Phone Number"
-            android:textColor="#212121"
-            android:textColorHint="#555555"/>
+            android:layout_margin="5dip"
+            android:text="Email" />
+    <!--  Email TextField -->
     <EditText
             android:id="@+id/registerEmail"
-            android:layout_width="match_parent"
+            android:layout_margin="5dip"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+    <!--  Password Label -->
+    <TextView
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/edittext_default_bg"
-            android:padding="10dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
-            android:hint="Email"
-            android:textColor="#212121"
-            android:textColorHint="#555555"/>
+            android:layout_margin="5dip"
+            android:text="Password" />
+    <!--  Password TextField -->
     <EditText
             android:id="@+id/registerPassword"
-            android:layout_width="match_parent"
+            android:layout_margin="5dip"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/edittext_default_bg"
-            android:padding="10dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
-            android:hint="Password"
-            android:textColor="#212121"
-            android:textColorHint="#555555"/>
+            android:password="true" />
+
+    <!--  Confirm Password Label -->
+    <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dip"
+            android:text="Confirm Password" />
+    <!--  Password TextField -->
     <EditText
             android:id="@+id/registerConfirmPassword"
-            android:layout_width="match_parent"
+            android:layout_margin="5dip"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/edittext_bottom_bg"
-            android:padding="10dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
-            android:hint="Confirm Password"
-            android:textColor="#212121"
-            android:textColorHint="#555555"/>
+            android:password="true" />
 
     <!--  Error message -->
     <TextView android:id="@+id/register_error"
@@ -102,174 +124,20 @@
     <!--  Register Button -->
     <Button
             android:id="@+id/btnRegister"
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:layout_margin="4dp"
-            android:text="Register"
-            style="@style/DefaultButtonText"
-            android:background="@drawable/button_default_bg"/>
+            android:layout_margin="10dp"
+            android:text="Register" style="@style/DefaultButtonText"
+            android:background="@drawable/button_default_bg" />
 
     <!--  Link to Login Screen -->
     <Button
             android:id="@+id/btnLinkToLoginScreen"
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:layout_margin="4dp"
-            android:text="Go to Login"
-            style="@style/DefaultButtonText"
-            android:background="@drawable/button_default_bg"/>
-
+            android:layout_margin="10dp"
+            android:text="Go to Login" style="@style/DefaultButtonText"
+            android:background="@drawable/button_default_bg" />
 </LinearLayout>
-
-        <!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"-->
-            <!--android:layout_width="fill_parent"-->
-            <!--android:layout_height="fill_parent"-->
-            <!--android:background="#000000" >-->
-
-    <!--<LinearLayout-->
-            <!--android:layout_width="fill_parent"-->
-            <!--android:layout_height="fill_parent"-->
-            <!--android:orientation="vertical" >-->
-
-        <!--&lt;!&ndash;  View Title Label &ndash;&gt;-->
-        <!--<ImageView android:layout_width="fill_parent"-->
-                   <!--android:layout_height="wrap_content"-->
-                   <!--android:layout_margin="0dip"-->
-                   <!--android:background="@drawable/tstv_logo" />-->
-
-        <!--&lt;!&ndash;  View Title Label &ndash;&gt;-->
-        <!--<TextView-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_margin="10dip"-->
-                <!--android:text="REGISTER"-->
-                <!--android:textSize="25dip"-->
-                <!--android:textStyle="bold" />-->
-
-        <!--&lt;!&ndash;  Firstname Label &ndash;&gt;-->
-        <!--<TextView-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_margin="5dip"-->
-                <!--android:text="Firstname"/>-->
-        <!--&lt;!&ndash;  Firstname TextField &ndash;&gt;-->
-        <!--<EditText-->
-                <!--android:id="@+id/registerFirstname"-->
-                <!--android:layout_margin="5dip"-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content" />-->
-
-        <!--&lt;!&ndash;  Lastname Label &ndash;&gt;-->
-        <!--<TextView-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_margin="5dip"-->
-                <!--android:text="Lastname" />-->
-        <!--&lt;!&ndash;  Lastname TextField &ndash;&gt;-->
-        <!--<EditText-->
-                <!--android:id="@+id/registerLastname"-->
-                <!--android:layout_margin="5dip"-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content" />-->
-
-        <!--&lt;!&ndash;  Username Label &ndash;&gt;-->
-        <!--<TextView-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_margin="5dip"-->
-                <!--android:text="Username" />-->
-        <!--&lt;!&ndash;  Username TextField &ndash;&gt;-->
-        <!--<EditText-->
-                <!--android:id="@+id/registerUsername"-->
-                <!--android:layout_margin="5dip"-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content" />-->
-
-        <!--&lt;!&ndash;  Msisdn Label &ndash;&gt;-->
-        <!--<TextView-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_margin="5dip"-->
-                <!--android:text="Phone Number" />-->
-        <!--&lt;!&ndash;  Msisdn TextField &ndash;&gt;-->
-        <!--<EditText-->
-                <!--android:id="@+id/registerMsisdn"-->
-                <!--android:layout_margin="5dip"-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content" />-->
-
-        <!--&lt;!&ndash;  Email Label &ndash;&gt;-->
-        <!--<TextView-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_margin="5dip"-->
-                <!--android:text="Email" />-->
-        <!--&lt;!&ndash;  Email TextField &ndash;&gt;-->
-        <!--<EditText-->
-                <!--android:id="@+id/registerEmail"-->
-                <!--android:layout_margin="5dip"-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content" />-->
-
-        <!--&lt;!&ndash;  Password Label &ndash;&gt;-->
-        <!--<TextView-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_margin="5dip"-->
-                <!--android:text="Password" />-->
-        <!--&lt;!&ndash;  Password TextField &ndash;&gt;-->
-        <!--<EditText-->
-                <!--android:id="@+id/registerPassword"-->
-                <!--android:layout_margin="5dip"-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:password="true" />-->
-
-        <!--&lt;!&ndash;  Confirm Password Label &ndash;&gt;-->
-        <!--<TextView-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_margin="5dip"-->
-                <!--android:text="Confirm Password" />-->
-        <!--&lt;!&ndash;  Password TextField &ndash;&gt;-->
-        <!--<EditText-->
-                <!--android:id="@+id/registerConfirmPassword"-->
-                <!--android:layout_margin="5dip"-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:password="true" />-->
-
-        <!--&lt;!&ndash;  Error message &ndash;&gt;-->
-        <!--<TextView android:id="@+id/register_error"-->
-                  <!--android:layout_width="fill_parent"-->
-                  <!--android:layout_height="wrap_content"-->
-                  <!--android:textColor="#e30000"-->
-                  <!--android:layout_margin="5dip"-->
-                  <!--android:textStyle="bold"/>-->
-
-        <!--&lt;!&ndash;  Register Button &ndash;&gt;-->
-        <!--<Button-->
-                <!--android:id="@+id/btnRegister"-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_margin="5dip"-->
-                <!--android:textColor="#000000"-->
-                <!--android:textStyle="bold"-->
-                <!--android:text="Register" />-->
-
-        <!--&lt;!&ndash;  Link to Login Screen &ndash;&gt;-->
-        <!--<Button-->
-                <!--android:id="@+id/btnLinkToLoginScreen"-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_margin="5dip"-->
-                <!--android:background="@null"-->
-                <!--android:text="Go to Login"-->
-                <!--android:textColor="#21dbd4"-->
-                <!--android:textStyle="bold" />-->
-    <!--</LinearLayout>-->
-
-<!--</ScrollView>-->

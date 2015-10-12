@@ -133,7 +133,8 @@ public class MapLayout extends Fragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable  Bundle savedInstanceState) {
-        Log.i(TAG, "+++ ON CREATE VIEW +++");
+	    Log.i(TAG, "+++ ON CREATE VIEW +++");
+	    super.onCreateView(inflater, container, savedInstanceState);
 
 	    this.inflater = inflater;
         // Inflate the layout for this fragment
@@ -163,13 +164,14 @@ public class MapLayout extends Fragment
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, "+++ ON CREATE +++");
-        super.onCreate(savedInstanceState);
+	    Log.i(TAG, "+++ ON CREATE +++");
+	    super.onCreate(savedInstanceState);
     }
 
 	@Override
 	public void onDestroy()
 	{
+		Log.i(TAG, "+++ ON DESTROY +++");
 		for (AsyncTask runningTask : runningTasks) { runningTask.cancel(true); }
 		runningTasks.clear();
 	}

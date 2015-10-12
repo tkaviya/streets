@@ -38,6 +38,7 @@ public class NavigationLayout extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.i(TAG, "+++ ON CREATE VIEW +++");
+	    super.onCreateView(inflater, container, savedInstanceState);
 
 	    navigationLayout = this;
 
@@ -60,7 +61,7 @@ public class NavigationLayout extends Fragment
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, "+++ ON CREATE +++");
+	    Log.i(TAG, "+++ ON CREATE +++");
         super.onCreate(savedInstanceState);
     }
 

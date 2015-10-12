@@ -5,6 +5,7 @@
               android:layout_height="fill_parent">
     <TextView
             android:id="@+id/status_text_view"
+            android:textSize="10dp"
             android:layout_width="fill_parent"
             android:layout_height="30dip"
             android:layout_margin="5dip"

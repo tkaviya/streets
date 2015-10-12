@@ -41,7 +41,7 @@ public class Login extends Activity implements View.OnClickListener
 		{
 			Log.i(TAG, "Authenticating " + username.getText().toString() + " with password " + password.getText().toString());
 
-			ServerCommunication.sendServerRequest("action=Login&channel=" + StreetsCommon.CHANNEL + "&username=" + username.getText().toString() + "&password=" + password.getText().toString());
+//			ServerCommunication.sendServerRequest("action=Login&channel=" + StreetsCommon.CHANNEL + "&username=" + username.getText().toString() + "&password=" + password.getText().toString());
 			String loginResponse = "{response_code:1, response_message:\"success\"}";
 
 			if (loginResponse == null)

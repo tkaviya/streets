@@ -10,6 +10,7 @@ package net.blaklizt.streets.android.adapter;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import net.blaklizt.streets.android.activity.BounceLayout;
 import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.activity.NavigationLayout;
 
@@ -17,7 +18,6 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
 	CharSequence Titles[]; // This will Store the TAB_TITLES of the Tabs which are Going to be passed when ViewPagerAdapter is created
 	int NumbOfTabs; // Store the number of tabs, this will also be passed when the ViewPagerAdapter is created
-
 
 	// Build a Constructor and assign the passed Values to appropriate values in the class
 	public ViewPagerAdapter(FragmentManager fm, CharSequence mTitles[], int mNumbOfTabsumb) {
@@ -34,16 +34,19 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
 		if (position == 0) // if the position is 0 we are returning the First tab
 		{
-			MapLayout mapLayout = new MapLayout();
-			return mapLayout;
+			if (MapLayout.getInstance() != null) return MapLayout.getInstance();
+			return new MapLayout();
 		}
-		else // As we are having 2 tabs if the position is now 0 it must be 1 so we are returning second tab
+		else if  (position == 1)
 		{
-			NavigationLayout navigationLayout = new NavigationLayout();
-			return navigationLayout;
+			if (NavigationLayout.getInstance() != null) return NavigationLayout.getInstance();
+			return new NavigationLayout();
 		}
-
-
+		else
+		{
+			if (BounceLayout.getInstance() != null) return BounceLayout.getInstance();
+			return new BounceLayout();
+		}
 	}
 
 	// This method return the titles for the Tabs in the Tab Strip

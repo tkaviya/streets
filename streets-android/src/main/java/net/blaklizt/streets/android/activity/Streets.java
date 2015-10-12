@@ -10,7 +10,6 @@ package net.blaklizt.streets.android.activity;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
@@ -47,13 +46,12 @@ public class Streets extends ActionBarActivity implements FragmentDrawer.Fragmen
 	protected ViewPager pager;
 	protected ViewPagerAdapter adapter;
 	protected SlidingTabLayout tabs;
-	protected static final CharSequence TAB_TITLES [] = { "MAP", "NAV" };
-	protected static final int TAB_COUNT = 2;
+	protected static final CharSequence TAB_TITLES [] = { "MAP", "NAV", "BOUNCE" };
 
 	//Sidebar
 	protected ExpandableListView placesList;
 	protected PlacesListAdapter placesAdapter;
-	protected ActionBarDrawerToggle mDrawerToggle; // Navigation Drawer in the action bar
+//	protected ActionBarDrawerToggle mDrawerToggle; // Navigation Drawer in the action bar
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +69,7 @@ public class Streets extends ActionBarActivity implements FragmentDrawer.Fragmen
 
 		initializeTabs();
 
-//		initializeSideMenu();
+		initializeSideMenu();
 
 		initializeSideMenuItems();
 
@@ -108,7 +106,7 @@ public class Streets extends ActionBarActivity implements FragmentDrawer.Fragmen
 	public boolean onOptionsItemSelected(MenuItem item) {
 
 		// if click is from side menu, it will be handled elsewhere
-		if (mDrawerToggle.onOptionsItemSelected(item)) { return true; }
+//		if (mDrawerToggle.onOptionsItemSelected(item)) { return true; }
 
 		// Handle action bar item clicks here. The action bar will
 		// automatically handle clicks on the Home/Up button, so long
@@ -153,7 +151,7 @@ public class Streets extends ActionBarActivity implements FragmentDrawer.Fragmen
 
 
 			// Creating The ViewPagerAdapter and Passing Fragment Manager, TAB_TITLES fot the Tabs and Number Of Tabs.
-			adapter =  new ViewPagerAdapter(getSupportFragmentManager(), TAB_TITLES, TAB_COUNT);
+			adapter =  new ViewPagerAdapter(getSupportFragmentManager(), TAB_TITLES, 3);
 
 			// Assigning ViewPager View and setting the adapter
 			pager = (ViewPager) findViewById(R.id.pager);
@@ -189,9 +187,9 @@ public class Streets extends ActionBarActivity implements FragmentDrawer.Fragmen
             // Getting reference to the DrawerLayout
 //            mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-//			getSupportActionBar().setDisplayUseLogoEnabled(true);
+			getSupportActionBar().setDisplayUseLogoEnabled(true);
 			getSupportActionBar().setHomeButtonEnabled(true);
-			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 //			mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close)
 //			{
