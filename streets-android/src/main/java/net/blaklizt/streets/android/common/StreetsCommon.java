@@ -4,8 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import net.blaklizt.streets.android.activity.Login;
-import net.blaklizt.streets.android.activity.Register;
+
 import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.activity.Streets;
 import net.blaklizt.streets.android.persistence.StreetsDBHelper;
@@ -145,9 +144,7 @@ public class StreetsCommon
 			//destroy all application contexts in sequence
 			Log.i(TAG, "Terminating app contexts.");
 			if (Streets.getInstance() != null) Streets.getInstance().finish();
-			if (Login.getInstance() != null) Login.getInstance().finish();
-			if (Register.getInstance() != null) Register.getInstance().finish();
-			if (Startup.getStartup() != null) Startup.getStartup().finish();
+			if (Startup.getInstance() != null) Startup.getInstance().finish();
 		}
 		catch (Exception ex)
 		{

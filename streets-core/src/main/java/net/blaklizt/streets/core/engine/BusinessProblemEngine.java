@@ -39,7 +39,7 @@ public class BusinessProblemEngine extends ModuleInterface
 	{
 		List<Location> locations = coreDaoManager.getLocationDao().findAll();
 
-		log4j.info("Populating known problems for all locations");
+		logger.info("Populating known problems for all locations");
 
 		for (Location location : locations)
 		{
@@ -55,7 +55,7 @@ public class BusinessProblemEngine extends ModuleInterface
 
 				BusinessProblem problem = coreDaoManager.getBusinessProblemDao().findById(location.getBusinessProblemID());
 
-				log4j.info("Problem for: " + location.getLocationName() + ":" + problem.getProblemDescription());
+				logger.info("Problem for: " + location.getLocationName() + ":" + problem.getProblemDescription());
 				userBusinessProblems.get(userID).add(new BusinessProblemEvent(
 						problem.getProblemMenuName(),
 						problem.getProblemDescription(),
@@ -72,7 +72,7 @@ public class BusinessProblemEngine extends ModuleInterface
 	{
 		if (BusinessEngine.locations == null) BusinessEngine.locations = coreDaoManager.getLocationDao().findAll();
 
-		log4j.info("Processing Business Problems for " + BusinessEngine.locations.size() + " locations and " +
+		logger.info("Processing Business Problems for " + BusinessEngine.locations.size() + " locations and " +
 				streets.getLoggedInUsers().size() + " users");
 
 		if (streets.getLoggedInUsers().size() < 1) return;
@@ -86,13 +86,13 @@ public class BusinessProblemEngine extends ModuleInterface
 
 				if (!location.getCurrentBusinessType().equals(location.getBestBusinessType()))
 				{
-					log4j.debug("Current business " + location.getCurrentBusinessType() +
+					logger.fine("Current business " + location.getCurrentBusinessType() +
 							" is NOT the best in this location.");
 					problemProbably = location.getCurrentBusiness().getRiskFactor();
 				}
 				else
 				{
-					log4j.debug("Current business " + location.getCurrentBusinessType() +
+					logger.fine("Current business " + location.getCurrentBusinessType() +
 							" is the best in this location.");
 					problemProbably = location.getCurrentBusiness().getRiskFactor() * REDUCED_RISK_FACTOR;
 				}
@@ -117,7 +117,7 @@ public class BusinessProblemEngine extends ModuleInterface
 								double randomSelect = Math.random() * (possibleProblems.size() - 1);
 								int randomProblem = CommonUtilities.round(randomSelect);
 
-								log4j.info(possibleProblems.get(randomProblem).getProblemDescription());
+								logger.info(possibleProblems.get(randomProblem).getProblemDescription());
 
 								location.setBusinessProblemID(possibleProblems.get(randomProblem).getBusinessProblemID());
 								coreDaoManager.getLocationDao().saveOrUpdate(location);
@@ -138,7 +138,7 @@ public class BusinessProblemEngine extends ModuleInterface
 							}
 							else
 							{
-								log4j.warn(location.getBestBusinessType() + " has no associated problems!");
+								logger.warn(location.getBestBusinessType() + " has no associated problems!");
 							}
 						}
 					}

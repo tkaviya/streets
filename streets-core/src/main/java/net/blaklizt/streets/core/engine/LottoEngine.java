@@ -130,14 +130,14 @@ public class LottoEngine extends ModuleInterface {
 			coreDaoManager.getUserAttributeDao().saveOrUpdate(winner);
 			coreDaoManager.getEventLogDao().save(new EventLog(null, new Date(), winnerUserID, description));
 
-			log4j.info(description);
+			logger.info(description);
 			EventEngine.addStreetsEvent(new Event("Lotto Results", description));
 			lottoEntrants.clear();
 		}
 		else
 		{
 			String description = "There are no winners on tonight's lotto.";
-			log4j.info(description);
+			logger.info(description);
 			EventEngine.addStreetsEvent(new Event("Lotto Results", description));
 			lottoEntrants.clear();
 		}

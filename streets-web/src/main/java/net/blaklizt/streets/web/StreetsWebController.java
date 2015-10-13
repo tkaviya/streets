@@ -6,7 +6,7 @@ import net.blaklizt.streets.core.module.ModuleInterface;
 import net.blaklizt.streets.core.session.UserSession;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
 import net.blaklizt.symbiosis.sym_common.utilities.Format;
-import org.apache.log4j.Logger;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -33,7 +33,7 @@ public class StreetsWebController
 	@Autowired
 	private Streets streets;
 
-	private static final Logger log4j = Configuration.getNewLogger(StreetsWebController.class.getSimpleName());
+	private static final Logger logger = Configuration.getNewLogger(StreetsWebController.class.getSimpleName());
 
 	private final HashMap<String, ModuleInterface> moduleShortcuts = streets.getModuleShortcuts();
 
@@ -48,7 +48,7 @@ public class StreetsWebController
 
 		if (!br.hasErrors())
         {
-			log4j.debug("Processing response: " + response);
+			logger.fine("Processing response: " + response);
 
 			if (moduleShortcuts.get(response) != null)
 			{
@@ -68,10 +68,10 @@ public class StreetsWebController
         }
         else
         {
-			log4j.error("Failed to process response: " + response + " | " + br.getErrorCount() + " error[s] occurred");
+			logger.error("Failed to process response: " + response + " | " + br.getErrorCount() + " error[s] occurred");
             for (ObjectError oe : br.getAllErrors())
             {
-				log4j.error("--> " + oe.toString());
+				logger.error("--> " + oe.toString());
             }
             userSession.getCurrentMenu().setErrorMessage("Invalid response " + response);
         }

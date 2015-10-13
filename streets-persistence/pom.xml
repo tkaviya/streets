@@ -89,10 +89,6 @@
         </dependency>
 
         <!-- Other dependencies -->
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-        </dependency>
 
     </dependencies>
 

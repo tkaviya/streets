@@ -79,7 +79,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 
         db.execSQL("INSERT INTO " + PLACE_TABLE + " VALUES (0,'Home',NULL,-26.092154565,28.216708950,'ME')");
         db.execSQL("INSERT INTO " + USER_TABLE + " VALUES (0,'tkaviya','ImTheStreets','tsungai.kaviya@gmail.com',0,0,'ME')");
-		db.execSQL("INSERT INTO " + USER_PREFERENCES + " (SymbiosisID,ShowIntro,SuggestGPS,AutoEnableGPS) VALUES (0,1,1,1)");
+		db.execSQL("INSERT INTO " + USER_PREFERENCES + " (SymbiosisID,ShowIntro,SuggestGPS,AutoEnableGPS) VALUES (0,0,0,0)");
 
 	    LinkedList <String> defaultPlaces = PlaceTypes.getDefaultPlaces();
 

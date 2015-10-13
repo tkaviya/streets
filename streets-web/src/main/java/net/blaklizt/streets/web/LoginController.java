@@ -6,7 +6,7 @@ import net.blaklizt.streets.core.session.UserSession;
 import net.blaklizt.streets.persistence.EventLog;
 import net.blaklizt.streets.persistence.dao.UserDao;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
-import org.apache.log4j.Logger;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,7 +30,7 @@ import java.util.Date;
 @Controller
 public class LoginController
 {
-	private static final Logger log4j = Configuration.getNewLogger(StreetsWebController.class.getSimpleName());
+	private static final Logger logger = Configuration.getNewLogger(StreetsWebController.class.getSimpleName());
 
 	@Autowired
 	private Streets streets;
@@ -62,7 +62,7 @@ public class LoginController
 			userSession.setCurrentMenu(streets.getMainMenu(userSession));
 			request.getSession().setAttribute("userSession", userSession);
 			streets.addLoggedInUser(userSession);
-			log4j.info("Instantiated new session for " + userSession.getUser().getUsername());
+			logger.info("Instantiated new session for " + userSession.getUser().getUsername());
 			Date loginDateTime = new Date();
 			userSession.getUser().setLastLoginDate(loginDateTime);
 			CoreDaoManager.getInstance().getEventLogDao().save(
@@ -79,7 +79,7 @@ public class LoginController
 	@RequestMapping(value = "/loginFailed", method = { RequestMethod.GET , RequestMethod.POST } )
 	public ModelAndView loginFailed()
 	{
-		log4j.warn("Login failed");
+		logger.warn("Login failed");
 		ModelMap model = new ModelMap();
 		model.put("error", "Invalid login credentials");
 		return new ModelAndView("login/login", model);

@@ -1,15 +1,34 @@
-package net.blaklizt.streets.android.activity;
-
-/**
- * Created with IntelliJ IDEA.
- * User: photon
- * Date: 2015/06/10
- * Time: 10:53 PM
+/*
+ * Copyright (C) 2015 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
+package net.blaklizt.streets.android.activity;
+
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
@@ -17,12 +36,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
+
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.adapter.PlacesListAdapter;
-import net.blaklizt.streets.android.adapter.ViewPagerAdapter;
 import net.blaklizt.streets.android.common.Group;
 import net.blaklizt.streets.android.common.StreetsCommon;
-import net.blaklizt.streets.android.layout.SlidingTabLayout;
 import net.blaklizt.streets.android.location.places.PlaceTypes;
 import net.blaklizt.streets.android.model.NavDrawerItem;
 
@@ -30,34 +48,30 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Streets extends ActionBarActivity implements FragmentDrawer.FragmentDrawerListener
-{
+/**
+ * TODO
+ */
+public class Streets extends AppCompatActivity {
+
 	//streets
 	protected static Streets streets = null;
 
 	//common streets common context
 	private static StreetsCommon streetsCommon;
+    private DrawerLayout mDrawerLayout;
+	protected ViewPager pager;
+	protected ExpandableListView placesList;
+	protected PlacesListAdapter placesAdapter;
 
 	//get tag
 	private static final String TAG = StreetsCommon.getTag(Streets.class);
 
-	//Tab View
-	protected Toolbar toolbar;
-	protected ViewPager pager;
-	protected ViewPagerAdapter adapter;
-	protected SlidingTabLayout tabs;
-	protected static final CharSequence TAB_TITLES [] = { "MAP", "NAV", "BOUNCE" };
 
-	//Sidebar
-	protected ExpandableListView placesList;
-	protected PlacesListAdapter placesAdapter;
-//	protected ActionBarDrawerToggle mDrawerToggle; // Navigation Drawer in the action bar
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		streets = this;
+        streets = this;
 
 		Log.i(TAG, "+++ ON CREATE +++");
 
@@ -67,21 +81,45 @@ public class Streets extends ActionBarActivity implements FragmentDrawer.Fragmen
 
 		placesList = (ExpandableListView)findViewById(R.id.places_list);
 
-		initializeTabs();
-
 		initializeSideMenu();
 
 		initializeSideMenuItems();
 
 		Log.i(TAG, "Displayed Main Layout");
 
-	}
+        setContentView(R.layout.activity_main);
 
-	@Override
-	public void onStart() {
-		Log.i(TAG, "+++ ON START +++");
-		super.onStart();
-	}
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        final ActionBar ab = getSupportActionBar();
+        ab.setHomeAsUpIndicator(R.drawable.ic_menu);
+        ab.setDisplayHomeAsUpEnabled(true);
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        if (navigationView != null) {
+            setupDrawerContent(navigationView);
+        }
+
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        if (viewPager != null) {
+            setupViewPager(viewPager);
+        }
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+    }
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
@@ -89,97 +127,77 @@ public class Streets extends ActionBarActivity implements FragmentDrawer.Fragmen
 //		mDrawerToggle.syncState();
 	}
 
-	@Override
-	public void onDestroy()
-	{
-//		super.onDestroy();
-	}
+    public static Streets getInstance() { return streets; }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.option_menu, menu);
-		return super.onCreateOptionsMenu(menu);
-	}
+	public static StreetsCommon getStreetsCommon() { return streetsCommon; }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.actions_menu, menu);
+        return true;
+    }
 
-		// if click is from side menu, it will be handled elsewhere
-//		if (mDrawerToggle.onOptionsItemSelected(item)) { return true; }
-
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-
-		int id = item.getItemId();
-
-		switch (id)
-		{
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
             case R.id.action_search:
                 return true;
             case R.id.action_settings:
                 return true;
-			case R.id.action_get_location:
-				pager.setCurrentItem(0);
-				MapLayout.getInstance().refreshLocation();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
-		}
-	}
+            case R.id.action_get_location:
+                pager.setCurrentItem(0);
+                MapLayout.getInstance().refreshLocation();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
-	/** Called whenever we call invalidateOptionsMenu() */
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		return super.onPrepareOptionsMenu(menu);
-	}
+    private void setupViewPager(ViewPager viewPager) {
+        Adapter adapter = new Adapter(getSupportFragmentManager());
+        adapter.addFragment(new MapLayout(), "- Tha Streets -");
+        adapter.addFragment(new NavigationLayout(), "- Navigation -");
+        adapter.addFragment(new BounceLayout(), "- Chat -");
+        viewPager.setAdapter(adapter);
+    }
 
-	public static Streets getInstance() { return streets; }
+    private void setupDrawerContent(NavigationView navigationView) {
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                menuItem.setChecked(true);
+                mDrawerLayout.closeDrawers();
+                return true;
+            }
+        });
+    }
 
-	public static StreetsCommon getStreetsCommon() { return streetsCommon; }
 
-	private void initializeTabs()
+	public void setPlaces(String[] places)
 	{
-		try
-		{
-			Log.i(TAG, "Initializing tabs");
-			// Creating The Toolbar and setting it as the Toolbar for the activity
+		Log.d(TAG, "Setting directions");
 
-			toolbar = (Toolbar) findViewById(R.id.tool_bar);
-			setSupportActionBar(toolbar);
+		SparseArray<Group> directionsList = new SparseArray<>();
 
+		String header = "Show Places";
 
-			// Creating The ViewPagerAdapter and Passing Fragment Manager, TAB_TITLES fot the Tabs and Number Of Tabs.
-			adapter =  new ViewPagerAdapter(getSupportFragmentManager(), TAB_TITLES, 3);
+		directionsList.put(0, new Group(header));
 
-			// Assigning ViewPager View and setting the adapter
-			pager = (ViewPager) findViewById(R.id.pager);
-			pager.setAdapter(adapter);
+		Collections.addAll(directionsList.get(0).children, places);
 
-			// Assiging the Sliding Tab Layout View
-			tabs = (SlidingTabLayout) findViewById(R.id.tabs);
-			tabs.setDistributeEvenly(true); // To make the Tabs Fixed set this true, This makes the tabs Space Evenly in Available width
+		placesAdapter = new PlacesListAdapter(this, directionsList);
 
-			// Setting Custom Color for the Scroll bar indicator of the Tab View
-			tabs.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
-				@Override
-				public int getIndicatorColor(int position) {
-					return getResources().getColor(R.color.tabsScrollColor);
-				}
-			});
+		placesList.setAdapter(placesAdapter);
 
-			// Setting the ViewPager For the SlidingTabsLayout
-			tabs.setViewPager(pager);
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-			Log.e(TAG, "Failed to initialize app tabs", ex);
-		}
+//		placesList.expandGroup(0);
 	}
 
-	private void initializeSideMenu()
+
+    private void initializeSideMenu()
     {
         try
         {
@@ -189,7 +207,7 @@ public class Streets extends ActionBarActivity implements FragmentDrawer.Fragmen
 
 			getSupportActionBar().setDisplayUseLogoEnabled(true);
 			getSupportActionBar().setHomeButtonEnabled(true);
-//			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 //			mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close)
 //			{
@@ -285,28 +303,32 @@ public class Streets extends ActionBarActivity implements FragmentDrawer.Fragmen
 		}
 	}
 
-	@Override
-	public void onDrawerItemSelected(View view, int position) {
+    static class Adapter extends FragmentPagerAdapter {
+        private final List<Fragment> mFragments = new ArrayList<>();
+        private final List<String> mFragmentTitles = new ArrayList<>();
 
-	}
+        public Adapter(FragmentManager fm) {
+            super(fm);
+        }
 
-	public void setPlaces(String[] places)
-	{
-		Log.d(TAG, "Setting directions");
+        public void addFragment(Fragment fragment, String title) {
+            mFragments.add(fragment);
+            mFragmentTitles.add(title);
+        }
 
-		SparseArray<Group> directionsList = new SparseArray<>();
+        @Override
+        public Fragment getItem(int position) {
+            return mFragments.get(position);
+        }
 
-		String header = "Show Places";
+        @Override
+        public int getCount() {
+            return mFragments.size();
+        }
 
-		directionsList.put(0, new Group(header));
-
-		Collections.addAll(directionsList.get(0).children, places);
-
-		placesAdapter = new PlacesListAdapter(this, directionsList);
-
-		placesList.setAdapter(placesAdapter);
-
-//		placesList.expandGroup(0);
-	}
-
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitles.get(position);
+        }
+    }
 }

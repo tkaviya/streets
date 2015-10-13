@@ -31,7 +31,7 @@ public class BusinessEngine extends ModuleInterface {
 	{
 		if (locations == null) locations = coreDaoManager.getLocationDao().findAll();
 
-		log4j.info("Processing Business Rewards for " + locations.size() + " locations");
+		logger.info("Processing Business Rewards for " + locations.size() + " locations");
 
 		for (Location location : locations)
 		{
@@ -46,7 +46,7 @@ public class BusinessEngine extends ModuleInterface {
 				List<UserAttribute> gangMembers =
 						coreDaoManager.getUserAttributeDao().findByGangName(controllingGang.getGangName());
 
-				log4j.info("Processing payout for " + location.getLocationName() +
+				logger.info("Processing payout for " + location.getLocationName() +
 						" to " + gangMembers.size() + " members of " + controllingGang.getGangName());
 
 				final Double payout = controllingGang.getPayout();

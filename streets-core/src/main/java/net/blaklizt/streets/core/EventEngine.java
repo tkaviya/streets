@@ -4,7 +4,7 @@ import net.blaklizt.streets.core.event.Event;
 import net.blaklizt.streets.core.module.ModuleInterface;
 import net.blaklizt.streets.persistence.Module;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
-import org.apache.log4j.Logger;
+import java.util.logging.Logger;
 
 import java.util.*;
 
@@ -17,7 +17,7 @@ import java.util.*;
 
 public class EventEngine {
 
-	private Logger log4j = Configuration.getNewLogger(this.getClass().getSimpleName());
+	private Logger logger = Configuration.getNewLogger(this.getClass().getSimpleName());
 
 	private static List<Event> streetsEvents = new LinkedList<>();
 
@@ -31,7 +31,7 @@ public class EventEngine {
 
 		for (final Module module : modules)
 		{
-			log4j.info("Initializing module " + module.getModuleName());
+			logger.info("Initializing module " + module.getModuleName());
 			ModuleInterface.getModuleEngine(module.getModuleName()).scheduleRunTimes();
 		}
 	}

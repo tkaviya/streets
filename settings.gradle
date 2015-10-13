@@ -1,5 +1,1 @@
-//include ':streets-common'
-//include ':streets-persistence'
-//include ':streets-core'
-//include ':streets-web'
 include ':streets-android'

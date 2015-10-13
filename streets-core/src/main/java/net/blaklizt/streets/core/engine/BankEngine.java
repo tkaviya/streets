@@ -42,12 +42,12 @@ public class BankEngine extends ModuleInterface {
 	@Override
 	public void run()
 	{
-		log4j.info("Calculating interest on all bank accounts.");
+		logger.info("Calculating interest on all bank accounts.");
 		List<User> users = CoreDaoManager.getInstance().getUserDao().findAll();
 
 		for (User user : users)
 		{
-			log4j.info("Processing interest for " + user.getUsername());
+			logger.info("Processing interest for " + user.getUsername());
 			Double interest = user.getUserAttribute().getBankBalance() * INTEREST_RATE;
 			user.getUserAttribute().setBankBalance(user.getUserAttribute().getBankBalance() + interest);
 			CoreDaoManager.getInstance().getUserAttributeDao().saveOrUpdate(user.getUserAttribute());

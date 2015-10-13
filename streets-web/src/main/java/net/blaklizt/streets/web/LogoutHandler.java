@@ -3,7 +3,7 @@ package net.blaklizt.streets.web;
 import net.blaklizt.streets.core.Streets;
 import net.blaklizt.streets.core.session.UserSession;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
-import org.apache.log4j.Logger;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.*;
@@ -17,7 +17,7 @@ import java.io.IOException;
  */
 public class LogoutHandler implements Filter {
 
-	private static final Logger log4j = Configuration.getNewLogger(LogoutHandler.class.getSimpleName());
+	private static final Logger logger = Configuration.getNewLogger(LogoutHandler.class.getSimpleName());
 
 	@Autowired
 	private Streets streets;
@@ -40,7 +40,7 @@ public class LogoutHandler implements Filter {
 	{
 		UserSession userSession = (UserSession)servletRequest.getAttribute("userSession");
 		userSession.setLoggedIn(false);
-		log4j.info("SymbiosisUser " + userSession.getUser().getUsername() + " logged out");
+		logger.info("SymbiosisUser " + userSession.getUser().getUsername() + " logged out");
 		streets.removeLoggedInUser(userSession);
 	}
 

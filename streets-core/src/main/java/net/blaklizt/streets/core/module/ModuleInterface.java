@@ -8,7 +8,7 @@ import net.blaklizt.streets.core.session.UserSession;
 import net.blaklizt.streets.persistence.Module;
 import net.blaklizt.streets.persistence.ModuleTime;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
-import org.apache.log4j.Logger;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
@@ -59,7 +59,7 @@ public abstract class ModuleInterface extends MenuItem
 	{
 		try
 		{
-			log4j.info("Scheduling run times for module " + name);
+			logger.info("Scheduling run times for module " + name);
 
 			Timer gameTimer = streets.getStreetsEventsTimer();
 
@@ -89,10 +89,10 @@ public abstract class ModuleInterface extends MenuItem
 						new TimerTask() { @Override public void run() { ((ModuleInterface)instance).run(); } },
 						fireTime.getTimeInMillis() - currentTime, ONE_DAY);
 
-					log4j.info(name + " is schedule to run at " + moduleTime.getRuntime() + "hrs");
+					logger.info(name + " is schedule to run at " + moduleTime.getRuntime() + "hrs");
 				}
 				catch (NumberFormatException ex) {
-					log4j.error("Failed to parse time " + moduleTime.getRuntime()
+					logger.error("Failed to parse time " + moduleTime.getRuntime()
 						+ " for module " + module.getModuleName());
 				}
 			}

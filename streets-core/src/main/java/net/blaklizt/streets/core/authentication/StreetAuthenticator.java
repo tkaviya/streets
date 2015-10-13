@@ -6,7 +6,7 @@ import net.blaklizt.streets.persistence.dao.UserDao;
 import net.blaklizt.streets.persistence.dao.UserGroupRoleDao;
 import net.blaklizt.symbiosis.sym_authentication.security.Security;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
-import org.apache.log4j.Logger;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,12 +39,12 @@ public class StreetAuthenticator implements UserDetailsService, PasswordEncoder 
 	@Autowired
 	private UserGroupRoleDao userGroupRoleDao;
 
-	private static final Logger log4j = Configuration.getNewLogger(StreetAuthenticator.class.getSimpleName());
+	private static final Logger logger = Configuration.getNewLogger(StreetAuthenticator.class.getSimpleName());
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
 	{
-		log4j.info("Logging in user: " + username);
+		logger.info("Logging in user: " + username);
 		User dbUser = userDao.findByUsername(username);
 
 		if (dbUser == null) throw new UsernameNotFoundException("Could not find username " + username);
@@ -55,7 +55,7 @@ public class StreetAuthenticator implements UserDetailsService, PasswordEncoder 
 		else
 		{
 			active = false;
-			log4j.warn("Cannot login " + dbUser.getUsername() + " : Account is not active.");
+			logger.warn("Cannot login " + dbUser.getUsername() + " : Account is not active.");
 		}
 
 		return new org.springframework.security.core.userdetails.User(username, dbUser.getPassword(),
@@ -68,13 +68,13 @@ public class StreetAuthenticator implements UserDetailsService, PasswordEncoder 
 
 		if (!grantedAuthoritiesCache.containsKey(userGroup))
 		{
-			log4j.debug("Getting authorities for access group " + userGroup);
+			logger.fine("Getting authorities for access group " + userGroup);
 
 			List<UserGroupRole> userGroupRoles = userGroupRoleDao.findByUserGroup(userGroup);
 
 			for (UserGroupRole userGroupRole : userGroupRoles)
 			{
-				log4j.debug("Caching role " + userGroupRole.getRoleID());
+				logger.fine("Caching role " + userGroupRole.getRoleID());
 				authList.add(new SimpleGrantedAuthority(userGroupRole.getRoleID()));
 			}
 
@@ -87,14 +87,14 @@ public class StreetAuthenticator implements UserDetailsService, PasswordEncoder 
 	@Override
 	public String encodePassword(String rawPass, Object salt) {
 		//implement hectic encryption here
-		log4j.info("Encrypting [ " + rawPass + " with salt " + salt + " ]");
+		logger.info("Encrypting [ " + rawPass + " with salt " + salt + " ]");
 		return new String(Security.encrypt(rawPass.getBytes()));
 	}
 
 	@Override
 	public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
 		//implement hectic encryption here
-		log4j.info("Comparing [ " + new String(Security.encrypt(rawPass.getBytes())) + " | " + rawPass + " ]");
+		logger.info("Comparing [ " + new String(Security.encrypt(rawPass.getBytes())) + " | " + rawPass + " ]");
 		return encPass.matches(new String(Security.encrypt(rawPass.getBytes())));
 	}
 }

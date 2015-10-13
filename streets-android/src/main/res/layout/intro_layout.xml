@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical"
+              android:background="#000000"
+              tools:context=".Startup">
+
+    <ImageView android:layout_width="fill_parent"
+               android:layout_height="wrap_content"
+               android:layout_margin="10dip"
+               android:layout_marginTop="100dip"
+               android:layout_marginBottom="30dip"
+               android:gravity="center_horizontal"
+               android:background="@drawable/blaklizt_logo"
+               android:contentDescription="@string/blaklizt_logo"/>
+
+    <VideoView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/videoView"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="200dip"
+        android:layout_margin="10dip"
+        android:gravity="center_horizontal|center_vertical"
+        android:clickable="false" />
+
+    <!--  Login Button -->
+    <EditText
+        android:id="@+id/loginPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dip"
+        android:inputType="textPassword"
+        android:password="true"
+        android:layout_gravity="center_horizontal"
+        android:hint="enter password"
+        android:gravity="center|center_horizontal" />
+
+    <Button
+        android:id="@+id/btnLogin"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:layout_margin="10dp"
+        android:text="Login" style="@style/DefaultButtonText"
+        android:background="@drawable/button_default_bg"
+        android:gravity="center_horizontal|bottom" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dip"
+        android:text="@string/blaklizt_website"
+        android:autoLink="web"
+        android:linksClickable="true"
+        android:gravity="center_horizontal|bottom" />
+</LinearLayout>

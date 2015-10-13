@@ -34,14 +34,14 @@ public class HospitalEngine extends ModuleInterface {
 	@Override
 	public void run()
 	{
-		log4j.info("Resetting everyone to full health.");
+		logger.info("Resetting everyone to full health.");
 		List<User> users = CoreDaoManager.getInstance().getUserDao().findAll();
 
 		for (User user : users)
 		{
 			if (user.getUserAttribute().getHealthPoints() != MAX_HEALTH)
 			{
-				log4j.info("Resetting health for " + user.getUsername());
+				logger.info("Resetting health for " + user.getUsername());
 				CoreDaoManager.getInstance().getEventLogDao().save(
 					new EventLog(null, new Date(), user.getUserID(), "Resetting health from " +
 					user.getUserAttribute().getHealthPoints() + " to " + MAX_HEALTH));

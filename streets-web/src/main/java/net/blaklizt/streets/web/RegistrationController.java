@@ -10,7 +10,7 @@ import net.blaklizt.symbiosis.sym_authentication.security.Security;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
 import net.blaklizt.symbiosis.sym_common.mail.EMailer;
 import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
-import org.apache.log4j.Logger;
+import java.util.logging.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -32,7 +32,7 @@ import java.util.Date;
 @Controller
 public class RegistrationController
 {
-	private static final Logger log4j = Configuration.getNewLogger(RegistrationController.class.getSimpleName());
+	private static final Logger logger = Configuration.getNewLogger(RegistrationController.class.getSimpleName());
 
 	@RequestMapping(value = "/register", method = { RequestMethod.GET , RequestMethod.POST } )
 	public ModelAndView register(HttpServletRequest request, @RequestParam(value="error", required=false) boolean error)
@@ -56,7 +56,7 @@ public class RegistrationController
 		@ModelAttribute(value="r_password2") String password2,
 		@ModelAttribute(value="r_email") String email)
 	{
-		log4j.warn("Processing registration: {name="+name+"} {username="+username+"} {email="+email+"}");
+		logger.warn("Processing registration: {name="+name+"} {username="+username+"} {email="+email+"}");
 		boolean registerSuccess = true;
 		ModelMap model = new ModelMap();
 		String error = "";
@@ -80,7 +80,7 @@ public class RegistrationController
 
 		if (!registerSuccess)
 		{
-			log4j.error("Registration failed: " + error);
+			logger.error("Registration failed: " + error);
 			model.put("error", error);
 			return new ModelAndView("register/register", model);
 		}
@@ -90,7 +90,7 @@ public class RegistrationController
 			{
 				CoreDaoManager cdm = CoreDaoManager.getInstance();
 
-				log4j.error("Creating new user");
+				logger.error("Creating new user");
 				User newUser = new User();
 				newUser.setName(name);
 				newUser.setUsername(username);
@@ -121,13 +121,13 @@ public class RegistrationController
 				cdm.getEventLogDao().save(new EventLog(null, new Date(), newUser.getUserID(),
 						username + " registered successfully with email " + email));
 
-				log4j.info("Registration succeeded");
+				logger.info("Registration succeeded");
 				return new ModelAndView("register/registerSuccess", model);
 			}
 			catch (Exception e)
 			{
 				e.printStackTrace();
-				log4j.error("Registration failed: " + e.getMessage());
+				logger.error("Registration failed: " + e.getMessage());
 				model.put("error", e.getMessage());
 				return new ModelAndView("register/register", model);
 			}
