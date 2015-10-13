@@ -110,7 +110,7 @@ public class StreetsCommon
 
 	public String getUserPreference(String preference) { return getUserPreferences().get(preference); }
 
-	public static void registerStreetsActivity(Activity activity) { activities.add(activity); }
+	public static void registerStreetsActivity(Activity activity) { /*activities.add(activity);*/ }
 
 	public TextToSpeech getTextToSpeech()
 	{

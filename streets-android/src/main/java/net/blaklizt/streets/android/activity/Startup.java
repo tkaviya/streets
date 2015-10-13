@@ -1,12 +1,12 @@
 package net.blaklizt.streets.android.activity;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -25,7 +25,7 @@ import org.json.JSONObject;
  * Date: 2015/06/11
  * Time: 4:30 PM
  */
-public class Startup extends Activity implements View.OnClickListener
+public class Startup extends AppCompatActivity implements View.OnClickListener
 {
 	private Button loginBtn;
 	private EditText password = null;
@@ -125,32 +125,32 @@ public class Startup extends Activity implements View.OnClickListener
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+        setContentView(R.layout.intro_layout);
 		try
 		{
 			startup = this;
 			password = (EditText) findViewById(R.id.loginPassword);
 			loginBtn = (Button) findViewById(R.id.btnLogin);
 
-			if (StreetsCommon.getInstance(this, 0).getUserPreference("ShowIntro").equals("0")) {
-				//Go directly to Login, do not pass video, do not disrupt music
-				if (Streets.getInstance() != null)        //coming backwards, so we are exiting
-				{
-					Log.i(TAG, "Existing Streets classes still running. Terminating.");
-					StreetsCommon.endApplication();
-					return;
-				}
-				else                                //going forward, let's get this work!
-				{
-					Log.i(TAG, "Initiating Tha Streets.");
+//			if (StreetsCommon.getInstance(this, 0).getUserPreference("ShowIntro").equals("0")) {
+//				//Go directly to Login, do not pass video, do not disrupt music
+//				if (Streets.getInstance() != null)        //coming backwards, so we are exiting
+//				{
+//					Log.i(TAG, "Existing Streets classes still running. Terminating.");
+//					StreetsCommon.endApplication();
+//					return;
+//				}
+//				else                                //going forward, let's get this work!
+//				{
+//					Log.i(TAG, "Initiating Tha Streets.");
+//
+//					Intent loginActivity = new Intent(this, Streets.class);
+//					startActivity(loginActivity);
+//					StreetsCommon.registerStreetsActivity(Streets.getInstance());
+//					return;
+//				}
+//			}
 
-					Intent loginActivity = new Intent(this, Streets.class);
-					startActivity(loginActivity);
-					StreetsCommon.registerStreetsActivity(Streets.getInstance());
-					return;
-				}
-			}
-
-			setContentView(R.layout.video_layout);
 			Log.i(TAG, "Playing intro clip...");
 
 			videoView = (VideoView) findViewById(R.id.videoView);

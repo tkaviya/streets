@@ -16,33 +16,32 @@
   -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <group android:checkableBehavior="all">
         <item
             android:id="@+id/nav_home"
-            android:icon="@drawable/ic_dashboard"
-            android:title="Home" />
+            android:icon="@drawable/abc_btn_check_to_on_mtrl_000"
+            android:title="Hide location from all" />
         <item
             android:id="@+id/nav_messages"
-            android:icon="@drawable/ic_event"
-            android:title="Messages" />
+            android:icon="@drawable/abc_btn_check_to_on_mtrl_000"
+            android:title="Hide distance from all" />
         <item
             android:id="@+id/nav_friends"
-            android:icon="@drawable/ic_headset"
-            android:title="Friends" />
-        <!--<item-->
-            <!--android:id="@+id/nav_discussion"-->
-            <!--android:icon="@drawable/ic_forum"-->
-            <!--android:title="Discussion" />-->
+            android:icon="@drawable/abc_btn_check_to_on_mtrl_000"
+            android:title="Do not receive requests" />
     </group>
 
-    <item android:title="Sub items">
+    <item android:title="Recent Searches">
         <menu>
             <item
-                android:icon="@drawable/ic_dashboard"
-                android:title="Sub item 1" />
+                android:icon="@drawable/ic_cast_light"
+                android:title="A grade shit" />
             <item
-                android:icon="@drawable/ic_forum"
-                android:title="Sub item 2" />
+                android:icon="@drawable/ic_cast_light"
+                android:title="Snow white fresh" />
+            <item
+                android:icon="@drawable/ic_cast_light"
+                android:title="Snow white fresh" />
         </menu>
     </item>
 

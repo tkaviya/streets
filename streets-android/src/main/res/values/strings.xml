@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-      <string name="location_more_information">
-          The living legend. The one who has it all.
-
-          Quote: "Until you see me, you've never seen a bad guy, bad baddam baddam me!
+      <string name="location_item_services">-> I got the yams\r\n-> I can let the cat out the bag, pussy or otherwise!\r\n-> You want greens? Fear nothing! I am the boss chef with the best vegetables\n
+      </string>
+      <string name="location_item_more_information">The living legend. The one who has it all. Started from the top, now I\'m up!\r\nQuote: "Until you see me, you've never seen a bad guy bad baddam badda me!\n
+      </string>
+      <string name="location_item_rating">Time:\t\t\t\t5/5\r\nPrice:\t\t\t\t4/5\r\nQuality:\t\t\t\t5/5\r\nRecommendations:\t52\r\n
       </string>
 
     <!-- App Strings -->

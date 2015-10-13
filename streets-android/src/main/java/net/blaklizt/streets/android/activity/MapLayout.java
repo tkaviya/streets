@@ -42,7 +42,7 @@ import java.util.*;
  * Time: 5:58 PM
  */
 public class MapLayout extends Fragment
-	implements	LocationListener, OnMarkerClickListener, 
+	implements	LocationListener, OnMarkerClickListener,
 				Navigator.OnPathSetListener, GoogleMap.InfoWindowAdapter,
 				GpsStatus.Listener
 {
@@ -116,9 +116,7 @@ public class MapLayout extends Fragment
 	protected HashMap <Integer, Place> map = new HashMap<>();
     protected boolean firstLocationUpdate = true;
     protected ImageView location_image;
-    protected TextView location_name_text_view;
-    protected TextView location_address_text_view;
-    protected TextView location_categories_text_view;
+    protected TextView location_info;
 	protected TextView status_text_view;
 	protected LayoutInflater inflater;
 
@@ -139,7 +137,6 @@ public class MapLayout extends Fragment
 	    this.inflater = inflater;
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.map_layout, container, false);
-        // do your view initialization here
         mapLayout = this;
 
 		randomNews.add("Weather is 17 degrees");
@@ -153,9 +150,7 @@ public class MapLayout extends Fragment
 
 		status_text_view = (TextView) view.findViewById(R.id.status_text_view);
         location_image =  (ImageView) view.findViewById(R.id.location_image_view);
-        location_name_text_view = (TextView) view.findViewById(R.id.location_name_text_view);
-        location_address_text_view = (TextView) view.findViewById(R.id.location_address_text_view);
-        location_categories_text_view = (TextView) view.findViewById(R.id.location_categories_text_view);
+        location_info = (TextView) view.findViewById(R.id.location_categories_text_view);
 
         initializeMap();
 
@@ -413,7 +408,7 @@ public class MapLayout extends Fragment
 
         try
         {
-            if (currentLocation != null) {
+            if (currentLocation == null) {
 				Log.i(TAG, "Data is stale. Refreshing location");
                 refreshLocation();
             }
@@ -458,13 +453,11 @@ public class MapLayout extends Fragment
                 Log.i(TAG, "Camera moved to new location");
 
                 // Zoom in the Google Map
-                googleMap.animateCamera(CameraUpdateFactory.zoomTo(12), 3000, null);
+                googleMap.animateCamera(CameraUpdateFactory.zoomTo(14), 3000, null);
                 Log.i(TAG, "Camera zoomed to view");
 
                 location_image.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.default_icon));
-                location_name_text_view.setText("Current Location");
-                location_address_text_view.setText("Latitude: " + latitude);
-                location_categories_text_view.setText("Longitude: " + longitude);
+                location_info.setText("Bugatti & Millitainment");
 
                 drawMarker(location);
 
@@ -487,16 +480,10 @@ public class MapLayout extends Fragment
             {
 				//if clickedPlace != null, marker should link to a place
                 try {
-                    if (clickedPlace.image.startsWith("http")) {
-                        location_image.setImageBitmap(ImageLoader.getInstance().loadImageSync(clickedPlace.image));
-                    } else {
-                        location_image.setImageDrawable(getResources().getDrawable(R.drawable.friend));
-                    }
+                    location_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_dashboard));
                 }
                 catch (Exception e) { e.printStackTrace(); }
-                location_name_text_view.setText(clickedPlace.name);
-                location_address_text_view.setText(clickedPlace.formatted_address);
-                location_categories_text_view.setText(clickedPlace.type);
+                location_info.setText(clickedPlace.name);
             }
 
             if (navigator != null) {

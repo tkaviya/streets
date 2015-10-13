@@ -70,24 +70,19 @@ public class Streets extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         streets = this;
 
-		Log.i(TAG, "+++ ON CREATE +++");
+        Log.i(TAG, "+++ ON CREATE +++");
 
-		streetsCommon = StreetsCommon.getInstance(getApplicationContext(), 0);
-
-		setContentView(R.layout.activity_main);
+        streetsCommon = StreetsCommon.getInstance(getApplicationContext(), 0);
 
 		placesList = (ExpandableListView)findViewById(R.id.places_list);
 
-		initializeSideMenu();
-
-		initializeSideMenuItems();
+//		initializeSideMenuItems();
 
 		Log.i(TAG, "Displayed Main Layout");
-
-        setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -95,6 +90,7 @@ public class Streets extends AppCompatActivity {
         final ActionBar ab = getSupportActionBar();
         ab.setHomeAsUpIndicator(R.drawable.ic_menu);
         ab.setDisplayHomeAsUpEnabled(true);
+        ab.setHomeButtonEnabled(true);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
@@ -107,16 +103,6 @@ public class Streets extends AppCompatActivity {
         if (viewPager != null) {
             setupViewPager(viewPager);
         }
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
     }
@@ -133,7 +119,7 @@ public class Streets extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.actions_menu, menu);
+        getMenuInflater().inflate(R.menu.option_menu, menu);
         return true;
     }
 
@@ -158,9 +144,9 @@ public class Streets extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         Adapter adapter = new Adapter(getSupportFragmentManager());
-        adapter.addFragment(new MapLayout(), "- Tha Streets -");
-        adapter.addFragment(new NavigationLayout(), "- Navigation -");
-        adapter.addFragment(new BounceLayout(), "- Chat -");
+        adapter.addFragment(MapLayout.getInstance() == null ? new MapLayout() : null, "Streetz");
+        adapter.addFragment(DetailsLayout.getInstance() == null ? new DetailsLayout() : null, "Info");
+        adapter.addFragment(NavigationLayout.getInstance() == null ? new NavigationLayout() : null, "Nav");
         viewPager.setAdapter(adapter);
     }
 
@@ -179,73 +165,22 @@ public class Streets extends AppCompatActivity {
 
 	public void setPlaces(String[] places)
 	{
-		Log.d(TAG, "Setting directions");
-
-		SparseArray<Group> directionsList = new SparseArray<>();
-
-		String header = "Show Places";
-
-		directionsList.put(0, new Group(header));
-
-		Collections.addAll(directionsList.get(0).children, places);
-
-		placesAdapter = new PlacesListAdapter(this, directionsList);
-
-		placesList.setAdapter(placesAdapter);
+//		Log.d(TAG, "Setting directions");
+//
+//		SparseArray<Group> directionsList = new SparseArray<>();
+//
+//		String header = "Show Places";
+//
+//		directionsList.put(0, new Group(header));
+//
+//		Collections.addAll(directionsList.get(0).children, places);
+//
+//		placesAdapter = new PlacesListAdapter(this, directionsList);
+//
+//		placesList.setAdapter(placesAdapter);
 
 //		placesList.expandGroup(0);
 	}
-
-
-    private void initializeSideMenu()
-    {
-        try
-        {
-            Log.i(TAG, "Initializing side menu");
-            // Getting reference to the DrawerLayout
-//            mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-			getSupportActionBar().setDisplayUseLogoEnabled(true);
-			getSupportActionBar().setHomeButtonEnabled(true);
-			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-//			mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close)
-//			{
-//                /** Called when drawer is closed */
-//				@Override
-//                public void onDrawerClosed(View drawerView) {
-//					super.onDrawerClosed(drawerView);
-//					getSupportActionBar().setTitle(R.string.app_name);
-//                    invalidateOptionsMenu();
-//
-//                }
-//
-//                /** Called when a drawer is opened */
-//				@Override
-//                public void onDrawerOpened(View drawerView) {
-//					super.onDrawerOpened(drawerView);
-//					getSupportActionBar().setTitle("Change Settings");
-//                    invalidateOptionsMenu();
-//                }
-//
-//				@Override
-//				public void onDrawerSlide(View drawerView, float slideOffset) {
-//					Log.i(TAG, "+++ ON DRAWER SLIDE +++");
-//					super.onDrawerSlide(drawerView, slideOffset);
-//					toolbar.setAlpha(1 - slideOffset / 2);
-//				}
-//
-//            };
-
-            // Setting DrawerToggle on DrawerLayout
-//            mDrawerLayout.setDrawerListener(mDrawerToggle);
-        }
-        catch (Exception ex)
-        {
-            ex.printStackTrace();
-            Log.e(TAG, "Failed to initialize the side menu", ex);
-        }
-    }
 
 	private void initializeSideMenuItems()
 	{
@@ -263,7 +198,7 @@ public class Streets extends AppCompatActivity {
 
 			List<NavDrawerItem> data = new ArrayList<>();
 
-			setPlaces(allPlaces);
+//			setPlaces(allPlaces);
 
 			// preparing navigation drawer items
 			for (String title : allPlaces) {
