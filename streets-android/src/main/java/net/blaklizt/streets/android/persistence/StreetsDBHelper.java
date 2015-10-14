@@ -28,69 +28,98 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "Neighbourhood.db";
 
-	private static final String PLACE_TABLE = "Place";
+	private static final String PLACE_TABLE = "place";
 
-	private static final String USER_TABLE = "User";
+	private static final String PLACE_TYPE_TABLE = "place_type";
 
-	private static final String FRIEND_TABLE = "Friend";
+    private static final String LOCATION_HISTORY_TABLE = "location_history";
 
-	private static final String USER_PREFERENCES = "UserPreferences";
+	private static final String USER_TABLE = "user";
 
-	private static final String SELECTED_PLACES = "SelectedPlaces";
+	private static final String FRIEND_TABLE = "friend";
+
+	private static final String SUPPLIER_TABLE = "supplier";
+
+	private static final String USER_PREFERENCES = "user_preferences";
+
+	private static final String PLACE_TYPES_OF_INTEREST = "selected_places";
 
 	private SQLiteDatabase sqlLiteDatabase = null;
 
-    public StreetsDBHelper(Context context) { super(context, DATABASE_NAME, null, DATABASE_VERSION); }
+	public StreetsDBHelper(Context context) { super(context, DATABASE_NAME, null, DATABASE_VERSION); }
 
     public void onCreate(SQLiteDatabase db) {
 
         db.execSQL("CREATE TABLE IF NOT EXISTS " + USER_TABLE + " (" +
-                "SymbiosisID INT(11)," +
-                "Username VARCHAR(50)," +
-                "Password VARCHAR(50)," +
-                "Email VARCHAR(50)," +
-                "LastPlaceID INT(11)," +
-                "HomePlaceID INT(11)," +
-                "Type VARCHAR(50))");
+				"symbiosis_id INT(11)," +
+				"imei VARCHAR(256)," +
+				"imsi VARCHAR(128)," +
+				"password VARCHAR(50)," +
+				"last_location_id INT(11)," +
+				"home_place_id INT(11)," +
+				"type VARCHAR(50))");
 
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + FRIEND_TABLE + " (" +
-                "SymbiosisID INT(11)," +
-                "Username VARCHAR(50)," +
-                "UserGroupID VARCHAR(50)," +
-                "Email VARCHAR(50)," +
-                "LastPlaceID INT(11)," +
-                "HomePlaceID INT(11))");
-
+        //fixed places that are never remove
         db.execSQL("CREATE TABLE IF NOT EXISTS " + PLACE_TABLE + " (" +
-                "PlaceID INT(11)," +
-                "Name VARCHAR(50)," +
-                "Reference VARCHAR(100)," +
-                "Latitude DOUBLE," +
-                "Longitude DOUBLE," +
-                "Type VARCHAR(50))");
+				"place_id INT(11)," +
+				"place_type_id INT(11)," +
+				"name VARCHAR(50)," +
+				"reference VARCHAR(100)," +
+				"latitude DOUBLE," +
+				"longitude DOUBLE," +
+				"type VARCHAR(50))");
+
+        //table the grows and is truncated after a while
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + LOCATION_HISTORY_TABLE + " (" +
+                "location_history_id INT(11)," +
+                "latitude DOUBLE," +
+                "longitude DOUBLE," +
+                "update_date_time DATE))");
+
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + PLACE_TYPE_TABLE + " (" +
+                "type_id INT(11)," +
+                "type VARCHAR(50))");
+
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + FRIEND_TABLE + " (" +
+				"symbiosis_id INT(11)," +
+				"last_place_id INT(11)," +
+				"home_place_id INT(11))");
+
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + SUPPLIER_TABLE + " (" +
+				"symbiosis_id INT(11)," +
+				"last_geolocation_id INT(11))");
 
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + USER_PREFERENCES + " (" +
-				"SymbiosisID INT(11)," +
-				"ShowIntro TINYINT(1) DEFAULT 1," +
-				"SuggestGPS TINYINT(1) DEFAULT 1," +
-				"AutoEnableGPS TINYINT(1) DEFAULT 1)");
+				"name VARCHAR(50)," +
+				"preference VARCHAR(50))");
 
-	    db.execSQL("CREATE TABLE IF NOT EXISTS " + SELECTED_PLACES + " (PlaceType VARCHAR(50))");
+	    db.execSQL("CREATE TABLE IF NOT EXISTS " + PLACE_TYPES_OF_INTEREST + " (place_type_id VARCHAR(50))");
 
-        db.execSQL("INSERT INTO " + PLACE_TABLE + " VALUES (0,'Home',NULL,-26.092154565,28.216708950,'ME')");
-        db.execSQL("INSERT INTO " + USER_TABLE + " VALUES (0,'tkaviya','ImTheStreets','tsungai.kaviya@gmail.com',0,0,'ME')");
-		db.execSQL("INSERT INTO " + USER_PREFERENCES + " (SymbiosisID,ShowIntro,SuggestGPS,AutoEnableGPS) VALUES (0,0,0,0)");
+		db.execSQL("REPLACE INTO " + USER_PREFERENCES + " VALUES (" +
+                " ('symbiosis_user_id', SELECT symbiosis_id FROM " + USER_TABLE + " LIMIT 1)," +
+                " ('show_intro', '1')," +
+                " ('suggest_gps', '1')," +
+                " ('auto_enable_gps', '1')," +
+                " ('show_location', '1')," +
+                " ('show_distance', '1')," +
+                " ('receive_requests', '1')," +
+                " ('show_history', '1')," +
+                " ('ask_on_exit', '1')" +
+				")");
 
 	    LinkedList <String> defaultPlaces = PlaceTypes.getDefaultPlaces();
 
-	    if (defaultPlaces.size() >= 1)
+        db.execSQL("DELETE FROM " + PLACE_TYPES_OF_INTEREST);
+
+		if (defaultPlaces.size() >= 1)
 	    {
-		    //create bulk insert SQL
-			String sql = "INSERT INTO " + SELECTED_PLACES + " SELECT '" + defaultPlaces.pop() + "' AS PlaceType ";
+			String sql = "INSERT INTO " + PLACE_TYPES_OF_INTEREST + " (place_type_id) SELECT type_id FROM "
+				+ PLACE_TYPE_TABLE + " WHERE type IN (";
 		    for (String place : defaultPlaces)
 		    {
-			    sql += " UNION SELECT '" + place + "' ";
+			    sql += "'" + place + "',";
 		    }
+			sql = sql.substring(0, sql.length() - 2) + ")";
 
 		    Log.d(TAG, "Inserting default places. SQL: " + sql);
 
@@ -104,7 +133,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + PLACE_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + FRIEND_TABLE);
 		db.execSQL("DROP TABLE IF EXISTS " + USER_PREFERENCES);
-	    db.execSQL("DROP TABLE IF EXISTS " + SELECTED_PLACES);
+	    db.execSQL("DROP TABLE IF EXISTS " + PLACE_TYPES_OF_INTEREST);
         onCreate(db);
     }
 
@@ -122,7 +151,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 	}
 
 	//database functions
-	public LinkedList<UserPreference> getUserPreferences(Integer symbiosisUserID)
+	public LinkedList<UserPreference> getUserPreferences()
 	{
 		try
 		{
@@ -130,7 +159,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 			LinkedList<UserPreference> userPreferences = new LinkedList<>();
 
 			Cursor preferences = getStreetsWritableDatabase().rawQuery(
-				"SELECT * FROM " + USER_PREFERENCES + " WHERE SymbiosisID = '" + symbiosisUserID + "'", null);
+				"SELECT * FROM " + USER_PREFERENCES, null);
 
 			Log.i(TAG, "Found " + preferences.getCount() + " preferences.");
 			preferences.moveToFirst();
@@ -153,14 +182,11 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	public void setUserPreference(Integer symbiosisUserID, String preference, String value)
+	public void setUserPreference(String preference, String value)
 	{
-		Log.i(TAG, "Updating user preference " + preference + " to " + value + " for user " + symbiosisUserID);
-
-		getStreetsWritableDatabase().execSQL(
-				"UPDATE " + USER_PREFERENCES
-						+ " SET " + preference + " = '" + value + "'"
-						+ " WHERE SymbiosisID = '" + symbiosisUserID + "'");
+		Log.i(TAG, "Updating user preference " + preference + " to " + value);
+		getStreetsWritableDatabase().execSQL("REPLACE INTO " + USER_PREFERENCES +
+				" (name, preference) VALUES ('"+ preference + "','" + value + "')");
 	}
 
 	public LinkedList<Place> getNearbyFriendLocations()
@@ -170,9 +196,9 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 			Log.i(TAG, "Searching for nearby friends.");
 			LinkedList<Place> resultList = new LinkedList<>();
 			Cursor friends = getStreetsWritableDatabase().rawQuery(
-				"SELECT ft.Username, pt.Reference, pt.Latitude, pt.Longitude, pt.Type " +
+				"SELECT ft.username, pt.reference, pt.latitude, pt.longitude, pt.place_id " +
 				"FROM " + FRIEND_TABLE + " ft, " + PLACE_TABLE + " pt " +
-				"WHERE ft.LastPlaceID = pt.PlaceID", null);
+				"WHERE ft.last_place_id = pt.place_id", null);
 
 			Log.i(TAG, "Found " + friends.getCount() + " friends.");
 			friends.moveToFirst();
@@ -205,7 +231,9 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 		{
 			Log.i(TAG, "Getting list of places of interest .");
 			LinkedList<String> resultList = new LinkedList<>();
-			Cursor places = getStreetsWritableDatabase().rawQuery("SELECT PlaceType FROM " + StreetsDBHelper.SELECTED_PLACES, null);
+			Cursor places = getStreetsWritableDatabase().rawQuery(
+					"SELECT pt.place_type FROM " + PLACE_TYPES_OF_INTEREST + " poi, " + PLACE_TYPE_TABLE + " pt," +
+					"WHERE poi.place_type_id = pt.type_id", null);
 
 			Log.i(TAG, "Found " + places.getCount() + " places.");
 			places.moveToFirst();
@@ -226,24 +254,17 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	public void persistPlacesOfInterest(LinkedList<String> places)
-	{
-		//truncate the database before any new insert
-		//getStreetsWritableDatabase().execSQL("DELETE FROM " + SELECTED_PLACES);
+    public void addPlaceOfInterest(String place) {
+        String sql = "REPLACE INTO " + PLACE_TYPES_OF_INTEREST + " (place_type_id)" +
+                " SELECT place_type_id FROM place_type WHERE type = '" + place + "'";
+        Log.d(TAG, "Inserting new place of interest. SQL:\n" + sql);
+        getStreetsWritableDatabase().execSQL(sql);
+    }
 
-		if (places.size() >= 1)
-		{
-			//create bulk insert SQL
-			String sql = "INSERT INTO " + SELECTED_PLACES + " SELECT '" + places.pop() + "' AS PlaceType ";
-			for (String place : places)
-			{
-				sql += " UNION SELECT '" + place + "' ";
-			}
-
-			Log.d(TAG, "Inserting mew places of interest. SQL:\n" + sql);
-
-			getStreetsWritableDatabase().execSQL(sql);
-		}
-	}
-
+    public void removePlaceOfInterest(String place) {
+        String sql = "DELETE FROM " + PLACE_TYPES_OF_INTEREST + " WHERE place_type_id = " +
+                " SELECT place_type_id FROM place_type WHERE type = '" + place + "'";
+        Log.d(TAG, "Removing place of interest. SQL:\n" + sql);
+        getStreetsWritableDatabase().execSQL(sql);
+    }
 }

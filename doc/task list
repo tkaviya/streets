@@ -1,48 +1,28 @@
 ->password encryption
 ->registration
-employees
-*salaries
-training
-*lotto
-cash in transit
-locations travel
-casino
-hacking
-business attack
-gang donation
+
 statistics
-*logs
 adverts
->graphical user interface
-*persisting data
-stocks
-*shortcuts
-horse racing
-car racing
-simulator (strength, health, cash)
-caged fighting
-casino (slots | high card)
-drug market (buy+sell drugs from different locations)
-knockout ring (challenge random players to bouts)
-the underground (hire hackers, hack bank accounts)
-health (affected by caged fighting, knockout ring, simulator)
-gym
-polls
-energy shop
-drive buy shootings (bets)
-hall of fame (money, level, win/loss/gang)
-hall of shame
-idleRPG
-mud wrestling
+graphical user interface
+persisting data
 the hunt
-factory bombers
-crack the safe, 9 chances to guess [ x x x x x ]
-derby race
-the hunted (if not hunted, you keep the cash)
-stock markets
 
-31314 integration to get money into the game
+chat (send location, files, etc)
+search map
+friends
+feedback
+
+- referral
+- rating
+- register
+select interests page
+select people page
+- stop updates ondestroy/pause (implements back groundable stop start)
+- push updates
 
 
-bugs:
-when receiving business payouts, bank balance is taken from the db, updating in db, but ram objects are not updated.
+ratings -> referral, jobs, feedback, usage, advertising
+
+
+power hour
+taxi operators

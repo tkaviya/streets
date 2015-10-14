@@ -38,14 +38,14 @@ public class GPSDialogueListener implements DialogInterface.OnClickListener
 				//Yes button clicked
 				Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 				context.startActivity(myIntent);
-				Streets.getStreetsCommon().setUserPreference("SuggestGPS", askAgain ? "1" : "0");
-				if (!askAgain) Streets.getStreetsCommon().setUserPreference("AutoEnableGPS", "1");
+				Streets.getStreetsCommon().setUserPreference("suggest_gps", askAgain ? "1" : "0");
+				if (!askAgain) Streets.getStreetsCommon().setUserPreference("auto_enable_gps", "1"); //auto_enable without asking
 				break;
 
 			case DialogInterface.BUTTON_NEGATIVE:
 				//No button clicked
-				Streets.getStreetsCommon().setUserPreference("SuggestGPS", askAgain ? "1" : "0");
-				if (!askAgain) Streets.getStreetsCommon().setUserPreference("AutoEnableGPS", "0");
+				Streets.getStreetsCommon().setUserPreference("suggest_gps", askAgain ? "1" : "0");
+				if (!askAgain) Streets.getStreetsCommon().setUserPreference("auto_enable_gps", "0"); //never enable and don't ask
 				break;
 		}
 	}

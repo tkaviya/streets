@@ -9,6 +9,7 @@ import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.activity.Streets;
 import net.blaklizt.streets.android.persistence.StreetsDBHelper;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -30,6 +31,8 @@ public class StreetsCommon
 
 	//List of activities started, destroy all on EndApplication
 	private static LinkedList<Activity> activities = new LinkedList<>();
+
+	private static ArrayList<BackgroundRunner> backgroundTasks = new ArrayList<>();
 
 	//Application context
 	private Context context = null;
@@ -111,6 +114,12 @@ public class StreetsCommon
 	public String getUserPreference(String preference) { return getUserPreferences().get(preference); }
 
 	public static void registerStreetsActivity(Activity activity) { /*activities.add(activity);*/ }
+
+	public static void registerBackgroundTask(BackgroundRunner backgroundRunner) { backgroundTasks.add(backgroundRunner); }
+
+	public static ArrayList<BackgroundRunner> getBackgroundTasks() {
+		return backgroundTasks;
+	}
 
 	public TextToSpeech getTextToSpeech()
 	{

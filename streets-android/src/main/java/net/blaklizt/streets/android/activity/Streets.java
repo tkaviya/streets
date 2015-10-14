@@ -16,10 +16,10 @@
 
 package net.blaklizt.streets.android.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -34,11 +34,11 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ExpandableListView;
 
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.adapter.PlacesListAdapter;
+import net.blaklizt.streets.android.common.BackgroundRunner;
 import net.blaklizt.streets.android.common.Group;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.location.places.PlaceTypes;
@@ -51,36 +51,57 @@ import java.util.List;
 /**
  * TODO
  */
-public class Streets extends AppCompatActivity {
-
-	//streets
+public class Streets extends AppCompatActivity implements BackgroundRunner, DialogInterface.OnClickListener {
+    protected static final String TAG = StreetsCommon.getTag(Streets.class);
 	protected static Streets streets = null;
-
-	//common streets common context
 	private static StreetsCommon streetsCommon;
     private DrawerLayout mDrawerLayout;
-	protected ViewPager pager;
-	protected ExpandableListView placesList;
-	protected PlacesListAdapter placesAdapter;
+    protected ViewPager pager;
+    protected ExpandableListView placesList;
 
-	//get tag
-	private static final String TAG = StreetsCommon.getTag(Streets.class);
+    PlacesListAdapter placesAdapter;
+    protected class BackHandler implements DialogInterface.OnMultiChoiceClickListener {
+        @Override
+        public void onClick(DialogInterface dialogInterface, int index, boolean isChecked) {
+            boolean exit = (index == DialogInterface.BUTTON_POSITIVE);
+            //only persist prefs on positive response
+            if (exit) {
+                Streets.getStreetsCommon().setUserPreference("ask_on_exit", !isChecked ? "1" : "0");
+            }
+        }
 
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
+        setContentView(R.layout.streets_layout);
         streets = this;
-
         Log.i(TAG, "+++ ON CREATE +++");
 
         streetsCommon = StreetsCommon.getInstance(getApplicationContext(), 0);
 
 		placesList = (ExpandableListView)findViewById(R.id.places_list);
-
-//		initializeSideMenuItems();
 
 		Log.i(TAG, "Displayed Main Layout");
 
@@ -110,12 +131,28 @@ public class Streets extends AppCompatActivity {
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-//		mDrawerToggle.syncState();
 	}
+
+    @Override
+    public void onClick(DialogInterface dialogInterface, int index) {
+        boolean exit = (index == DialogInterface.BUTTON_POSITIVE);
+        if (exit) { finish(); }
+    }
 
     public static Streets getInstance() { return streets; }
 
 	public static StreetsCommon getStreetsCommon() { return streetsCommon; }
+
+    @Override
+    public void onBackPressed() {
+        CharSequence[] items = new CharSequence[]{"Never ask again"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        BackHandler backHandler = new BackHandler();
+        builder.setMessage("Exit application?")
+            .setMultiChoiceItems(items, new boolean[]{true}, backHandler)
+            .setPositiveButton("Yes", this)
+            .setNegativeButton("No", this).show();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -145,7 +182,7 @@ public class Streets extends AppCompatActivity {
     private void setupViewPager(ViewPager viewPager) {
         Adapter adapter = new Adapter(getSupportFragmentManager());
         adapter.addFragment(MapLayout.getInstance() == null ? new MapLayout() : null, "Streetz");
-        adapter.addFragment(DetailsLayout.getInstance() == null ? new DetailsLayout() : null, "Info");
+        adapter.addFragment(ProfileLayout.getInstance() == null ? new ProfileLayout() : null, "Info");
         adapter.addFragment(NavigationLayout.getInstance() == null ? new NavigationLayout() : null, "Nav");
         viewPager.setAdapter(adapter);
     }
@@ -162,24 +199,23 @@ public class Streets extends AppCompatActivity {
         });
     }
 
-
 	public void setPlaces(String[] places)
 	{
-//		Log.d(TAG, "Setting directions");
-//
-//		SparseArray<Group> directionsList = new SparseArray<>();
-//
-//		String header = "Show Places";
-//
-//		directionsList.put(0, new Group(header));
-//
-//		Collections.addAll(directionsList.get(0).children, places);
-//
-//		placesAdapter = new PlacesListAdapter(this, directionsList);
-//
-//		placesList.setAdapter(placesAdapter);
+		Log.d(TAG, "Setting directions");
 
-//		placesList.expandGroup(0);
+		SparseArray<Group> directionsList = new SparseArray<>();
+
+		String header = "Show Places";
+
+		directionsList.put(0, new Group(header));
+
+		Collections.addAll(directionsList.get(0).children, places);
+
+		placesAdapter = new PlacesListAdapter(this, directionsList);
+
+		placesList.setAdapter(placesAdapter);
+
+		placesList.expandGroup(0);
 	}
 
 	private void initializeSideMenuItems()

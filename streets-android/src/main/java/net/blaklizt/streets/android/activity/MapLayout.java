@@ -61,9 +61,8 @@ public class MapLayout extends Fragment
 
 			if (currentLocation != null) {
 				nearbyPlaces = PlacesService.nearby_search(
-						currentLocation.getLatitude(),
-						currentLocation.getLongitude(), 5000,
-						Streets.getStreetsCommon().getStreetsDBHelper().getPlacesOfInterest()
+					currentLocation.getLatitude(), currentLocation.getLongitude(), 5000,
+					Streets.getStreetsCommon().getStreetsDBHelper().getPlacesOfInterest()
 				);
 			}
 			else {
@@ -168,11 +167,11 @@ public class MapLayout extends Fragment
 	{
 		Log.i(TAG, "+++ ON DESTROY +++");
 		for (AsyncTask runningTask : runningTasks) { runningTask.cancel(true); }
+		if (locationManager != null) locationManager.removeUpdates(this);
 		runningTasks.clear();
 	}
 
-	public void refreshLocation()
-	{
+	public void refreshLocation() {
 		runningTasks.add(new LocationTask().execute());
 	}
 
@@ -219,7 +218,7 @@ public class MapLayout extends Fragment
 
 				if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
 				{
-					if (Streets.getStreetsCommon().getUserPreference("SuggestGPS").equals("1"))
+					if (Streets.getStreetsCommon().getUserPreference("suggest_gps").equals("1"))
 					{
 						GPSDialogueListener gpsDialogueListener = new GPSDialogueListener(getActivity());
 						GPSDialogueListener.GPSDialogueOptionsListener gpsDialogueOptionsListener = new GPSDialogueListener.GPSDialogueOptionsListener();
@@ -231,7 +230,7 @@ public class MapLayout extends Fragment
 								.setPositiveButton("Yes", gpsDialogueListener)
 								.setNegativeButton("No", gpsDialogueListener).show();
 					}
-					else if (Streets.getStreetsCommon().getUserPreference("AutoEnableGPS").equals("1"))
+					else if (Streets.getStreetsCommon().getUserPreference("auto_enable_gps").equals("1"))
 					{
 						Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 						startActivity(myIntent);

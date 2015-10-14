@@ -10,7 +10,7 @@ package net.blaklizt.streets.android.adapter;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import net.blaklizt.streets.android.activity.DetailsLayout;
+import net.blaklizt.streets.android.activity.ProfileLayout;
 import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.activity.NavigationLayout;
 
@@ -44,8 +44,8 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 		}
 		else
 		{
-			if (DetailsLayout.getInstance() != null) return DetailsLayout.getInstance();
-			return new DetailsLayout();
+			if (ProfileLayout.getInstance() != null) return ProfileLayout.getInstance();
+			return new ProfileLayout();
 		}
 	}
 

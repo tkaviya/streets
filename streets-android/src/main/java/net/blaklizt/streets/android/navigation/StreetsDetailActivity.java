@@ -21,7 +21,6 @@ import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -35,7 +34,7 @@ public class StreetsDetailActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail);
+        setContentView(R.layout.activity_profile);
 
         Intent intent = getIntent();
         final String cheeseName = intent.getStringExtra(EXTRA_NAME);
@@ -54,11 +53,5 @@ public class StreetsDetailActivity extends AppCompatActivity {
     private void loadBackdrop() {
         final ImageView imageView = (ImageView) findViewById(R.id.backdrop);
         Glide.with(this).load(Places.getRandomCheeseDrawable()).centerCrop().into(imageView);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.actions_menu, menu);
-        return true;
     }
 }

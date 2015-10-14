@@ -132,24 +132,24 @@ public class Startup extends AppCompatActivity implements View.OnClickListener
 			password = (EditText) findViewById(R.id.loginPassword);
 			loginBtn = (Button) findViewById(R.id.btnLogin);
 
-//			if (StreetsCommon.getInstance(this, 0).getUserPreference("ShowIntro").equals("0")) {
-//				//Go directly to Login, do not pass video, do not disrupt music
-//				if (Streets.getInstance() != null)        //coming backwards, so we are exiting
-//				{
-//					Log.i(TAG, "Existing Streets classes still running. Terminating.");
-//					StreetsCommon.endApplication();
-//					return;
-//				}
-//				else                                //going forward, let's get this work!
-//				{
-//					Log.i(TAG, "Initiating Tha Streets.");
-//
-//					Intent loginActivity = new Intent(this, Streets.class);
-//					startActivity(loginActivity);
-//					StreetsCommon.registerStreetsActivity(Streets.getInstance());
-//					return;
-//				}
-//			}
+			if (StreetsCommon.getInstance(this, 0).getUserPreference("ShowIntro").equals("0")) {
+				//Go directly to Login, do not pass video, do not disrupt music
+				if (Streets.getInstance() != null)        //coming backwards, so we are exiting
+				{
+					Log.i(TAG, "Existing Streets classes still running. Terminating.");
+					StreetsCommon.endApplication();
+					return;
+				}
+				else                                //going forward, let's get this work!
+				{
+					Log.i(TAG, "Initiating Tha Streets.");
+
+					Intent loginActivity = new Intent(this, Streets.class);
+					startActivity(loginActivity);
+					StreetsCommon.registerStreetsActivity(Streets.getInstance());
+					return;
+				}
+			}
 
 			Log.i(TAG, "Playing intro clip...");
 

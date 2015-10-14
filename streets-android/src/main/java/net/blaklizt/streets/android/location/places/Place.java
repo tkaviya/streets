@@ -3,6 +3,8 @@ package net.blaklizt.streets.android.location.places;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
+import java.util.Date;
+
 /**
  * Created with IntelliJ IDEA.
  * User: tkaviya
@@ -15,6 +17,7 @@ public class Place {
     public double latitude;
     public double longitude;
     public String type;
+    public Date lastUpdateTime;
     public BitmapDescriptor icon;
     public String image;
     public String formatted_address;
