@@ -15,8 +15,8 @@
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
               android:id="@+id/map_fragment"
               android:name="com.google.android.gms.maps.MapFragment"
-              android:layout_height="480dp"
-              android:layout_width="match_parent"
+              android:layout_height="400dip"
+              android:layout_width="fill_parent"
               android:layout_margin="10dip" />
 
     <TableRow

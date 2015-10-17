@@ -17,8 +17,7 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckedTextView;
 import android.widget.TextView;
-import net.blaklizt.streets.android.R;
-import net.blaklizt.streets.android.activity.Streets;
+import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.Group;
 
 import java.util.Date;
@@ -61,12 +60,12 @@ public class NavigationListAdapter extends BaseExpandableListAdapter
 			public void onClick(View v) {
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
 				{
-					Streets.getStreetsCommon().getTextToSpeech()
+                    Startup.getStreetsCommon().getTextToSpeech()
 							.speak(children, TextToSpeech.QUEUE_FLUSH, null, String.valueOf(new Date().getTime()));
 				}
 				else
 				{
-					Streets.getStreetsCommon().getTextToSpeech()
+                    Startup.getStreetsCommon().getTextToSpeech()
 							.speak(children, TextToSpeech.QUEUE_FLUSH, null);
 				}
 			}

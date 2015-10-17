@@ -56,7 +56,7 @@ public class FragmentDrawer extends Fragment {
 			// drawer labels
 
 			Log.i(TAG, "Loading places of interest");
-			LinkedList placesOfInterest = Streets.getStreetsCommon().getStreetsDBHelper().getPlacesOfInterest();
+			LinkedList placesOfInterest = Startup.getStreetsCommon().getStreetsDBHelper().getPlacesOfInterest();
 			String[] places = new String[placesOfInterest.size()];
 
 			for (int c = 0; c < placesOfInterest.size(); c++) {

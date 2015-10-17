@@ -35,14 +35,11 @@ import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ExpandableListView;
-
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.adapter.PlacesListAdapter;
 import net.blaklizt.streets.android.common.BackgroundRunner;
 import net.blaklizt.streets.android.common.Group;
 import net.blaklizt.streets.android.common.StreetsCommon;
-import net.blaklizt.streets.android.location.places.PlaceTypes;
-import net.blaklizt.streets.android.model.NavDrawerItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,19 +51,19 @@ import java.util.List;
 public class Streets extends AppCompatActivity implements BackgroundRunner, DialogInterface.OnClickListener {
     protected static final String TAG = StreetsCommon.getTag(Streets.class);
 	protected static Streets streets = null;
-	private static StreetsCommon streetsCommon;
     private DrawerLayout mDrawerLayout;
     protected ViewPager pager;
     protected ExpandableListView placesList;
 
     PlacesListAdapter placesAdapter;
+
     protected class BackHandler implements DialogInterface.OnMultiChoiceClickListener {
         @Override
         public void onClick(DialogInterface dialogInterface, int index, boolean isChecked) {
             boolean exit = (index == DialogInterface.BUTTON_POSITIVE);
             //only persist prefs on positive response
             if (exit) {
-                Streets.getStreetsCommon().setUserPreference("ask_on_exit", !isChecked ? "1" : "0");
+                Startup.getStreetsCommon().setUserPreference("ask_on_exit", !isChecked ? "1" : "0");
             }
         }
 
@@ -84,22 +81,22 @@ public class Streets extends AppCompatActivity implements BackgroundRunner, Dial
 
     @Override
     public void onStop() {
+        Log.i(TAG, "+++ ON STOP +++");
         super.onStop();
     }
 
     @Override
     public void onDestroy() {
+        Log.i(TAG, "+++ ON DESTROY +++");
         super.onDestroy();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "+++ ON CREATE +++");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.streets_layout);
         streets = this;
-        Log.i(TAG, "+++ ON CREATE +++");
-
-        streetsCommon = StreetsCommon.getInstance(getApplicationContext(), 0);
 
 		placesList = (ExpandableListView)findViewById(R.id.places_list);
 
@@ -130,6 +127,7 @@ public class Streets extends AppCompatActivity implements BackgroundRunner, Dial
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "+++ ON POST CREATE +++");
 		super.onPostCreate(savedInstanceState);
 	}
 
@@ -141,7 +139,6 @@ public class Streets extends AppCompatActivity implements BackgroundRunner, Dial
 
     public static Streets getInstance() { return streets; }
 
-	public static StreetsCommon getStreetsCommon() { return streetsCommon; }
 
     @Override
     public void onBackPressed() {
@@ -218,61 +215,61 @@ public class Streets extends AppCompatActivity implements BackgroundRunner, Dial
 		placesList.expandGroup(0);
 	}
 
-	private void initializeSideMenuItems()
-	{
-		try
-		{
-			Log.i(TAG, "Initializing side menu data");
-
-//			recyclerView = (RecyclerView) findViewById(R.id.drawerList);
-
-            // set a custom shadow that overlays the main content when the drawer opens
-//            mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-            // set up the drawer's list view with items and click listener
-
-	        String[] allPlaces = PlaceTypes.getAllPlaces();
-
-			List<NavDrawerItem> data = new ArrayList<>();
-
-//			setPlaces(allPlaces);
-
-			// preparing navigation drawer items
-			for (String title : allPlaces) {
-				NavDrawerItem navItem = new NavDrawerItem();
-				navItem.setTitle(title);
-				data.add(navItem);
-			}
-
-            // Creating an ArrayAdapter to add items to the listview mDrawerList
-            Log.i(TAG, "Getting menu item list");
-//			placeListAdapater = new NavigationDrawerAdapter(this, data);
-//			recyclerView.setAdapter(placeListAdapater);
-//			recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-//			Log.i(TAG, "Getting user defined places of interest");
-//			LinkedList placesOfInterest = Streets.getStreetsCommon().getStreetsDBHelper().getPlacesOfInterest();
-
-//	        Log.i(TAG, "User has " + placesOfInterest.size() + " places of interest");
-//	        Log.i(TAG, "mDrawerList has " + recyclerView.getCount() + " items, " + recyclerView.getChildCount() + " children.");
+//	private void initializeSideMenuItems()
+//	{
+//		try
+//		{
+//			Log.i(TAG, "Initializing side menu data");
 //
-//	        for (int c = 0; c < mDrawerList.getCount(); c++)
-//	        {
-//		        if (placesOfInterest.contains(recyclerView.getItemAtPosition(c)))
-//		        {
-//			        Log.d(TAG, "Selecting " + mDrawerList.getItemAtPosition(c));
-//			        mDrawerList.setItemChecked(c, true);
-//		        }
-//	        }
-
-			//Setting item click listener for the listview mDrawerList
-//			recyclerView.setOnClickListener(this);
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-			Log.e(TAG, "Failed to initialize the side menu", ex);
-		}
-	}
+////			recyclerView = (RecyclerView) findViewById(R.id.drawerList);
+//
+//            // set a custom shadow that overlays the main content when the drawer opens
+////            mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+//            // set up the drawer's list view with items and click listener
+//
+//	        String[] allPlaces = PlaceTypes.getAllPlaces();
+//
+//			List<NavDrawerItem> data = new ArrayList<>();
+//
+////			setPlaces(allPlaces);
+//
+//			// preparing navigation drawer items
+//			for (String title : allPlaces) {
+//				NavDrawerItem navItem = new NavDrawerItem();
+//				navItem.setTitle(title);
+//				data.add(navItem);
+//			}
+//
+//            // Creating an ArrayAdapter to add items to the listview mDrawerList
+//            Log.i(TAG, "Getting menu item list");
+////			placeListAdapater = new NavigationDrawerAdapter(this, data);
+////			recyclerView.setAdapter(placeListAdapater);
+////			recyclerView.setLayoutManager(new LinearLayoutManager(this));
+//
+////			Log.i(TAG, "Getting user defined places of interest");
+////			LinkedList placesOfInterest = Streets.getStreetsCommon().getStreetsDBHelper().getPlacesOfInterest();
+//
+////	        Log.i(TAG, "User has " + placesOfInterest.size() + " places of interest");
+////	        Log.i(TAG, "mDrawerList has " + recyclerView.getCount() + " items, " + recyclerView.getChildCount() + " children.");
+////
+////	        for (int c = 0; c < mDrawerList.getCount(); c++)
+////	        {
+////		        if (placesOfInterest.contains(recyclerView.getItemAtPosition(c)))
+////		        {
+////			        Log.d(TAG, "Selecting " + mDrawerList.getItemAtPosition(c));
+////			        mDrawerList.setItemChecked(c, true);
+////		        }
+////	        }
+//
+//			//Setting item click listener for the listview mDrawerList
+////			recyclerView.setOnClickListener(this);
+//		}
+//		catch (Exception ex)
+//		{
+//			ex.printStackTrace();
+//			Log.e(TAG, "Failed to initialize the side menu", ex);
+//		}
+//	}
 
     static class Adapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragments = new ArrayList<>();

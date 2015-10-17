@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -62,7 +63,7 @@ public class MapLayout extends Fragment
 			if (currentLocation != null) {
 				nearbyPlaces = PlacesService.nearby_search(
 					currentLocation.getLatitude(), currentLocation.getLongitude(), 5000,
-					Streets.getStreetsCommon().getStreetsDBHelper().getPlacesOfInterest()
+                        Startup.getStreetsCommon().getStreetsDBHelper().getPlacesOfInterest()
 				);
 			}
 			else {
@@ -106,7 +107,6 @@ public class MapLayout extends Fragment
 
     private static final String TAG = StreetsCommon.getTag(MapLayout.class);
 
-
 	protected static MapLayout mapLayout = null;
     protected GoogleMap googleMap;
     protected Navigator navigator;
@@ -129,12 +129,10 @@ public class MapLayout extends Fragment
 	protected LocationProvider currentProvider = null;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable  Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 	    Log.i(TAG, "+++ ON CREATE VIEW +++");
 	    super.onCreateView(inflater, container, savedInstanceState);
-
-	    this.inflater = inflater;
-        // Inflate the layout for this fragment
+        this.inflater = inflater;
         View view = inflater.inflate(R.layout.map_layout, container, false);
         mapLayout = this;
 
@@ -162,14 +160,50 @@ public class MapLayout extends Fragment
 	    super.onCreate(savedInstanceState);
     }
 
+    @Override
+    public void onPause() {
+        Log.i(TAG, "+++ ON PAUSE +++");
+        super.onPause();
+        for (AsyncTask runningTask : runningTasks) { runningTask.cancel(true); }
+        if (locationManager != null) locationManager.removeUpdates(this);
+        runningTasks.clear();
+
+    }
+
 	@Override
 	public void onDestroy()
 	{
-		Log.i(TAG, "+++ ON DESTROY +++");
+        Log.i(TAG, "+++ ON DESTROY +++");
+//        super.onDestroy();
 		for (AsyncTask runningTask : runningTasks) { runningTask.cancel(true); }
 		if (locationManager != null) locationManager.removeUpdates(this);
 		runningTasks.clear();
 	}
+
+    @Override
+    public void onResume() {
+        Log.i(TAG, "+++ ON RESUME +++");
+        super.onResume();
+
+        try
+        {
+            if (currentLocation == null) {
+                Log.i(TAG, "Data is stale. Refreshing location");
+                refreshLocation();
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.e(TAG, "Failed to resume streets map layout", ex);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        Log.i(TAG, "+++ ON START +++");
+        super.onStart();
+        status_text_view.setText("I'm the streets look both way before you cross me");
+    }
 
 	public void refreshLocation() {
 		runningTasks.add(new LocationTask().execute());
@@ -218,7 +252,7 @@ public class MapLayout extends Fragment
 
 				if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
 				{
-					if (Streets.getStreetsCommon().getUserPreference("suggest_gps").equals("1"))
+					if (Startup.getStreetsCommon().getUserPreference("suggest_gps").equals("1"))
 					{
 						GPSDialogueListener gpsDialogueListener = new GPSDialogueListener(getActivity());
 						GPSDialogueListener.GPSDialogueOptionsListener gpsDialogueOptionsListener = new GPSDialogueListener.GPSDialogueOptionsListener();
@@ -230,7 +264,7 @@ public class MapLayout extends Fragment
 								.setPositiveButton("Yes", gpsDialogueListener)
 								.setNegativeButton("No", gpsDialogueListener).show();
 					}
-					else if (Streets.getStreetsCommon().getUserPreference("auto_enable_gps").equals("1"))
+					else if (Startup.getStreetsCommon().getUserPreference("auto_enable_gps").equals("1"))
 					{
 						Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 						startActivity(myIntent);
@@ -390,31 +424,6 @@ public class MapLayout extends Fragment
         catch (Exception ex)
         {
             Log.e(TAG, "Failed to draw place marker for place " + place.name, ex);
-        }
-    }
-
-    @Override
-    public void onStart() {
-        Log.i(TAG, "+++ ON START +++");
-        super.onStart();
-		status_text_view.setText("I'm the streets look both way before you cross me");
-    }
-
-    @Override
-    public void onResume() {
-        Log.i(TAG, "+++ ON RESUME +++");
-        super.onResume();
-
-        try
-        {
-            if (currentLocation == null) {
-				Log.i(TAG, "Data is stale. Refreshing location");
-                refreshLocation();
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.e(TAG, "Failed to resume streets map layout", ex);
         }
     }
 

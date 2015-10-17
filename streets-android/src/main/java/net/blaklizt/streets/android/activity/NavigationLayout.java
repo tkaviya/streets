@@ -34,16 +34,17 @@ public class NavigationLayout extends Fragment
 	TextView nav_location_categories;
 	NavigationListAdapter navStepsAdapter;
 	ArrayList directions;
+    LayoutInflater inflater;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.i(TAG, "+++ ON CREATE VIEW +++");
 	    super.onCreateView(inflater, container, savedInstanceState);
-
-	    navigationLayout = this;
+        this.inflater = inflater;
+        navigationLayout = this;
+        View view = inflater.inflate(R.layout.nav_layout, container, false);
 
         // Inflate the layout for this fragment
-		    View view = inflater.inflate(R.layout.nav_layout, container, false);
 	    navigation_steps = (ExpandableListView)view.findViewById(R.id.nav_location_steps);
 	    nav_location_name = (TextView)view.findViewById(R.id.nav_location_name);
 	    nav_location_address = (TextView)view.findViewById(R.id.nav_location_address);
@@ -53,9 +54,6 @@ public class NavigationLayout extends Fragment
 								  "you directions to any\n" +
 								  "location/person you\n" +
 								  "select on the MAP page.");
-
-//		navigation_steps.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.tstv_bg));
-
         return view;
     }
 

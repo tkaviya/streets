@@ -4,14 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
-
-import net.blaklizt.streets.android.activity.Startup;
-import net.blaklizt.streets.android.activity.Streets;
 import net.blaklizt.streets.android.persistence.StreetsDBHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
 
@@ -86,41 +82,6 @@ public class StreetsCommon
 		return streetsDBHelper;
 	}
 
-//	public static void startNewActivity(Context baseContext, Class<? implements StreetsActivity> streetsActivityClass) {
-//		Intent loginActivity = new Intent(baseContext, streetsActivityClass.getClass());
-//		baseContext.startActivity(loginActivity);
-//		activities.add((Class<StreetsActivity>)streetsActivityClass);
-//	}
-
-	public HashMap<String, String> getUserPreferences() {
-		if (userPreferences.size() == 0)
-		{
-			Log.i(TAG, "Attempting to load user preferences");
-			if (getStreetsDBHelper() != null)
-			{
-				LinkedList<UserPreference> userPreferenceList = getStreetsDBHelper().getUserPreferences(symbiosisUserID);
-
-				for (UserPreference userPreference : userPreferenceList)
-				{
-					userPreferences.put(userPreference.preferenceName, userPreference.preferenceValue);
-				}
-
-				Log.i(TAG, "Got user preferences from database");
-			}
-		}
-		return userPreferences;
-	}
-
-	public String getUserPreference(String preference) { return getUserPreferences().get(preference); }
-
-	public static void registerStreetsActivity(Activity activity) { /*activities.add(activity);*/ }
-
-	public static void registerBackgroundTask(BackgroundRunner backgroundRunner) { backgroundTasks.add(backgroundRunner); }
-
-	public static ArrayList<BackgroundRunner> getBackgroundTasks() {
-		return backgroundTasks;
-	}
-
 	public TextToSpeech getTextToSpeech()
 	{
 		try
@@ -145,22 +106,8 @@ public class StreetsCommon
 		}
 	}
 
-
-	public static void endApplication()
+	public void endApplication()
 	{
-		try
-		{
-			//destroy all application contexts in sequence
-			Log.i(TAG, "Terminating app contexts.");
-			if (Streets.getInstance() != null) Streets.getInstance().finish();
-			if (Startup.getInstance() != null) Startup.getInstance().finish();
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-			Log.e(TAG, "Failed to terminate app contexts cleanly: " + ex.getMessage(), ex);
-		}
-
 		try
 		{
 			//shutdown common classes
@@ -173,27 +120,30 @@ public class StreetsCommon
 			ex.printStackTrace();
 			Log.e(TAG, "Failed to shutdown common classes cleanly: " + ex.getMessage(), ex);
 		}
-
-		try
-		{
-			//shutdown all activities in reverse creation order
-			Log.i(TAG, "Terminating activities.");
-			Iterator<Activity> allActivities = activities.descendingIterator();
-			while (allActivities.hasNext()) {
-				Activity activity = allActivities.next();
-				Log.i(TAG, "Terminating activity " + activity.getClass().getSimpleName());
-				activity.finish();
-			}
-
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-			Log.e(TAG, "Failed to shutdown activities cleanly: " + ex.getMessage(), ex);
-		}
 	}
 
+    public String getUserPreference(String preference) { return getUserPreferences().get(preference); }
+
+    public HashMap<String, String> getUserPreferences() {
+        if (userPreferences.size() == 0)
+        {
+            Log.i(TAG, "Attempting to load user preferences");
+            if (getStreetsDBHelper() != null)
+            {
+                LinkedList<UserPreference> userPreferenceList = getStreetsDBHelper().getUserPreferences();
+
+                for (UserPreference userPreference : userPreferenceList)
+                {
+                    userPreferences.put(userPreference.preferenceName, userPreference.preferenceValue);
+                }
+
+                Log.i(TAG, "Got user preferences from database");
+            }
+        }
+        return userPreferences;
+    }
+
 	public void setUserPreference(String preference, String value) {
-		getStreetsDBHelper().setUserPreference(symbiosisUserID, preference, value);
+		getStreetsDBHelper().setUserPreference(preference, value);
 	}
 }

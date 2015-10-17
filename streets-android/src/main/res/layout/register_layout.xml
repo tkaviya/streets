@@ -9,7 +9,7 @@
     <ImageView android:layout_width="fill_parent"
                android:layout_height="wrap_content"
                android:layout_margin="10dip"
-               android:background="@drawable/tstv_logo" />
+               android:background="@drawable/blaklizt_logo" />
 
     <!--  View Title Label -->
     <TextView

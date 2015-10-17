@@ -63,7 +63,6 @@ public class Startup extends AppCompatActivity implements View.OnClickListener
 					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), "Login successful", Toast.LENGTH_SHORT).show(); } });
 					Intent mainActivity = new Intent(getInstance(), Streets.class);
 					startActivity(mainActivity);
-					StreetsCommon.registerStreetsActivity(Streets.getInstance());
 				}
 				else if (responseJSON.getInt("response_code") < 0)
 				{
@@ -121,74 +120,25 @@ public class Startup extends AppCompatActivity implements View.OnClickListener
 
 	private static Startup startup;
 
+    private static StreetsCommon streetsCommon = null;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
+        Log.i(TAG, "+++ ON CREATE +++");
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.intro_layout);
-		try
+        startup = this;
+
+        try
 		{
-			startup = this;
 			password = (EditText) findViewById(R.id.loginPassword);
 			loginBtn = (Button) findViewById(R.id.btnLogin);
 
-			if (StreetsCommon.getInstance(this, 0).getUserPreference("ShowIntro").equals("0")) {
-				//Go directly to Login, do not pass video, do not disrupt music
-				if (Streets.getInstance() != null)        //coming backwards, so we are exiting
-				{
-					Log.i(TAG, "Existing Streets classes still running. Terminating.");
-					StreetsCommon.endApplication();
-					return;
-				}
-				else                                //going forward, let's get this work!
-				{
-					Log.i(TAG, "Initiating Tha Streets.");
-
-					Intent loginActivity = new Intent(this, Streets.class);
-					startActivity(loginActivity);
-					StreetsCommon.registerStreetsActivity(Streets.getInstance());
-					return;
-				}
+			if (getStreetsCommon().getUserPreference("show_intro").equals("1")) {
+                getStreetsCommon().setUserPreference("show_intro", "0"); //dont show video next time
+                playIntroVideo();
 			}
-
-			Log.i(TAG, "Playing intro clip...");
-
-			videoView = (VideoView) findViewById(R.id.videoView);
-			videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.intro_clip));
-			videoView.setMediaController(null);
-			videoView.setClickable(false);
-			videoView.setSoundEffectsEnabled(false);
-			videoView.requestFocus();
-			videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-				@Override
-				public void onPrepared(MediaPlayer mp) {
-					mp.setVolume(0, 0);
-					mp.setLooping(false);
-					videoView.start();
-				}
-			});
-			videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-				@Override
-				public void onCompletion(MediaPlayer mp) {
-					if (Streets.getInstance() != null)                        //coming backwards, so we are exiting
-					{
-						Log.i(TAG, "Existing Streets classes still running. Terminating.");
-						StreetsCommon.endApplication();
-					} else                                                //going forward, let's get this work!
-					{
-						Log.i(TAG, "Initiating Tha Streets.");
-						try {
-							Thread.sleep(5000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						Log.i(TAG, "Going to login...");
-						Intent loginActivity = new Intent(getApplication(), Streets.class);
-						startActivity(loginActivity);
-						StreetsCommon.registerStreetsActivity(Streets.getInstance());
-					}
-				}
-			});
 		}
 		catch (Exception ex)
 		{
@@ -203,16 +153,60 @@ public class Startup extends AppCompatActivity implements View.OnClickListener
 		}
 	}
 
+    public static StreetsCommon getStreetsCommon() {
+        if (streetsCommon == null) {
+            streetsCommon = StreetsCommon.getInstance(getInstance(), 0);
+        }
+        return streetsCommon;
+    }
+
+    public void playIntroVideo() {
+        videoView = (VideoView) findViewById(R.id.videoView);
+        videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.intro_clip));
+        videoView.setMediaController(null);
+        videoView.setClickable(false);
+        videoView.setSoundEffectsEnabled(false);
+        videoView.requestFocus();
+        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mp.setVolume(0, 0);
+                mp.setLooping(false);
+                videoView.start();
+            }
+        });
+//        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//            @Override
+//            public void onCompletion(MediaPlayer mp) {
+//                Log.i(TAG, "Initiating Tha Streets.");
+//                try { Thread.sleep(5000); } catch (InterruptedException e) { e.printStackTrace(); }
+//
+//                Log.i(TAG, "Going to login...");
+//                Intent loginActivity = new Intent(getApplication(), Streets.class);
+//                startActivity(loginActivity);
+//                StreetsCommon.registerStreetsActivity(Streets.getInstance());
+//            }
+//        });
+    }
+
 	@Override
 	public void onClick(View view)
 	{
 		new LoginTask().execute();
 	}
 
+    @Override
+    public void onDestroy() {
+        Log.i(TAG, "+++ ON DESTROY +++");
+        if (streetsCommon != null) { streetsCommon.endApplication(); }
+        videoView.stopPlayback();
+    }
+
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "+++ ON POST CREATE +++");
 		super.onPostCreate(savedInstanceState);
-//		loginBtn.setOnClickListener(this);
+		loginBtn.setOnClickListener(this);
 	}
 
 	public static Startup getInstance() { return startup; }
