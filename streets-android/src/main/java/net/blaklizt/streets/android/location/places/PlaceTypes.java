@@ -5,7 +5,7 @@ import android.util.Log;
 import net.blaklizt.streets.android.common.StreetsCommon;
 
 import java.lang.reflect.Field;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 /**
  * Created with IntelliJ IDEA.
@@ -128,10 +128,10 @@ public class PlaceTypes {
         return allPlaces;
     }
 
-    public static LinkedList<String> getDefaultPlaces() {
+    public static ArrayList<String> getDefaultPlaces() {
 
 		Log.i(TAG, "Getting list of default places");
-        LinkedList<String> defaultPlaces = new LinkedList<>();
+        ArrayList<String> defaultPlaces = new ArrayList<>();
         defaultPlaces.add(airport);
         defaultPlaces.add(atm);
         defaultPlaces.add(bank);

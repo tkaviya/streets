@@ -39,7 +39,8 @@ public class NavigationLayout extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.i(TAG, "+++ ON CREATE VIEW +++");
-	    super.onCreateView(inflater, container, savedInstanceState);
+        super.onCreateView(inflater, container, savedInstanceState);
+        setRetainInstance(true);
         this.inflater = inflater;
         navigationLayout = this;
         View view = inflater.inflate(R.layout.nav_layout, container, false);
@@ -89,5 +90,10 @@ public class NavigationLayout extends Fragment
 		navigation_steps.expandGroup(0);
 	}
 
-	public static NavigationLayout getInstance() { return navigationLayout; }
+	public static NavigationLayout getInstance() {
+		if (navigationLayout == null) {
+			navigationLayout = new NavigationLayout();
+		}
+		return navigationLayout;
+	}
 }

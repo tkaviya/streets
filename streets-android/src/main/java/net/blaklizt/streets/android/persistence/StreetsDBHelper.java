@@ -5,12 +5,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.UserPreference;
 import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.location.places.PlaceTypes;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * User: tkaviya
@@ -28,21 +30,17 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "Neighbourhood.db";
 
-	private static final String PLACE_TABLE = "place";
+	private static final ArrayList<String> ALL_TABLES = new ArrayList<>();
 
-	private static final String PLACE_TYPE_TABLE = "place_type";
-
-    private static final String LOCATION_HISTORY_TABLE = "location_history";
-
-	private static final String USER_TABLE = "user";
-
-	private static final String FRIEND_TABLE = "friend";
-
-	private static final String SUPPLIER_TABLE = "supplier";
-
-	private static final String USER_PREFERENCES = "user_preferences";
-
-	private static final String PLACE_TYPES_OF_INTEREST = "selected_places";
+	private static final String PLACE_TABLE = "place"; 							static { ALL_TABLES.add(PLACE_TABLE); }
+	private static final String PLACE_TYPE_TABLE = "place_type";				static { ALL_TABLES.add(PLACE_TYPE_TABLE); }
+	private static final String LOCATION_HISTORY_TABLE = "location_history";	static { ALL_TABLES.add(LOCATION_HISTORY_TABLE); }
+	private static final String USER_TABLE = "user";							static { ALL_TABLES.add(USER_TABLE); }
+	private static final String FRIEND_TABLE = "friend";						static { ALL_TABLES.add(FRIEND_TABLE); }
+	private static final String SUPPLIER_TABLE = "supplier";					static { ALL_TABLES.add(SUPPLIER_TABLE); }
+	private static final String USER_PREFERENCES = "user_preferences";			static { ALL_TABLES.add(USER_PREFERENCES); }
+	private static final String PLACE_TYPES_OF_INTEREST = "selected_places";	static { ALL_TABLES.add(PLACE_TYPES_OF_INTEREST); }
+	private static final String REQUIRED_PERMS = "outstanding_permissions";		static { ALL_TABLES.add(REQUIRED_PERMS); }
 
 	private SQLiteDatabase sqlLiteDatabase = null;
 
@@ -50,6 +48,12 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 
     public void onCreate(SQLiteDatabase db) {
 
+		for (String tableName : ALL_TABLES) {
+			Log.i(TAG, "Dropping table " + tableName);
+			db.execSQL("DROP TABLE IF EXISTS " + tableName);
+		}
+
+		Log.i(TAG, "Recreating table " + USER_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + USER_TABLE + " (" +
 				"symbiosis_id INT(11)," +
 				"imei VARCHAR(256)," +
@@ -60,6 +64,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 				"type VARCHAR(50))");
 
         //fixed places that are never remove
+		Log.i(TAG, "Recreating table " + PLACE_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + PLACE_TABLE + " (" +
 				"place_id INT(11)," +
 				"place_type_id INT(11)," +
@@ -70,44 +75,56 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 				"type VARCHAR(50))");
 
         //table the grows and is truncated after a while
+		Log.i(TAG, "Recreating table " + LOCATION_HISTORY_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + LOCATION_HISTORY_TABLE + " (" +
-                "location_history_id INT(11)," +
-                "latitude DOUBLE," +
-                "longitude DOUBLE," +
-                "update_date_time DATE))");
+				"location_history_id INT(11)," +
+				"latitude DOUBLE," +
+				"longitude DOUBLE," +
+				"update_date_time DATETIME)");
 
+		Log.i(TAG, "Recreating table " + PLACE_TYPE_TABLE);
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + PLACE_TYPE_TABLE + " (" +
-                "type_id INT(11)," +
-                "type VARCHAR(50))");
+				"type_id INT(11)," +
+				"type VARCHAR(50))");
 
+		Log.i(TAG, "Recreating table " + FRIEND_TABLE);
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + FRIEND_TABLE + " (" +
 				"symbiosis_id INT(11)," +
 				"last_place_id INT(11)," +
 				"home_place_id INT(11))");
 
+		Log.i(TAG, "Recreating table " + SUPPLIER_TABLE);
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + SUPPLIER_TABLE + " (" +
 				"symbiosis_id INT(11)," +
 				"last_geolocation_id INT(11))");
 
+		Log.i(TAG, "Recreating table " + USER_PREFERENCES);
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + USER_PREFERENCES + " (" +
-				"name VARCHAR(50)," +
-				"preference VARCHAR(50))");
+				"name VARCHAR(20)," +
+				"preference VARCHAR(20)," +
+				"description VARCHAR(20)," +
+				"data_type VARCHAR(20))");
 
-	    db.execSQL("CREATE TABLE IF NOT EXISTS " + PLACE_TYPES_OF_INTEREST + " (place_type_id VARCHAR(50))");
+		db.execSQL("REPLACE INTO " + USER_PREFERENCES + " (name, preference, description, data_type) VALUES " +
+				"('show_intro',			'1', 'Enable intro video',	'boolean')," +
+				"('auto_login',			'0', 'Login automatically',	'boolean')," +
+				"('suggest_gps',		'1', 'Ask to enable GPS',	'boolean')," +
+				"('auto_enable_gps',	'1', 'Auto enable GPS',		'boolean')," +
+				"('show_location',		'1', 'Share location',		'boolean')," +
+				"('show_distance',		'1', 'Share distance',		'boolean')," +
+				"('receive_requests',	'1', 'Allow interaction',	'boolean')," +
+				"('show_history', 		'1', 'Show history',		'boolean')," +
+				"('ask_on_exit', 		'1', 'Check before exiting','boolean')," +
+				"('request_gps_perms',	'1', 'Ask GPS permissions', 'boolean')");
 
-		db.execSQL("REPLACE INTO " + USER_PREFERENCES + " VALUES (" +
-                " ('symbiosis_user_id', SELECT symbiosis_id FROM " + USER_TABLE + " LIMIT 1)," +
-                " ('show_intro', '1')," +
-                " ('suggest_gps', '1')," +
-                " ('auto_enable_gps', '1')," +
-                " ('show_location', '1')," +
-                " ('show_distance', '1')," +
-                " ('receive_requests', '1')," +
-                " ('show_history', '1')," +
-                " ('ask_on_exit', '1')" +
-				")");
 
-	    LinkedList <String> defaultPlaces = PlaceTypes.getDefaultPlaces();
+		Log.i(TAG, "Recreating table " + REQUIRED_PERMS);
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + REQUIRED_PERMS + " (permission VARCHAR(50))");
+
+		Log.i(TAG, "Recreating table " + PLACE_TYPES_OF_INTEREST);
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + PLACE_TYPES_OF_INTEREST + " (place_type_id VARCHAR(50))");
+
+	    ArrayList <String> defaultPlaces = PlaceTypes.getDefaultPlaces();
 
         db.execSQL("DELETE FROM " + PLACE_TYPES_OF_INTEREST);
 
@@ -119,7 +136,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 		    {
 			    sql += "'" + place + "',";
 		    }
-			sql = sql.substring(0, sql.length() - 2) + ")";
+			sql = sql.substring(0, sql.length() - 1) + ")";
 
 		    Log.d(TAG, "Inserting default places. SQL: " + sql);
 
@@ -129,11 +146,6 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + USER_TABLE);
-        db.execSQL("DROP TABLE IF EXISTS " + PLACE_TABLE);
-        db.execSQL("DROP TABLE IF EXISTS " + FRIEND_TABLE);
-		db.execSQL("DROP TABLE IF EXISTS " + USER_PREFERENCES);
-	    db.execSQL("DROP TABLE IF EXISTS " + PLACE_TYPES_OF_INTEREST);
         onCreate(db);
     }
 
@@ -151,28 +163,39 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 	}
 
 	//database functions
-	public LinkedList<UserPreference> getUserPreferences()
+	public HashMap<String, HashMap<String, String>> getUserPreferences()
 	{
 		try
 		{
 			Log.i(TAG, "Checking user preferences.");
-			LinkedList<UserPreference> userPreferences = new LinkedList<>();
+            HashMap<String, String> userPreferenceValues = new HashMap<>();
+            HashMap<String, String> userPreferenceDescriptions = new HashMap<>();
+            HashMap<String, String> userPreferenceTypes = new HashMap<>();
 
 			Cursor preferences = getStreetsWritableDatabase().rawQuery(
-				"SELECT * FROM " + USER_PREFERENCES, null);
+				"SELECT name, preference, description, data_type FROM " + USER_PREFERENCES, null);
 
 			Log.i(TAG, "Found " + preferences.getCount() + " preferences.");
 			preferences.moveToFirst();
 			while (!preferences.isAfterLast())
 			{
-				for (int c = 0; c < preferences.getColumnCount(); c++) {
-					Log.i(TAG, "Adding preference: " + preferences.getColumnName(c) + " = " + preferences.getString(c));
-					userPreferences.add(new UserPreference(preferences.getColumnName(c), preferences.getString(c)));
-				}
+				Log.d(TAG, "Adding "
+					+ preferences.getString(3) + " preference: "
+					+ preferences.getString(0) + " = "
+					+ preferences.getString(1) + " : "
+					+ preferences.getString(2));
+                userPreferenceValues		.put(preferences.getString(0), preferences.getString(1)); //value
+				userPreferenceDescriptions	.put(preferences.getString(0), preferences.getString(2)); //description
+				userPreferenceTypes			.put(preferences.getString(0), preferences.getString(3)); //data_type
 				preferences.moveToNext();
 			}
 
-			return userPreferences;
+			HashMap<String, HashMap<String, String>> prefInfo = new HashMap<>();
+			prefInfo.put("values", userPreferenceValues);
+			prefInfo.put("descriptions", userPreferenceDescriptions);
+			prefInfo.put("data_types", userPreferenceTypes);
+
+			return prefInfo;
 		}
 		catch (Exception e)
 		{
@@ -182,19 +205,20 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	public void setUserPreference(String preference, String value)
+	public void setUserPreference(String preference, String value, String description, String data_type)
 	{
-		Log.i(TAG, "Updating user preference " + preference + " to " + value);
+		Log.d(TAG, "Updating user preference " + preference + " to " + value);
 		getStreetsWritableDatabase().execSQL("REPLACE INTO " + USER_PREFERENCES +
-				" (name, preference) VALUES ('"+ preference + "','" + value + "')");
+				" (name, preference, description, data_type) VALUES" +
+				" ('" + preference + "','" + value + "','" + description + "','" + data_type + "')");
 	}
 
-	public LinkedList<Place> getNearbyFriendLocations()
+	public ArrayList<Place> getNearbyFriendLocations()
 	{
 		try
 		{
 			Log.i(TAG, "Searching for nearby friends.");
-			LinkedList<Place> resultList = new LinkedList<>();
+			ArrayList<Place> resultList = new ArrayList<>();
 			Cursor friends = getStreetsWritableDatabase().rawQuery(
 				"SELECT ft.username, pt.reference, pt.latitude, pt.longitude, pt.place_id " +
 				"FROM " + FRIEND_TABLE + " ft, " + PLACE_TABLE + " pt " +
@@ -225,12 +249,12 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	public LinkedList<String> getPlacesOfInterest()
+	public ArrayList<String> getPlacesOfInterest()
 	{
 		try
 		{
 			Log.i(TAG, "Getting list of places of interest .");
-			LinkedList<String> resultList = new LinkedList<>();
+			ArrayList<String> resultList = new ArrayList<>();
 			Cursor places = getStreetsWritableDatabase().rawQuery(
 					"SELECT pt.place_type FROM " + PLACE_TYPES_OF_INTEREST + " poi, " + PLACE_TYPE_TABLE + " pt," +
 					"WHERE poi.place_type_id = pt.type_id", null);
@@ -239,7 +263,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 			places.moveToFirst();
 			while (!places.isAfterLast())
 			{
-				Log.i(TAG, "Adding place: " + places.getString(0));
+				Log.d(TAG, "Adding place: " + places.getString(0));
 				resultList.add(places.getString(0));
 				places.moveToNext();
 			}
@@ -267,4 +291,42 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
         Log.d(TAG, "Removing place of interest. SQL:\n" + sql);
         getStreetsWritableDatabase().execSQL(sql);
     }
+
+	public void addOutstandingPermission(String permission) {
+		String sql = "REPLACE INTO " + REQUIRED_PERMS + " (permission) VALUES ('" + permission + "')";
+		Log.d(TAG, "Inserting new outstanding permission. SQL:\n" + sql);
+		getStreetsWritableDatabase().execSQL(sql);
+	}
+
+	public void removeOutstandingPermission(String permission) {
+		String sql = "DELETE FROM " + REQUIRED_PERMS + " WHERE permission = '" + permission + "'";
+		Log.d(TAG, "Removing outstanding permission. SQL:\n" + sql);
+		getStreetsWritableDatabase().execSQL(sql);
+	}
+
+	public ArrayList<String> getOutstandingPermissions() {
+		try
+		{
+			Log.i(TAG, "Getting list of outstanding permissions.");
+			ArrayList<String> resultList = new ArrayList<>();
+			Cursor permissions = getStreetsWritableDatabase().rawQuery("SELECT permission FROM " + REQUIRED_PERMS, null);
+
+			Log.i(TAG, "Found " + permissions.getCount() + " permissions.");
+			permissions.moveToFirst();
+			while (!permissions.isAfterLast())
+			{
+				Log.d(TAG, "Adding permission: " + permissions.getString(0));
+				resultList.add(permissions.getString(0));
+				permissions.moveToNext();
+			}
+
+			return resultList;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			Log.e(TAG, "Failed to get outstanding permissions: " + e.getMessage(), e);
+			return null;
+		}
+	}
 }

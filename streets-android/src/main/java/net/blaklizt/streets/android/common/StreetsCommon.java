@@ -46,11 +46,16 @@ public class StreetsCommon
 	private static StreetsCommon streetsCommon = null;
 
 	//user preferences
-	private static HashMap<String, String> userPreferences = new HashMap<>();
+	private static HashMap<String, String> userPreferenceValues = new HashMap<>();
+	private static HashMap<String, String> userPreferenceDescriptions = new HashMap<>();
+	private static HashMap<String, String> userPreferenceTypes = new HashMap<>();
 
 	public static StreetsCommon getInstance(Context context, Integer symbiosisUserID)
 	{
-		if (streetsCommon == null) streetsCommon = new StreetsCommon(context, symbiosisUserID);
+		if (streetsCommon == null) {
+			streetsCommon = new StreetsCommon(context, symbiosisUserID);
+            Log.i(TAG, "Created new instance of StreetsCommon");
+		}
 		return streetsCommon;
 	}
 
@@ -64,7 +69,7 @@ public class StreetsCommon
 		getStreetsDBHelper();
 
 		//initialize user preferences
-		getUserPreferences();
+		getUserPreferenceValues();
 
 		//initialize TTS
 		getTextToSpeech();
@@ -112,8 +117,14 @@ public class StreetsCommon
 		{
 			//shutdown common classes
 			Log.i(TAG, "Terminating common classes.");
-			if (streetsDBHelper != null)	streetsDBHelper.close();
-			if (ttsEngine != null)			ttsEngine.shutdown();
+			if (streetsDBHelper != null) {
+				streetsDBHelper.close();
+				streetsDBHelper = null;
+			}
+			if (ttsEngine != null) {
+				ttsEngine.shutdown();
+				ttsEngine = null;
+			}
 		}
 		catch (Exception ex)
 		{
@@ -122,28 +133,58 @@ public class StreetsCommon
 		}
 	}
 
-    public String getUserPreference(String preference) { return getUserPreferences().get(preference); }
-
-    public HashMap<String, String> getUserPreferences() {
-        if (userPreferences.size() == 0)
-        {
-            Log.i(TAG, "Attempting to load user preferences");
-            if (getStreetsDBHelper() != null)
-            {
-                LinkedList<UserPreference> userPreferenceList = getStreetsDBHelper().getUserPreferences();
-
-                for (UserPreference userPreference : userPreferenceList)
-                {
-                    userPreferences.put(userPreference.preferenceName, userPreference.preferenceValue);
-                }
-
-                Log.i(TAG, "Got user preferences from database");
-            }
+    public String getUserPreferenceValue(String preference) {
+        if (!getUserPreferenceValues().containsKey(preference)) {
+            Log.i(TAG, "Preference " + preference + " does not exist");
         }
-        return userPreferences;
+		Log.i(TAG, preference + " = " + getUserPreferenceValues().get(preference));
+        return getUserPreferenceValues().get(preference);
+    }
+
+	public void initUserPreferenceData() {
+		Log.i(TAG, "Loading user preferences from DB");
+		userPreferenceValues		=	getStreetsDBHelper().getUserPreferences().get("values");
+		userPreferenceDescriptions	=	getStreetsDBHelper().getUserPreferences().get("descriptions");
+		userPreferenceTypes			=	getStreetsDBHelper().getUserPreferences().get("data_types");
+	}
+
+    public HashMap<String, String> getUserPreferenceValues() {
+        if (userPreferenceValues.size() == 0) { initUserPreferenceData(); }
+        return userPreferenceValues;
+    }
+
+    public HashMap<String, String> getUserPreferenceDescriptions() {
+        if (userPreferenceDescriptions.size() == 0) { initUserPreferenceData(); }
+        return userPreferenceDescriptions;
+    }
+
+    public HashMap<String, String> getUserPreferenceTypes() {
+        if (userPreferenceTypes.size() == 0) { initUserPreferenceData(); }
+        return userPreferenceTypes;
     }
 
 	public void setUserPreference(String preference, String value) {
-		getStreetsDBHelper().setUserPreference(preference, value);
+		Log.i(TAG, "Setting " + preference + " = " + value);
+		String description = getUserPreferenceDescriptions().get(preference);
+		String data_type = getUserPreferenceTypes().get(preference);
+		if (description != null && data_type != null) {
+			getUserPreferenceValues().remove(preference);
+			getUserPreferenceValues().put(preference, value);
+			getStreetsDBHelper().setUserPreference(preference, value, description, data_type);
+		} else {
+			throw new IllegalArgumentException("Preference type " + preference + " is unknown and cannot be saved. Your app needs an upgrade.");
+		}
+	}
+
+	public ArrayList<String> getOutstandingPermissions() {
+		return getStreetsDBHelper().getOutstandingPermissions();
+	}
+
+	public void addOutstandingPermission(String permission) {
+		getStreetsDBHelper().addOutstandingPermission(permission);
+	}
+
+	public void removeOutstandingPermission(String permission) {
+		getStreetsDBHelper().removeOutstandingPermission(permission);
 	}
 }

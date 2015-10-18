@@ -1,15 +1,23 @@
 package net.blaklizt.streets.android.activity;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.location.*;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.GpsStatus;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -19,23 +27,42 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.*;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.listener.EnableGPSDialogueListener;
 import net.blaklizt.streets.android.location.navigation.Directions;
 import net.blaklizt.streets.android.location.navigation.Navigator;
 import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.location.places.PlacesService;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+
+import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
+import static android.support.v4.content.PermissionChecker.checkSelfPermission;
+import static java.lang.String.format;
+
+import static net.blaklizt.streets.android.listener.EnableGPSDialogueListener.EnableGPSOptionListener;
 
 /**
  * User: tkaviya
@@ -43,30 +70,30 @@ import java.util.*;
  * Time: 5:58 PM
  */
 public class MapLayout extends Fragment
-	implements	LocationListener, OnMarkerClickListener,
-				Navigator.OnPathSetListener, GoogleMap.InfoWindowAdapter,
-				GpsStatus.Listener
+		implements LocationListener, OnMarkerClickListener,
+		Navigator.OnPathSetListener, GoogleMap.InfoWindowAdapter,
+		GpsStatus.Listener, GoogleMap.OnMapLoadedCallback,
+		ActivityCompat.OnRequestPermissionsResultCallback
 {
-	private LinkedList<String> randomNews = new LinkedList<>();
 
+	private LinkedList<String> randomNews = new LinkedList<>();
 	private LinkedList<AsyncTask> runningTasks = new LinkedList<>();
 
 	private class LocationTask extends AsyncTask<Void, Void, Void> {
 
-        LinkedList<Place> nearbyPlaces;
+		ArrayList<Place> nearbyPlaces;
 
-        ProgressDialog progressDialog;
+		ProgressDialog progressDialog;
 
-        @Override
-        protected Void doInBackground(Void... param) {
+		@Override
+		protected Void doInBackground(Void... param) {
 
 			if (currentLocation != null) {
 				nearbyPlaces = PlacesService.nearby_search(
-					currentLocation.getLatitude(), currentLocation.getLongitude(), 5000,
-                        Startup.getStreetsCommon().getStreetsDBHelper().getPlacesOfInterest()
+						currentLocation.getLatitude(), currentLocation.getLongitude(), 5000,
+						Startup.getStreetsCommon().getStreetsDBHelper().getPlacesOfInterest()
 				);
-			}
-			else {
+			} else {
 				getActivity().runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
@@ -75,66 +102,97 @@ public class MapLayout extends Fragment
 					}
 				});
 			}
-            return null;
-        }
+			return null;
+		}
 
-        @Override
-        protected void onPreExecute()
-        {
-            progressDialog = ProgressDialog.show(
+		@Override
+		protected void onPreExecute() {
+			progressDialog = ProgressDialog.show(
 					getActivity(),
 					"Updating location",
 					"Updating location...",
 					true, true);
-            progressDialog.show();
-        }
+			progressDialog.show();
+		}
 
-        @Override
-        protected void onProgressUpdate(Void... progress) { }
+		@Override
+		protected void onProgressUpdate(Void... progress) {
+		}
 
-        @Override
-        protected void onPostExecute(Void result)
-        {
+		@Override
+		protected void onPostExecute(Void result) {
 			googleMap.clear();
 
-            if (nearbyPlaces != null) for (Place place : nearbyPlaces) { drawPlaceMarker(place); }
+			if (nearbyPlaces != null) for (Place place : nearbyPlaces) {
+				drawPlaceMarker(place);
+			}
 
 			progressDialog.hide();
 
 			runningTasks.remove(this);
-        }
-    }
+		}
+	}
 
-    private static final String TAG = StreetsCommon.getTag(MapLayout.class);
+	private static final String TAG = StreetsCommon.getTag(MapLayout.class);
+
+	private static final int PERMISSION_LOCATION_INFO = 6767;
 
 	protected static MapLayout mapLayout = null;
-    protected GoogleMap googleMap;
-    protected Navigator navigator;
-    protected Location currentLocation;
-    protected LocationManager locationManager;
-	protected HashMap <Integer, Place> map = new HashMap<>();
-    protected boolean firstLocationUpdate = true;
-    protected ImageView location_image;
-    protected TextView location_info;
-	protected TextView status_text_view;
+
+	protected View mapView;
+
+	protected GoogleMap googleMap;
+	protected Navigator navigator;
+	protected Location currentLocation;
+	protected LocationManager locationManager;
+	protected HashMap<Integer, Place> map = new HashMap<>();
+	protected boolean firstLocationUpdate = true;
+	protected ImageView location_image;
+	protected TextView location_info;
 	protected LayoutInflater inflater;
+	protected boolean isMapLoaded = false;
+	protected boolean arePermissionsGranted = false;
 
 	protected Random generator = new Random(new Date().getTime());
 
 	//location provider data
-	protected final static String PROVIDER_GPS = "gps";
 	protected final static String PROVIDER_CHEAPEST = "passive";
 	protected final static Integer MINIMUM_REFRESH_TIME = 20000;
-	protected String defaultProvider = PROVIDER_CHEAPEST;		//default working provider
+	protected String defaultProvider = PROVIDER_CHEAPEST;        //default working provider
 	protected LocationProvider currentProvider = null;
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-	    Log.i(TAG, "+++ ON CREATE VIEW +++");
-	    super.onCreateView(inflater, container, savedInstanceState);
-        this.inflater = inflater;
-        View view = inflater.inflate(R.layout.map_layout, container, false);
-        mapLayout = this;
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		Log.i(TAG, "+++ ON CREATE VIEW +++");
+		Log.i(TAG, format("LayoutInflater: %s", inflater != null ? inflater.toString() : null));
+		Log.i(TAG, format("ViewGroup: %s", container != null ? container.getTag() : null));
+		Log.i(TAG, format("SavedInstanceState: %s", savedInstanceState != null ? savedInstanceState.toString() : null));
+
+		if (mapView == null) {
+
+			super.onCreateView(inflater, container, savedInstanceState);
+			setRetainInstance(true);
+			this.inflater = inflater;
+			mapView = inflater.inflate(R.layout.map_layout, container, false);
+			mapLayout = this;
+
+			location_image = (ImageView) mapView.findViewById(R.id.location_image_view);
+			location_info = (TextView) mapView.findViewById(R.id.location_categories_text_view);
+		}
+
+		if (!isMapLoaded) {
+			initializeMap();
+		}
+
+		if (locationManager == null) {
+			//at activity start, if user has not disabled location stuff, request permissions.
+			if (!arePermissionsGranted &&
+			   (Startup.getStreetsCommon().getUserPreferenceValue("suggest_gps").equals("1") ||
+				Startup.getStreetsCommon().getUserPreferenceValue("auto_enable_gps").equals("1"))) {
+				Startup.getStreetsCommon().setUserPreference("request_gps_perms", "1"); //reset preferences if permissions were updated
+			}
+			startLocationUpdates();
+		}
 
 		randomNews.add("Weather is 17 degrees");
 		randomNews.add("Traffic expected for 2 hours");
@@ -145,93 +203,104 @@ public class MapLayout extends Fragment
 		randomNews.add("Distance 2 home: 10m | 1 min");
 		randomNews.add("Distance 2 work: 1km | 5 min");
 
-		status_text_view = (TextView) view.findViewById(R.id.status_text_view);
-        location_image =  (ImageView) view.findViewById(R.id.location_image_view);
-        location_info = (TextView) view.findViewById(R.id.location_categories_text_view);
-
-        initializeMap();
-
-        return view;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-	    Log.i(TAG, "+++ ON CREATE +++");
-	    super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public void onPause() {
-        Log.i(TAG, "+++ ON PAUSE +++");
-        super.onPause();
-        for (AsyncTask runningTask : runningTasks) { runningTask.cancel(true); }
-        if (locationManager != null) locationManager.removeUpdates(this);
-        runningTasks.clear();
-
-    }
+		return mapView;
+	}
 
 	@Override
-	public void onDestroy()
-	{
-        Log.i(TAG, "+++ ON DESTROY +++");
-//        super.onDestroy();
-		for (AsyncTask runningTask : runningTasks) { runningTask.cancel(true); }
-		if (locationManager != null) locationManager.removeUpdates(this);
+	public void onPause() {
+		Log.i(TAG, "+++ ON PAUSE +++");
+		super.onPause();
+		for (AsyncTask runningTask : runningTasks) {
+			runningTask.cancel(true);
+		}
+		if (googleMap != null) {
+			googleMap.stopAnimation();
+		}
 		runningTasks.clear();
 	}
 
-    @Override
-    public void onResume() {
-        Log.i(TAG, "+++ ON RESUME +++");
-        super.onResume();
+	@Override
+	public void onResume() {
+		Log.i(TAG, "+++ ON RESUME +++");
+		super.onResume();
+		try {
+			if (!isMapLoaded) {
+				initializeMap();
+			}
+			if (locationManager == null) {
+				startLocationUpdates();
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			Log.e(TAG, "Failed to resume streets map layout", ex);
+		}
+	}
 
-        try
-        {
-            if (currentLocation == null) {
-                Log.i(TAG, "Data is stale. Refreshing location");
-                refreshLocation();
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.e(TAG, "Failed to resume streets map layout", ex);
-        }
-    }
+	@Override
+	public void onAttach(Context context) {
+		Log.i(TAG, "+++ ON ATTACH +++");
+		super.onAttach(context);
+		onResume();
+	}
 
-    @Override
-    public void onStart() {
-        Log.i(TAG, "+++ ON START +++");
-        super.onStart();
-        status_text_view.setText("I'm the streets look both way before you cross me");
-    }
+	@Override
+	public void onDetach() {
+		Log.i(TAG, "+++ ON DETACH +++");
+		super.onDetach();
+		onPause();
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		Log.i(TAG, "+++ ON CREATE +++");
+		super.onCreate(savedInstanceState);
+	}
+
+	@Override
+	public void onDestroy() {
+		Log.i(TAG, "+++ ON DESTROY +++");
+		super.onDestroy();
+		onDetach();
+		mapView = null;
+		googleMap = null;
+	}
+
+	@Override
+	public void onStart() {
+		Log.i(TAG, "+++ ON START +++");
+		super.onStart();
+	}
+
+	@Override
+	public void onMapLoaded() {
+		isMapLoaded = true;
+	}
 
 	public void refreshLocation() {
 		runningTasks.add(new LocationTask().execute());
 	}
 
-    private void initializeMap()
-    {
-        try
-        {
-            //Create global configuration and initialize ImageLoader with this configuration
-            ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getActivity().getApplicationContext()).build();
-            ImageLoader.getInstance().init(config);
+	private void initializeMap() {
+		try {
+			//Create global configuration and initialize ImageLoader with this configuration
+			ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getActivity().getApplicationContext()).build();
+			ImageLoader.getInstance().init(config);
 
-            int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity().getApplicationContext());
-            // Showing status
-            if (status != ConnectionResult.SUCCESS) // Google Play Services are not available
-            {
-                Log.i(TAG, "Google Play Services are not available");
-            }
-            else // Google Play Services are available
-            {
-                Log.i(TAG, "Google Play Services are available");
-                // Getting reference to the SupportMapFragment of activity_main.xml
-                MapFragment fm = (MapFragment)getActivity().getFragmentManager().findFragmentById(R.id.map_fragment);
+			int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity().getApplicationContext());
+			// Showing status
+			if (status != ConnectionResult.SUCCESS) // Google Play Services are not available
+			{
+				Log.i(TAG, "Google Play Services are not available");
+			}
+			else // Google Play Services are available
+			{
+				Log.i(TAG, "Google Play Services are available");
+				// Getting reference to the SupportMapFragment of activity_main.xml
+				MapFragment fm = (MapFragment) getActivity().getFragmentManager().findFragmentById(R.id.map_fragment);
 
-                // Getting GoogleMap object from the fragment
-                googleMap = fm.getMap();
-                Log.i(TAG, "Got Google map");
+				// Getting GoogleMap object from the fragment
+				googleMap = fm.getMap();
+				Log.i(TAG, "Got Google map");
 
 				googleMap.setMyLocationEnabled(true);
 
@@ -239,60 +308,148 @@ public class MapLayout extends Fragment
 
 				googleMap.getUiSettings().setZoomControlsEnabled(true);
 
-                googleMap.setOnMarkerClickListener(this);
+				googleMap.setOnMarkerClickListener(this);
 
-	            googleMap.setInfoWindowAdapter(this);
+				googleMap.setInfoWindowAdapter(this);
 
-                Log.i(TAG, "Getting system location service");
-                // Getting LocationManager object from System Service LOCATION_SERVICE
-                locationManager = (LocationManager)getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-
-				locationManager.addGpsStatusListener(this);
-
-
-				if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-				{
-					if (Startup.getStreetsCommon().getUserPreference("suggest_gps").equals("1"))
-					{
-						GPSDialogueListener gpsDialogueListener = new GPSDialogueListener(getActivity());
-						GPSDialogueListener.GPSDialogueOptionsListener gpsDialogueOptionsListener = new GPSDialogueListener.GPSDialogueOptionsListener();
-						CharSequence[] items = new CharSequence[]{"Never ask again"};
-
-						AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-						builder.setMessage("Turn on GPS?")
-								.setMultiChoiceItems(items, new boolean[]{true}, gpsDialogueOptionsListener)
-								.setPositiveButton("Yes", gpsDialogueListener)
-								.setNegativeButton("No", gpsDialogueListener).show();
-					}
-					else if (Startup.getStreetsCommon().getUserPreference("auto_enable_gps").equals("1"))
-					{
-						Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-						startActivity(myIntent);
-					}
-				}
-
-				updateLocationProvider(true);
-            }
-        }
-        catch (Exception ex)
-        {
+				googleMap.setOnMapLoadedCallback(this);
+			}
+		} catch (Exception ex) {
 			ex.printStackTrace();
-            Log.e(TAG, "Failed to initialize Google Map", ex);
-        }
-    }
+			Log.e(TAG, "Failed to initialize Google Map", ex);
+		}
+	}
 
-	public void updateLocationProvider(boolean checkGPS)
-	{
-		try
-		{
-			if (checkGPS)
-			{
+	@SuppressWarnings("permission")
+	private void startLocationUpdates() {
+
+		if (!arePermissionsGranted && !checkAndRequestPermissions()) {
+			Log.i(TAG, "Cannot run location updates. Insufficient permissions.");
+			return;
+		}
+
+		Log.i(TAG, "Getting system location service");
+		// Getting LocationManager object from System Service LOCATION_SERVICE
+		locationManager = (LocationManager) getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+
+        try {
+            locationManager.addGpsStatusListener(this);
+
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                if (Startup.getStreetsCommon().getUserPreferenceValue("suggest_gps").equals("1")) {
+
+                    EnableGPSDialogueListener enableGpsListener = new EnableGPSDialogueListener(getActivity());
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setMessage("Turn on GPS?")
+                            .setMultiChoiceItems(
+                                    EnableGPSDialogueListener.getQuestionItems(),
+                                    EnableGPSDialogueListener.getCheckedItems(),
+                                    EnableGPSOptionListener.getInstance())
+                            .setPositiveButton("Yes", enableGpsListener)
+                            .setNegativeButton("No", enableGpsListener).create().show();
+                } else if (Startup.getStreetsCommon().getUserPreferenceValue("auto_enable_gps").equals("1")) {
+                    Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(myIntent);
+                }
+            }
+
+            updateLocationProvider(true);
+        } catch (SecurityException se) {
+            //should never happen because we check for perms in advance
+            se.printStackTrace();
+            Log.e(TAG, "Failed to do location updates. " + se.getMessage(), se);
+        }
+	}
+
+	private boolean checkAndRequestPermissions() {
+
+		//check course location
+		if (checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+			Log.i(TAG, "Permission " + Manifest.permission.ACCESS_COARSE_LOCATION + " is not allowed.");
+			Startup.getStreetsCommon().addOutstandingPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+			arePermissionsGranted = false;
+		} else {
+			Log.i(TAG, "Permission " + Manifest.permission.ACCESS_COARSE_LOCATION + " is allowed.");
+			Startup.getStreetsCommon().removeOutstandingPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+			arePermissionsGranted = false;
+		}
+
+		//check fine location
+		if (checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+			Log.i(TAG, "Permission " + Manifest.permission.ACCESS_FINE_LOCATION + " is not allowed.");
+			Startup.getStreetsCommon().addOutstandingPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+			arePermissionsGranted = false;
+		} else {
+			Log.i(TAG, "Permission " + Manifest.permission.ACCESS_FINE_LOCATION + " is allowed.");
+			Startup.getStreetsCommon().removeOutstandingPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+			arePermissionsGranted = false;
+		}
+
+		ArrayList<String> outstandingPermissions = Startup.getStreetsCommon().getOutstandingPermissions();
+
+		Log.i(TAG, "Outstanding permissions: " + outstandingPermissions.size());
+		if (outstandingPermissions.size() > 0 && Startup.getStreetsCommon().getUserPreferenceValue("request_gps_perms").equals("1")) {
+			Log.i(TAG, "Not enough permissions to do location updates. Requesting from user.");
+			requestPermissions(outstandingPermissions.toArray(new String[outstandingPermissions.size()]), PERMISSION_LOCATION_INFO);
+			arePermissionsGranted = false;
+		}
+		else { arePermissionsGranted = true; }
+
+        EnableGPSDialogueListener enableGpsListener = new EnableGPSDialogueListener(getActivity());
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("Turn on GPS?")
+                .setMultiChoiceItems(
+                        EnableGPSDialogueListener.getQuestionItems(),
+                        EnableGPSDialogueListener.getCheckedItems(),
+                        EnableGPSOptionListener.getInstance())
+                .setPositiveButton("Yes", enableGpsListener)
+                .setNegativeButton("No", enableGpsListener).create().show();
+
+        return arePermissionsGranted;
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+		if (!(requestCode == PERMISSION_LOCATION_INFO)) {
+			return; //not our required permissions
+		}
+
+		for (int c = 0; c < grantResults.length; c++) {
+			if (grantResults[c] != PERMISSION_GRANTED) {
+				Log.i(TAG, "Permission was denied for " + permissions[c] + ". Aborting location updates.");
+				Startup.getStreetsCommon().addOutstandingPermission(permissions[c]);
+				Startup.getStreetsCommon().setUserPreference("request_gps_perms", "0"); //if user rejects, he probably does not want to be bothered
+			} else {
+				Log.i(TAG, "Permission granted for " + permissions[c]);
+				Startup.getStreetsCommon().removeOutstandingPermission(permissions[c]);
+				Startup.getStreetsCommon().setUserPreference("request_gps_perms", "1"); //reset preferences if permissions were updated
+				arePermissionsGranted = false;
+			}
+		}
+
+		if (Startup.getStreetsCommon().getOutstandingPermissions().size() == 0) { //we have everything we need! Great. Start location updates.
+			Log.i(TAG, "All required permissions granted. Performing location updates");
+			startLocationUpdates();
+			arePermissionsGranted = true;
+		}
+	}
+
+	public void updateLocationProvider(boolean checkGPS) {
+		try {
+            if (!arePermissionsGranted && !checkAndRequestPermissions()) {
+                Log.i(TAG, "Cannot run location updates. Insufficient permissions.");
+                return;
+            }
+
+            if (checkGPS) {
 				// Creating a criteria object to retrieve provider
 				Log.i(TAG, "Checking for preferred location provider 'GPS' for best accuracy.");
 				Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
-				if (location != null)
-				{
+				if (location != null) {
 					//PLACE THE INITIAL MARKER
 					Log.i(TAG, "Found location using GPS.");
 					currentProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
@@ -306,9 +463,7 @@ public class MapLayout extends Fragment
 					Log.i(TAG, "Placing initial marker.");
 					drawMarker(location);
 					return;
-				}
-				else
-				{
+				} else {
 					Log.i(TAG, "GPS location provider not available.");
 				}
 			}
@@ -333,46 +488,51 @@ public class MapLayout extends Fragment
 				Iterator providerIterator = providers.iterator();
 				String providerName;
 
-				while (location == null && providerIterator.hasNext())
-				{
-					providerName = (String)providerIterator.next();
-					if (providerName.equalsIgnoreCase(LocationManager.GPS_PROVIDER))	continue; //skip LocationManager.GPS_PROVIDER,		we just tried it above
-					if (providerName.equalsIgnoreCase(defaultProvider))	continue; //skip defaultProvider,	we just tried it above
+				while (location == null && providerIterator.hasNext()) {
+					providerName = (String) providerIterator.next();
+					if (providerName.equalsIgnoreCase(LocationManager.GPS_PROVIDER))
+						continue; //skip LocationManager.GPS_PROVIDER,		we just tried it above
+					if (providerName.equalsIgnoreCase(defaultProvider))
+						continue; //skip defaultProvider,	we just tried it above
 					Log.i(TAG, "Trying provider " + providerName);
 					location = locationManager.getLastKnownLocation(providerName);
-					if (location != null)
-					{
+					if (location != null) {
 						Log.i(TAG, "Found working provider: " + providerName);
 						defaultProvider = providerName; //found a working provider, use this to do future updates
 					}
 				}
 			}
 
-			if (location != null)
-			{
+			if (location != null) {
 				//PLACE THE INITIAL MARKER
 				Log.i(TAG, "Found location using provider '" + defaultProvider + "'. Placing initial marker.");
 				drawMarker(location);
-			}
-			else {
+			} else {
 				//All providers failed, may as well poll using least battery consuming provider
 				defaultProvider = PROVIDER_CHEAPEST;
 				Log.i(TAG, "All providers failed. Polling location with cheapest provider: " + defaultProvider);
 			}
 
 			Log.i(TAG, "Starting location update requests with provider: " + defaultProvider);
+
 			locationManager.requestLocationUpdates(defaultProvider, MINIMUM_REFRESH_TIME, 0, this);
 			locationManager.addGpsStatusListener(this);
 
 			currentProvider = locationManager.getProvider(defaultProvider);
 			Log.i(TAG, "Provider accuracy: " + currentProvider.getAccuracy());
 			Log.i(TAG, "Provider power: " + currentProvider.getPowerRequirement());
-		}
+
+        }
+        catch (SecurityException se) {
+            se.printStackTrace();
+            Log.e(TAG, "Failed to do location updates! " + se.getMessage(), se);
+        }
 		catch (Exception ex)
 		{
 			ex.printStackTrace();
-			Log.e(TAG, "Failed to initialize Google Map", ex);
+			Log.e(TAG, "Failed to initialize Google Map! " + ex.getMessage(), ex);
 		}
+
 	}
 
 	@Override
@@ -393,7 +553,12 @@ public class MapLayout extends Fragment
 		}
 	}
 
-    public static MapLayout getInstance() { return mapLayout; }
+    public static MapLayout getInstance() {
+		if (mapLayout == null) {
+			mapLayout = new MapLayout();
+		}
+		return mapLayout;
+	}
 
     private void drawMarker(Location location){
         Log.i(TAG, "Found current location at " + location.getLatitude() + " : " + location.getLongitude());
@@ -423,6 +588,7 @@ public class MapLayout extends Fragment
         }
         catch (Exception ex)
         {
+			ex.printStackTrace();
             Log.e(TAG, "Failed to draw place marker for place " + place.name, ex);
         }
     }
@@ -449,7 +615,7 @@ public class MapLayout extends Fragment
 			//show a random news items
 			generator.setSeed(new Date().getTime());
 			String info = randomNews.get(generator.nextInt(randomNews.size()));
-			status_text_view.setText(">>> " + info);
+			MenuActivity.getInstance().setAppInfo(">>> " + info);
 
             if (firstLocationUpdate)
             {
@@ -465,7 +631,7 @@ public class MapLayout extends Fragment
                 Log.i(TAG, "Camera zoomed to view");
 
                 location_image.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.default_icon));
-                location_info.setText("Bugatti & Millitainment");
+//                location_info.setText("Bugatti & Millitainment");
 
                 drawMarker(location);
 
@@ -474,6 +640,7 @@ public class MapLayout extends Fragment
         }
         catch (Exception ex)
         {
+			ex.printStackTrace();
             Log.e(TAG, "Failed to update to new location", ex);
         }
     }
@@ -488,10 +655,23 @@ public class MapLayout extends Fragment
             {
 				//if clickedPlace != null, marker should link to a place
                 try {
-                    location_image.setImageDrawable(getResources().getDrawable(R.drawable.ic_dashboard));
+                    if (clickedPlace.image.startsWith("http")) {
+                        location_image.setImageBitmap(ImageLoader.getInstance().loadImageSync(clickedPlace.image));
+                    } else {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            location_image.setImageDrawable(getResources().getDrawable(R.drawable.icon_profile, getContext().getTheme()));
+                        } else {
+                            location_image.setImageDrawable(getResources().getDrawable(R.drawable.icon_profile));
+                        }
+                    }
                 }
                 catch (Exception e) { e.printStackTrace(); }
                 location_info.setText(clickedPlace.name);
+                location_info.setText(
+                    clickedPlace.name + "\r\n" +
+                    clickedPlace.type + "\r\n" +
+                    clickedPlace.formatted_address
+                );
             }
 
             if (navigator != null) {
@@ -512,7 +692,8 @@ public class MapLayout extends Fragment
         }
         catch (Exception ex)
         {
-            Log.e(TAG, "Failed to execute marker click event", ex);
+			ex.printStackTrace();
+			Log.e(TAG, "Failed to execute marker click event", ex);
             return false;
         }
     }

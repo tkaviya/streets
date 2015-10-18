@@ -17,7 +17,7 @@
 
 <resources>
 
-    <style name="Theme.Streets" parent="Base.Theme.DesignDemo">
+    <style name="Theme.Streets" parent="Base.Theme.Streets">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>

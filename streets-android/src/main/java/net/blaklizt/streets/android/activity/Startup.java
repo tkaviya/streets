@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -25,10 +26,12 @@ import org.json.JSONObject;
  * Date: 2015/06/11
  * Time: 4:30 PM
  */
-public class Startup extends AppCompatActivity implements View.OnClickListener
+public class Startup extends AppCompatActivity implements
+	View.OnClickListener, MediaPlayer.OnCompletionListener,
 {
-	private Button loginBtn;
-	private EditText password = null;
+	private Button btnLogin = null;
+	private EditText edtPassword = null;
+	private CheckBox chkAutoLogin = null;
 	int counter = 5;
 
 	private class LoginTask extends AsyncTask<Void, Void, Void>
@@ -40,7 +43,7 @@ public class Startup extends AppCompatActivity implements View.OnClickListener
 		{
 			Log.i(TAG, "Authenticating...");
 
-//			ServerCommunication.sendServerRequest("action=Login&channel=" + StreetsCommon.CHANNEL + "&username=" + username.getText().toString() + "&password=" + password.getText().toString());
+//			ServerCommunication.sendServerRequest("action=Login&channel=" + StreetsCommon.CHANNEL + "&username=" + username.getText().toString() + "&edtPassword=" + edtPassword.getText().toString());
 			String loginResponse = "{response_code:1, response_message:\"success\"}";
 
 			if (loginResponse == null)
@@ -60,8 +63,16 @@ public class Startup extends AppCompatActivity implements View.OnClickListener
 				if (responseJSON.getInt("response_code") == 1)//ResponseCode.SUCCESS.getValue())
 				{
 					Log.i(TAG, "Login successful");
-					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), "Login successful", Toast.LENGTH_SHORT).show(); } });
-					Intent mainActivity = new Intent(getInstance(), Streets.class);
+					runOnUiThread(new Runnable() {
+						@Override public void run() {
+							Toast.makeText(getInstance(), "Login successful", Toast.LENGTH_SHORT).show();
+							if (chkAutoLogin.isChecked()) {
+								getStreetsCommon().setUserPreference("auto_login", "1");
+							}
+						}
+					});
+
+					Intent mainActivity = new Intent(getInstance(), MenuActivity.class);
 					startActivity(mainActivity);
 				}
 				else if (responseJSON.getInt("response_code") < 0)
@@ -73,14 +84,15 @@ public class Startup extends AppCompatActivity implements View.OnClickListener
 				{
 					final String loginResponseStr = responseJSON.getString("response_message");
 					Log.i(TAG, "Login failed: " + responseJSON.getString("response_message"));
+					getStreetsCommon().setUserPreference("auto_login", "0"); //disable auto login to prevent running out of attempts
 					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), loginResponseStr, Toast.LENGTH_SHORT).show(); } });
 
 					if (--counter <= 0)
 					{
 						runOnUiThread(new Runnable() {
 							@Override public void run() {
-								password.setEnabled(false);
-								loginBtn.setEnabled(false);
+								edtPassword.setEnabled(false);
+								btnLogin.setEnabled(false);
 								Toast.makeText(getInstance(), "Maximum login attempts. Please contact support", Toast.LENGTH_LONG).show();
 							}
 						});
@@ -132,24 +144,42 @@ public class Startup extends AppCompatActivity implements View.OnClickListener
 
         try
 		{
-			password = (EditText) findViewById(R.id.loginPassword);
-			loginBtn = (Button) findViewById(R.id.btnLogin);
+			edtPassword = (EditText) findViewById(R.id.loginPin);
+			btnLogin = (Button) findViewById(R.id.btnLogin);
+			chkAutoLogin = (CheckBox) findViewById(R.id.chkAutoLogin);
 
-			if (getStreetsCommon().getUserPreference("show_intro").equals("1")) {
-                getStreetsCommon().setUserPreference("show_intro", "0"); //dont show video next time
+			if (getStreetsCommon().getUserPreferenceValue("show_intro").equals("1")) {
                 playIntroVideo();
+			} else {
+				onCompletion(null);
 			}
+
 		}
 		catch (Exception ex)
 		{
 			ex.printStackTrace();
 			Log.e(TAG, "Failed to start application: " + ex.getMessage(), ex);
 			runOnUiThread(new Runnable() {
-				@Override public void run() {
-					Toast.makeText(getApplication(), "Failed to start application! An error occurred.",
-					Toast.LENGTH_SHORT).show();
-				}
-			});
+                @Override
+                public void run() {
+                    Toast.makeText(getApplication(), "Failed to start application! An error occurred.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+			finish();
+		}
+	}
+
+	@Override
+	public void onCompletion(MediaPlayer mp) {
+		Log.i(TAG, "+++ ON COMPLETION +++");
+		if (getStreetsCommon().getUserPreferenceValue("auto_login").equals("1")) {
+			new LoginTask().execute();
+		}
+		else {
+			edtPassword.setVisibility(View.VISIBLE);
+			btnLogin.setVisibility(View.VISIBLE);
+			chkAutoLogin.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -175,18 +205,7 @@ public class Startup extends AppCompatActivity implements View.OnClickListener
                 videoView.start();
             }
         });
-//        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-//            @Override
-//            public void onCompletion(MediaPlayer mp) {
-//                Log.i(TAG, "Initiating Tha Streets.");
-//                try { Thread.sleep(5000); } catch (InterruptedException e) { e.printStackTrace(); }
-//
-//                Log.i(TAG, "Going to login...");
-//                Intent loginActivity = new Intent(getApplication(), Streets.class);
-//                startActivity(loginActivity);
-//                StreetsCommon.registerStreetsActivity(Streets.getInstance());
-//            }
-//        });
+        videoView.setOnCompletionListener(this);
     }
 
 	@Override
@@ -197,16 +216,17 @@ public class Startup extends AppCompatActivity implements View.OnClickListener
 
     @Override
     public void onDestroy() {
-        Log.i(TAG, "+++ ON DESTROY +++");
+		Log.i(TAG, "+++ ON DESTROY +++");
+		super.onDestroy();
         if (streetsCommon != null) { streetsCommon.endApplication(); }
-        videoView.stopPlayback();
+        if (videoView != null) { videoView.stopPlayback(); }
     }
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
         Log.i(TAG, "+++ ON POST CREATE +++");
 		super.onPostCreate(savedInstanceState);
-		loginBtn.setOnClickListener(this);
+		btnLogin.setOnClickListener(this);
 	}
 
 	public static Startup getInstance() { return startup; }
