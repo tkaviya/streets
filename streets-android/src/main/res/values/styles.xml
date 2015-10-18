@@ -17,10 +17,10 @@
 
 <resources>
 
-    <style name="Theme.Streets" parent="Base.Theme.DesignDemo">
+    <style name="Theme.Streets" parent="Base.Theme.Streets">
     </style>
 
-    <style name="Base.Theme.DesignDemo" parent="Theme.AppCompat.NoActionBar">
+    <style name="Base.Theme.Streets" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">#673AB7</item>
         <item name="colorPrimaryDark">#512DA8</item>
         <item name="colorAccent">#FF4081</item>

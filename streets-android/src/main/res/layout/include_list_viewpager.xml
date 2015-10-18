@@ -24,28 +24,69 @@
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="150dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="50dp"
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:layout_scrollFlags="scroll|enterAlways" />
 
-        <android.support.design.widget.TabLayout
-            android:id="@+id/tabs"
+        <net.blaklizt.streets.android.swipe.SwipeLayout
+            style="@style/Widget.CardContent"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="80dp"
+            android:id="@+id/streets_swipe_menu"
+            app:clickToClose="true"
+            android:layout_marginTop="10dp"
+            android:padding="5dp">
+
+            <TextView
+                android:id="@+id/status_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@android:drawable/ic_media_play"
+                android:textSize="12sp"
+                android:textColor="#000"/>
+
+            <LinearLayout
+                android:id="@+id/swipe_menu"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/swipe_menu_search"
+                    android:src="@android:drawable/ic_menu_search"
+                    android:layout_width="70dp"
+                    android:background="#f7e79c"
+                    android:paddingLeft="25dp"
+                    android:paddingRight="25dp"
+                    android:layout_height="match_parent" />
+
+                <ImageView
+                    android:id="@+id/swipe_menu_share"
+                    android:src="@android:drawable/btn_star_big_off"
+                    android:layout_width="70dp"
+                    android:background="#4cd964"
+                    android:paddingLeft="25dp"
+                    android:paddingRight="25dp"
+                    android:layout_height="match_parent" />
+
+                <ImageView
+                    android:id="@+id/swipe_menu_delete"
+                    android:src="@android:drawable/ic_menu_delete"
+                    android:layout_width="70dp"
+                    android:background="@android:color/holo_red_dark"
+                    android:paddingLeft="25dp"
+                    android:paddingRight="25dp"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+
+        </net.blaklizt.streets.android.swipe.SwipeLayout>
 
     </android.support.design.widget.AppBarLayout>
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/viewpager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </android.support.design.widget.CoordinatorLayout>

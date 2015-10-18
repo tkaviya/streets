@@ -9,9 +9,10 @@ package net.blaklizt.streets.android.location.places;
  */
 
 import android.util.Log;
+
 import net.blaklizt.streets.android.activity.Startup;
-import net.blaklizt.streets.android.activity.Streets;
 import net.blaklizt.streets.android.common.StreetsCommon;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,7 +22,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 /**
  * @author saxman
@@ -166,9 +167,9 @@ public class PlacesService {
 //        return resultList;
 //    }
 
-    public static LinkedList<Place> nearby_search(double lat, double lng, int radius, LinkedList<String> types) {
+    public static ArrayList<Place> nearby_search(double lat, double lng, int radius, ArrayList<String> types) {
         Log.i(TAG, "Searching for places near current location");
-        LinkedList<Place> resultList = null;
+        ArrayList<Place> resultList = null;
 
         HttpURLConnection conn = null;
         StringBuilder jsonResults = new StringBuilder();

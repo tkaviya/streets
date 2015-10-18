@@ -20,7 +20,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -34,12 +33,14 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ExpandableListView;
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.adapter.PlacesListAdapter;
 import net.blaklizt.streets.android.common.BackgroundRunner;
 import net.blaklizt.streets.android.common.Group;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.swipe.SwipeLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,6 +55,7 @@ public class Streets extends AppCompatActivity implements BackgroundRunner, Dial
     private DrawerLayout mDrawerLayout;
     protected ViewPager pager;
     protected ExpandableListView placesList;
+    private SwipeLayout streetsMenu;
 
     PlacesListAdapter placesAdapter;
 
@@ -66,16 +68,17 @@ public class Streets extends AppCompatActivity implements BackgroundRunner, Dial
                 Startup.getStreetsCommon().setUserPreference("ask_on_exit", !isChecked ? "1" : "0");
             }
         }
-
     }
 
     @Override
     public void onPause() {
+        Log.i(TAG, "+++ ON PAUSE +++");
         super.onPause();
     }
 
     @Override
     public void onResume() {
+        Log.i(TAG, "+++ ON RESUME +++");
         super.onResume();
     }
 
@@ -107,22 +110,27 @@ public class Streets extends AppCompatActivity implements BackgroundRunner, Dial
 
         final ActionBar ab = getSupportActionBar();
         ab.setHomeAsUpIndicator(R.drawable.ic_menu);
-        ab.setDisplayHomeAsUpEnabled(true);
-        ab.setHomeButtonEnabled(true);
+//        ab.setDisplayHomeAsUpEnabled(true);
+//        ab.setHomeButtonEnabled(true);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.left_navigation_view);
         if (navigationView != null) {
             setupDrawerContent(navigationView);
         }
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        if (viewPager != null) {
-            setupViewPager(viewPager);
-        }
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
+        streetsMenu = (SwipeLayout) findViewById(R.id.m_streets_menu);
+        View swipeMenu = findViewById(R.id.swipe_menu);
+        streetsMenu.setShowMode(SwipeLayout.ShowMode.PullOut);
+        streetsMenu.addDrag(SwipeLayout.DragEdge.Top, swipeMenu);
+
+//        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+//        if (viewPager != null) {
+//            setupViewPager(viewPager);
+//        }
+//        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+//        tabLayout.setupWithViewPager(viewPager);
     }
 
 	@Override
@@ -163,14 +171,14 @@ public class Streets extends AppCompatActivity implements BackgroundRunner, Dial
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
-            case R.id.action_search:
-                return true;
-            case R.id.action_settings:
-                return true;
-            case R.id.action_get_location:
-                pager.setCurrentItem(0);
-                MapLayout.getInstance().refreshLocation();
-                return true;
+//            case R.id.action_search:
+//                return true;
+//            case R.id.action_settings:
+//                return true;
+//            case R.id.action_get_location:
+//                pager.setCurrentItem(0);
+//                MapLayout.getInstance().refreshLocation();
+//                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

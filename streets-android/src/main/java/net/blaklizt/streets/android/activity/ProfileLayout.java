@@ -22,25 +22,11 @@ public class ProfileLayout extends Fragment
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
 		Log.i(TAG, "+++ ON CREATE VIEW +++");
 		super.onCreateView(inflater, container, savedInstanceState);
 		this.inflater = inflater;
-		View view = inflater.inflate(R.layout.activity_profile, container, true);
+		View view = inflater.inflate(R.layout.activity_profile, container, false);
 		profileLayout = this;
-
-		// Inflate the layout for this fragment
-
-//        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Service has been requested successfully\n" +
-//                                "Estimated time of arrival: 22 minutes\n",
-//				Snackbar.LENGTH_INDEFINITE).setAction("Action", null).show();
-//            }
-//        });
-
         return view;
 	}
 
@@ -63,5 +49,10 @@ public class ProfileLayout extends Fragment
 		super.onResume();
 	}
 
-	public static ProfileLayout getInstance() { return profileLayout; }
+	public static ProfileLayout getInstance() {
+		if (profileLayout == null) {
+			profileLayout = new ProfileLayout();
+		}
+		return profileLayout;
+	}
 }
