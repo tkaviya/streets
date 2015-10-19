@@ -5,3 +5,9 @@
 gen
 gen-external-apklibs
 target
+*/build
+build
+.gradle/*
+*.gradle
+gradle
+*.properties
