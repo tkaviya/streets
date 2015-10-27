@@ -143,9 +143,10 @@ public class StreetsCommon
 
 	public void initUserPreferenceData() {
 		Log.i(TAG, "Loading user preferences from DB");
-		userPreferenceValues		=	getStreetsDBHelper().getUserPreferences().get("values");
-		userPreferenceDescriptions	=	getStreetsDBHelper().getUserPreferences().get("descriptions");
-		userPreferenceTypes			=	getStreetsDBHelper().getUserPreferences().get("data_types");
+        HashMap<String, HashMap<String, String>> preferences = getStreetsDBHelper().getUserPreferences();
+        userPreferenceValues		=	preferences.get("values");
+		userPreferenceDescriptions	=	preferences.get("descriptions");
+		userPreferenceTypes			=	preferences.get("data_types");
 	}
 
     public HashMap<String, String> getUserPreferenceValues() {

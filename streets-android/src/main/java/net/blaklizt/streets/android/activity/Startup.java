@@ -9,15 +9,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.Toast;
-import android.widget.VideoView;
-
+import android.widget.*;
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.common.StreetsCommon;
-
 import org.json.JSONObject;
 
 /**
@@ -27,7 +21,7 @@ import org.json.JSONObject;
  * Time: 4:30 PM
  */
 public class Startup extends AppCompatActivity implements
-	View.OnClickListener, MediaPlayer.OnCompletionListener,
+	View.OnClickListener, MediaPlayer.OnCompletionListener
 {
 	private Button btnLogin = null;
 	private EditText edtPassword = null;
