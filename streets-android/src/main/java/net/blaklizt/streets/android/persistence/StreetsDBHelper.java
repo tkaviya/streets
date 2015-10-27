@@ -26,7 +26,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
     private static final String TAG = StreetsCommon.getTag(StreetsDBHelper.class);
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 5;
 
 	private static final String DATABASE_NAME = "Neighbourhood.db";
 
@@ -55,7 +55,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 
 		Log.i(TAG, "Recreating table " + USER_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + USER_TABLE + " (" +
-				"symbiosis_id INT(11)," +
+				"symbiosis_id INT(11) PRIMARY KEY," +
 				"imei VARCHAR(256)," +
 				"imsi VARCHAR(128)," +
 				"password VARCHAR(50)," +
@@ -66,7 +66,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
         //fixed places that are never remove
 		Log.i(TAG, "Recreating table " + PLACE_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + PLACE_TABLE + " (" +
-				"place_id INT(11)," +
+				"place_id INT(11) PRIMARY KEY," +
 				"place_type_id INT(11)," +
 				"name VARCHAR(50)," +
 				"reference VARCHAR(100)," +
@@ -77,30 +77,30 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
         //table the grows and is truncated after a while
 		Log.i(TAG, "Recreating table " + LOCATION_HISTORY_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + LOCATION_HISTORY_TABLE + " (" +
-				"location_history_id INT(11)," +
+				"location_history_id INT(11) PRIMARY KEY," +
 				"latitude DOUBLE," +
 				"longitude DOUBLE," +
 				"update_date_time DATETIME)");
 
 		Log.i(TAG, "Recreating table " + PLACE_TYPE_TABLE);
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + PLACE_TYPE_TABLE + " (" +
-				"type_id INT(11)," +
+				"type_id INT(11) PRIMARY KEY," +
 				"type VARCHAR(50))");
 
 		Log.i(TAG, "Recreating table " + FRIEND_TABLE);
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + FRIEND_TABLE + " (" +
-				"symbiosis_id INT(11)," +
+				"symbiosis_id INT(11) PRIMARY KEY," +
 				"last_place_id INT(11)," +
 				"home_place_id INT(11))");
 
 		Log.i(TAG, "Recreating table " + SUPPLIER_TABLE);
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + SUPPLIER_TABLE + " (" +
-				"symbiosis_id INT(11)," +
+				"symbiosis_id INT(11) PRIMARY KEY," +
 				"last_geolocation_id INT(11))");
 
 		Log.i(TAG, "Recreating table " + USER_PREFERENCES);
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + USER_PREFERENCES + " (" +
-				"name VARCHAR(20)," +
+				"name VARCHAR(20) PRIMARY KEY," +
 				"preference VARCHAR(20)," +
 				"description VARCHAR(20)," +
 				"data_type VARCHAR(20))");
@@ -119,10 +119,10 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 
 
 		Log.i(TAG, "Recreating table " + REQUIRED_PERMS);
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + REQUIRED_PERMS + " (permission VARCHAR(50))");
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + REQUIRED_PERMS + " (permission VARCHAR(50) PRIMARY KEY)");
 
 		Log.i(TAG, "Recreating table " + PLACE_TYPES_OF_INTEREST);
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + PLACE_TYPES_OF_INTEREST + " (place_type_id VARCHAR(50))");
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + PLACE_TYPES_OF_INTEREST + " (place_type_id VARCHAR(50) PRIMARY KEY)");
 
 	    ArrayList <String> defaultPlaces = PlaceTypes.getDefaultPlaces();
 
