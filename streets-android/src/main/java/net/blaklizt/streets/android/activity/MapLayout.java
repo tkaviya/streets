@@ -17,6 +17,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -44,6 +45,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.common.utils.Optional;
 import net.blaklizt.streets.android.listener.EnableGPSDialogueListener;
 import net.blaklizt.streets.android.location.navigation.Directions;
 import net.blaklizt.streets.android.location.navigation.Navigator;
@@ -61,7 +63,6 @@ import java.util.Random;
 import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static android.support.v4.content.PermissionChecker.checkSelfPermission;
 import static java.lang.String.format;
-
 import static net.blaklizt.streets.android.listener.EnableGPSDialogueListener.EnableGPSOptionListener;
 
 /**
@@ -81,12 +82,15 @@ public class MapLayout extends Fragment
 
 	private class LocationTask extends AsyncTask<Void, Void, Void> {
 
-		ArrayList<Place> nearbyPlaces;
+        private final String TAG = StreetsCommon.getTag(LocationTask.class);
+
+        Optional<ArrayList<Place>> nearbyPlaces = Optional.empty();
 
 		ProgressDialog progressDialog;
 
 		@Override
 		protected Void doInBackground(Void... param) {
+            Log.i(TAG, "+++ doInBackground +++");
 
 			if (currentLocation != null) {
 				nearbyPlaces = PlacesService.nearby_search(
@@ -94,42 +98,48 @@ public class MapLayout extends Fragment
 						Startup.getStreetsCommon().getStreetsDBHelper().getPlacesOfInterest()
 				);
 			} else {
-				getActivity().runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						Toast.makeText(getActivity(), "Current location unknown.\n" +
-								"Check location settings.", Toast.LENGTH_LONG).show();
-					}
-				});
+                if (getView() != null) {
+                    getActivity().runOnUiThread(() -> Snackbar.make(getView(), "Current location unknown. Check location settings.", Snackbar.LENGTH_SHORT));
+                }
 			}
 			return null;
 		}
 
 		@Override
 		protected void onPreExecute() {
-			progressDialog = ProgressDialog.show(
-					getActivity(),
-					"Updating location",
-					"Updating location...",
-					true, true);
+            Log.i(TAG, "+++ onPreExecute +++");
+            super.onPreExecute();
+			progressDialog = ProgressDialog.show(getActivity(), "Updating location", "Updating location...", true, true);
 			progressDialog.show();
 		}
 
+        @Override
+        protected void onCancelled() {
+            Log.i(TAG, "+++ onCancelled +++");
+            super.onCancelled();
+        }
+
 		@Override
 		protected void onProgressUpdate(Void... progress) {
+            Log.i(TAG, "+++ onProgressUpdate +++");
+            super.onProgressUpdate();
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
-			googleMap.clear();
+            Log.i(TAG, "+++ onPostExecute +++");
+            super.onPostExecute(result);
 
-			if (nearbyPlaces != null) for (Place place : nearbyPlaces) {
-				drawPlaceMarker(place);
-			}
+            getGoogleMap().ifPresent(GoogleMap::clear);
 
-			progressDialog.hide();
+            if (nearbyPlaces != null && nearbyPlaces.isPresent()) {
+                ArrayList<Place> places = nearbyPlaces.get();
+                for (Place place : places) { drawPlaceMarker(place); }
+            }
 
-			runningTasks.remove(this);
+            if (progressDialog != null) { progressDialog.hide(); }
+
+            runningTasks.remove(this);
 		}
 	}
 
@@ -150,6 +160,7 @@ public class MapLayout extends Fragment
 	protected ImageView location_image;
 	protected TextView location_info;
 	protected LayoutInflater inflater;
+	protected ViewGroup container;
 	protected boolean isMapLoaded = false;
 	protected boolean arePermissionsGranted = false;
 
@@ -164,35 +175,17 @@ public class MapLayout extends Fragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		Log.i(TAG, "+++ ON CREATE VIEW +++");
-		Log.i(TAG, format("LayoutInflater: %s", inflater != null ? inflater.toString() : null));
-		Log.i(TAG, format("ViewGroup: %s", container != null ? container.getTag() : null));
+        super.onCreateView(inflater, container, savedInstanceState);
+        mapLayout = this;
+
+        Log.i(TAG, format("LayoutInflater: %s", inflater != null ? inflater.toString() : null));
+        Log.i(TAG, format("ViewGroup: %s", container != null ? container.getTag() : null));
 		Log.i(TAG, format("SavedInstanceState: %s", savedInstanceState != null ? savedInstanceState.toString() : null));
 
-		if (mapView == null) {
+        this.inflater = inflater;
+        this.container = container;
 
-			super.onCreateView(inflater, container, savedInstanceState);
-			setRetainInstance(true);
-			this.inflater = inflater;
-			mapView = inflater.inflate(R.layout.map_layout, container, false);
-			mapLayout = this;
-
-			location_image = (ImageView) mapView.findViewById(R.id.location_image_view);
-			location_info = (TextView) mapView.findViewById(R.id.location_categories_text_view);
-		}
-
-		if (!isMapLoaded) {
-			initializeMap();
-		}
-
-		if (locationManager == null) {
-			//at activity start, if user has not disabled location stuff, request permissions.
-			if (!arePermissionsGranted &&
-			   (Startup.getStreetsCommon().getUserPreferenceValue("suggest_gps").equals("1") ||
-				Startup.getStreetsCommon().getUserPreferenceValue("auto_enable_gps").equals("1"))) {
-				Startup.getStreetsCommon().setUserPreference("request_gps_perms", "1"); //reset preferences if permissions were updated
-			}
-			startLocationUpdates();
-		}
+        doInit();
 
 		randomNews.add("Weather is 17 degrees");
 		randomNews.add("Traffic expected for 2 hours");
@@ -206,6 +199,41 @@ public class MapLayout extends Fragment
 		return mapView;
 	}
 
+    public void doInit() {
+
+        if (mapView == null && inflater != null && container != null) {
+            Log.i(TAG, "Layout not inflated yet, inflating layout");
+            setRetainInstance(true);
+            mapView = inflater.inflate(R.layout.map_layout, container, false);
+            location_image = (ImageView) mapView.findViewById(R.id.location_image_view);
+            location_info = (TextView) mapView.findViewById(R.id.location_categories_text_view);
+        }
+
+        if (mapView == null) {
+            return;
+        }
+
+        if (!isMapLoaded) {
+            Log.i(TAG, "Map not loaded yet, initialize map");
+            initializeMap();
+        }
+
+        if (!getGoogleMap().isPresent()) {
+            return;
+        }
+
+        if (locationManager == null) {
+            Log.i(TAG, "Initializing location manager");
+            //at activity start, if user has not disabled location stuff, request permissions.
+            if (!arePermissionsGranted &&
+                    (Startup.getStreetsCommon().getUserPreferenceValue("suggest_gps").equals("1") ||
+                            Startup.getStreetsCommon().getUserPreferenceValue("auto_enable_gps").equals("1"))) {
+                Startup.getStreetsCommon().setUserPreference("request_gps_perms", "1"); //reset preferences if permissions were updated
+            }
+            startLocationUpdates();
+        }
+    }
+
 	@Override
 	public void onPause() {
 		Log.i(TAG, "+++ ON PAUSE +++");
@@ -213,9 +241,9 @@ public class MapLayout extends Fragment
 		for (AsyncTask runningTask : runningTasks) {
 			runningTask.cancel(true);
 		}
-		if (googleMap != null) {
-			googleMap.stopAnimation();
-		}
+
+        getGoogleMap().ifPresent(GoogleMap::stopAnimation);
+
 		runningTasks.clear();
 	}
 
@@ -223,17 +251,8 @@ public class MapLayout extends Fragment
 	public void onResume() {
 		Log.i(TAG, "+++ ON RESUME +++");
 		super.onResume();
-		try {
-			if (!isMapLoaded) {
-				initializeMap();
-			}
-			if (locationManager == null) {
-				startLocationUpdates();
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			Log.e(TAG, "Failed to resume streets map layout", ex);
-		}
+        mapLayout = this;
+		doInit();
 	}
 
 	@Override
@@ -410,6 +429,10 @@ public class MapLayout extends Fragment
         return arePermissionsGranted;
 	}
 
+	private Optional<GoogleMap> getGoogleMap() {
+		return googleMap != null ? Optional.of(googleMap) : Optional.empty();
+	}
+
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
@@ -563,9 +586,8 @@ public class MapLayout extends Fragment
     private void drawMarker(Location location){
         Log.i(TAG, "Found current location at " + location.getLatitude() + " : " + location.getLongitude());
         googleMap.clear();
-        LatLng currentPosition = new LatLng(location.getLatitude(),location.getLongitude());
         googleMap.addMarker(new MarkerOptions()
-                .position(currentPosition)
+                .position(new LatLng(location.getLatitude(),location.getLongitude()))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
                 .title("Your current location"));
     }
@@ -619,23 +641,27 @@ public class MapLayout extends Fragment
 
             if (firstLocationUpdate)
             {
-				//immediately prevent all other processes from updating
-				firstLocationUpdate = false;
-
 				// Showing the current location in Google Map
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
-                Log.i(TAG, "Camera moved to new location");
+				if (getGoogleMap().isPresent()) {
 
-                // Zoom in the Google Map
-                googleMap.animateCamera(CameraUpdateFactory.zoomTo(14), 3000, null);
-                Log.i(TAG, "Camera zoomed to view");
+					//prevent all other processes from updating
+					firstLocationUpdate = false;
 
-                location_image.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.default_icon));
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+                    Log.i(TAG, "Camera moved to new location");
+
+
+                    // Zoom in the Google Map
+                    googleMap.animateCamera(CameraUpdateFactory.zoomTo(14), 3000, null);
+                    Log.i(TAG, "Camera zoomed to view");
+
+                    location_image.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.default_icon));
 //                location_info.setText("Bugatti & Millitainment");
 
-                drawMarker(location);
+                    drawMarker(location);
 
-	            refreshLocation();
+                    refreshLocation();
+                }
             }
         }
         catch (Exception ex)

@@ -1,6 +1,7 @@
 package net.blaklizt.streets.android.activity;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -42,11 +43,7 @@ public class Startup extends AppCompatActivity implements
 
 			if (loginResponse == null)
 			{
-				runOnUiThread(new Runnable() {
-					@Override public void run() {
-						Toast.makeText(getInstance(), "Login Failed. Check Internet Connection.", Toast.LENGTH_SHORT).show();
-					}
-				});
+				runOnUiThread(() -> Toast.makeText(getInstance(), "Login Failed. Check Internet Connection.", Toast.LENGTH_SHORT).show());
 				return null;
 			}
 
@@ -72,14 +69,14 @@ public class Startup extends AppCompatActivity implements
 				else if (responseJSON.getInt("response_code") < 0)
 				{
 					Log.i(TAG, "Login failed with internal error: " + responseJSON.getString("response_message"));
-					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), "Login Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show(); } });
+					runOnUiThread(() -> Toast.makeText(getInstance(), "Login Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show());
 				}
 				else
 				{
 					final String loginResponseStr = responseJSON.getString("response_message");
 					Log.i(TAG, "Login failed: " + responseJSON.getString("response_message"));
 					getStreetsCommon().setUserPreference("auto_login", "0"); //disable auto login to prevent running out of attempts
-					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), loginResponseStr, Toast.LENGTH_SHORT).show(); } });
+					runOnUiThread(() -> Toast.makeText(getInstance(), loginResponseStr, Toast.LENGTH_SHORT).show());
 
 					if (--counter <= 0)
 					{
@@ -97,7 +94,7 @@ public class Startup extends AppCompatActivity implements
 			{
 				Log.e(TAG, "Login failed: " + e.getMessage(), e);
 				e.printStackTrace();
-				runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), "Login Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show(); } });
+				runOnUiThread(() -> Toast.makeText(getInstance(), "Login Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show());
 			}
 			return null;
 		}
@@ -153,13 +150,9 @@ public class Startup extends AppCompatActivity implements
 		{
 			ex.printStackTrace();
 			Log.e(TAG, "Failed to start application: " + ex.getMessage(), ex);
-			runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getApplication(), "Failed to start application! An error occurred.",
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
+			runOnUiThread(() ->
+                Toast.makeText(getApplication(), "Failed to start application! An error occurred.",
+                Toast.LENGTH_SHORT).show());
 			finish();
 		}
 	}
@@ -191,13 +184,10 @@ public class Startup extends AppCompatActivity implements
         videoView.setClickable(false);
         videoView.setSoundEffectsEnabled(false);
         videoView.requestFocus();
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                mp.setVolume(0, 0);
-                mp.setLooping(false);
-                videoView.start();
-            }
+        videoView.setOnPreparedListener(mp -> {
+            mp.setVolume(0, 0);
+            mp.setLooping(false);
+            videoView.start();
         });
         videoView.setOnCompletionListener(this);
     }
@@ -205,15 +195,25 @@ public class Startup extends AppCompatActivity implements
 	@Override
 	public void onClick(View view)
 	{
+        Log.i(TAG, "+++ ON CLICK +++");
 		new LoginTask().execute();
 	}
+
+    @Override
+    public void onResume() {
+        Log.i(TAG, "+++ ON RESUME +++");
+        super.onResume();
+        if (MenuActivity.getInstance() != null) {
+            onDestroy();
+        }
+    }
 
     @Override
     public void onDestroy() {
 		Log.i(TAG, "+++ ON DESTROY +++");
 		super.onDestroy();
-        if (streetsCommon != null) { streetsCommon.endApplication(); }
         if (videoView != null) { videoView.stopPlayback(); }
+        if (streetsCommon != null) { streetsCommon.endApplication(); }
     }
 
 	@Override

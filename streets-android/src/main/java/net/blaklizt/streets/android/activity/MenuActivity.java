@@ -216,8 +216,8 @@ public class MenuActivity extends AppCompatActivity implements
 //            case R.id.action_settings:
 //                return true;
             case R.id.action_dashboard:
-                resideMenu.setSwipeDirectionEnable(ResideMenu.DIRECTION_RIGHT);
                 resideMenu.openMenu(ResideMenu.DIRECTION_RIGHT);
+                resideMenu.setSwipeDirectionEnable(ResideMenu.DIRECTION_RIGHT);
                 return true;
 //            case R.id.action_get_location:
 //                pager.setCurrentItem(0);

@@ -26,7 +26,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
     private static final String TAG = StreetsCommon.getTag(StreetsDBHelper.class);
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 1;
 
 	private static final String DATABASE_NAME = "Neighbourhood.db";
 
@@ -220,7 +220,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 			Log.i(TAG, "Searching for nearby friends.");
 			ArrayList<Place> resultList = new ArrayList<>();
 			Cursor friends = getStreetsWritableDatabase().rawQuery(
-				"SELECT ft.username, pt.reference, pt.latitude, pt.longitude, pt.place_id " +
+				"SELECT 'username', pt.reference, pt.latitude, pt.longitude, pt.place_id " +
 				"FROM " + FRIEND_TABLE + " ft, " + PLACE_TABLE + " pt " +
 				"WHERE ft.last_place_id = pt.place_id", null);
 
@@ -256,7 +256,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 			Log.i(TAG, "Getting list of places of interest .");
 			ArrayList<String> resultList = new ArrayList<>();
 			Cursor places = getStreetsWritableDatabase().rawQuery(
-					"SELECT pt.place_type FROM " + PLACE_TYPES_OF_INTEREST + " poi, " + PLACE_TYPE_TABLE + " pt," +
+					"SELECT pt.type FROM " + PLACE_TYPES_OF_INTEREST + " poi, " + PLACE_TYPE_TABLE + " pt " +
 					"WHERE poi.place_type_id = pt.type_id", null);
 
 			Log.i(TAG, "Found " + places.getCount() + " places.");

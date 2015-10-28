@@ -12,6 +12,7 @@ import android.util.Log;
 
 import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.common.utils.Optional;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,9 +25,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
-/**
- * @author saxman
- */
 public class PlacesService {
 
     private static final String TAG = StreetsCommon.getTag(PlacesService.class);
@@ -39,8 +37,7 @@ public class PlacesService {
 
     private static final String OUT_JSON = "/json";
 
-    // KEY!
-    private static final String PLACES_API_KEY = "AIzaSyD3e6Act_-IHtKtWmtRwyt6ftLQ90eOvcE";//Configuration.getInstance().getProperty("googleAPIKey");
+    private static final String PLACES_API_KEY = "AIzaSyD3e6Act_-IHtKtWmtRwyt6ftLQ90eOvcE";
 
 //    public static ArrayList<Place> autocomplete(String input) {
 //        ArrayList<Place> resultList = null;
@@ -167,25 +164,25 @@ public class PlacesService {
 //        return resultList;
 //    }
 
-    public static ArrayList<Place> nearby_search(double lat, double lng, int radius, ArrayList<String> types) {
+    public static Optional<ArrayList<Place>> nearby_search(double lat, double lng, int radius, ArrayList<String> types) {
         Log.i(TAG, "Searching for places near current location");
         ArrayList<Place> resultList = null;
-
         HttpURLConnection conn = null;
         StringBuilder jsonResults = new StringBuilder();
         try {
             StringBuilder sb = new StringBuilder(PLACES_API_BASE);
-            sb.append(TYPE_NEARBY_SEARCH);
-            sb.append(OUT_JSON);
-            sb.append("?sensor=false");
-            sb.append("&key=" + PLACES_API_KEY);
-            sb.append("&location=" + String.valueOf(lat) + "," + String.valueOf(lng));
-            sb.append("&radius=" + String.valueOf(radius));
 
-            if (types.size() > 0) sb.append("&types=");
-            for (int c = 0; c < types.size(); c++) {
-                sb.append(types.get(c));
-                if (c != types.size() - 1) sb.append("|");
+            sb.append(TYPE_NEARBY_SEARCH).append(OUT_JSON)
+                    .append("?sensor=false").append("&key=" + PLACES_API_KEY)
+                    .append("&location=").append(String.valueOf(lat)).append(",").append(String.valueOf(lng))
+                    .append("&radius=").append(String.valueOf(radius));
+
+            if (types != null && types.size() > 0) {
+                sb.append("&types=");
+                for (int c = 0; c < types.size(); c++) {
+                    sb.append(types.get(c));
+                    if (c != types.size() - 1) { sb.append("|"); }
+                }
             }
 
             Log.i(TAG, "Connecting to URL " + sb.toString());
@@ -202,19 +199,6 @@ public class PlacesService {
 
             Log.d(TAG, "Got result: " + jsonResults.toString());
 
-        } catch (MalformedURLException e) {
-            Log.e(TAG, "Error processing Places API URL for nearby search", e);
-            return resultList;
-        } catch (IOException e) {
-            Log.e(TAG, "Error connecting to Places API for nearby search", e);
-            return resultList;
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
-
-        try {
             // Create a JSON object hierarchy from the results
             JSONObject jsonObj = new JSONObject(jsonResults.toString());
             JSONArray predsJsonArray = jsonObj.getJSONArray("results");
@@ -226,23 +210,27 @@ public class PlacesService {
             for (int i = 0; i < predsJsonArray.length(); i++) {
                 JSONArray typeArray = predsJsonArray.getJSONObject(i).getJSONArray("types");
                 Place place = new Place(
-                    predsJsonArray.getJSONObject(i).getString("name"),
-                    predsJsonArray.getJSONObject(i).getString("reference"),
-                    predsJsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
-                    predsJsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getDouble("lng"),
-                    typeArray.getString(0).replaceAll("_", " "),
+                        predsJsonArray.getJSONObject(i).getString("name"),
+                        predsJsonArray.getJSONObject(i).getString("reference"),
+                        predsJsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
+                        predsJsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getDouble("lng"),
+                        typeArray.getString(0).replaceAll("_", " "),
 //					CommonUtilities.toCamelCase(typeArray.getString(0).replaceAll("_", " ")),
-                    predsJsonArray.getJSONObject(i).getString("icon")
+                        predsJsonArray.getJSONObject(i).getString("icon")
                 );
                 place.formatted_address = predsJsonArray.getJSONObject(i).getString("vicinity");
-                Log.i(TAG, "Adding place to response: " + place.name + " : " + place.type.toString());
+                Log.i(TAG, "Adding place to response: " + place.name + " : " + place.type);
                 resultList.add(place);
             }
+        } catch (MalformedURLException e) {
+            Log.e(TAG, "Error processing Places API URL for nearby search", e);
+        } catch (IOException e) {
+            Log.e(TAG, "Error connecting to Places API for nearby search", e);
         } catch (JSONException e) {
             Log.e(TAG, "Error processing nearby search JSON results", e);
-        }
+        } finally { if (conn != null) { conn.disconnect(); } }
 
-        return resultList;
+        return Optional.ofNullable(resultList);
     }
 
 //    public static Place details(String reference) {
