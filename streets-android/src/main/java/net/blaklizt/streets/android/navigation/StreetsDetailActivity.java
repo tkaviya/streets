@@ -34,7 +34,7 @@ public class StreetsDetailActivity extends AppCompatActivity {
 //    @Override
 //    public void onCreate(Bundle savedInstanceState) {
 //        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_profile);
+//        setContentView(R.layout.profile_layout);
 //
 //        Intent intent = getIntent();
 //        final String cheeseName = intent.getStringExtra(EXTRA_NAME);

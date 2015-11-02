@@ -43,7 +43,7 @@ public class NavigationLayout extends Fragment
         setRetainInstance(true);
         this.inflater = inflater;
         navigationLayout = this;
-        View view = inflater.inflate(R.layout.nav_layout, container, false);
+        View view = inflater.inflate(R.layout.navigation_layout, container, false);
 
         // Inflate the layout for this fragment
 	    navigation_steps = (ExpandableListView)view.findViewById(R.id.nav_location_steps);

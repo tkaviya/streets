@@ -49,8 +49,8 @@
 
     <!-- Location Strings -->
     <string name="location_image">Location Image</string>
-    <string name="drawer_open">Open Drawer</string>
-    <string name="drawer_close">Close Drawer</string>
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
     <string name="login_header_text">LOGIN</string>
     <string name="marker_info_default_text">Click on a marker for more information</string>
 

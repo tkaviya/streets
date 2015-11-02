@@ -6,13 +6,17 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.StreetsCommon;
-import net.blaklizt.streets.android.common.UserPreference;
+import net.blaklizt.streets.android.common.SymbiosisUser;
+import net.blaklizt.streets.android.common.utils.SecurityContext;
 import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.location.places.PlaceTypes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import static java.lang.String.format;
 
 /**
  * User: tkaviya
@@ -55,68 +59,75 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 
 		Log.i(TAG, "Recreating table " + USER_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + USER_TABLE + " (" +
-				"symbiosis_id INT(11) PRIMARY KEY," +
-				"imei VARCHAR(256)," +
-				"imsi VARCHAR(128)," +
-				"password VARCHAR(50)," +
-				"last_location_id INT(11)," +
-				"home_place_id INT(11)," +
-				"type VARCHAR(50))");
+                "symbiosis_id INT(11) PRIMARY KEY," +
+                "username VARCHAR(256)," +
+                "imei VARCHAR(256)," +
+                "imsi VARCHAR(128)," +
+                "password VARCHAR(50)," +
+                "last_location_id INT(11)," +
+                "home_place_id INT(11)," +
+                "type VARCHAR(50))");
 
         //fixed places that are never remove
 		Log.i(TAG, "Recreating table " + PLACE_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + PLACE_TABLE + " (" +
-				"place_id INT(11) PRIMARY KEY," +
-				"place_type_id INT(11)," +
-				"name VARCHAR(50)," +
-				"reference VARCHAR(100)," +
-				"latitude DOUBLE," +
-				"longitude DOUBLE," +
-				"type VARCHAR(50))");
+                "place_id INT(11) PRIMARY KEY," +
+                "place_type_id INT(11)," +
+                "name VARCHAR(50)," +
+                "reference VARCHAR(100)," +
+                "latitude DOUBLE," +
+                "longitude DOUBLE," +
+                "type VARCHAR(50))");
 
         //table the grows and is truncated after a while
 		Log.i(TAG, "Recreating table " + LOCATION_HISTORY_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + LOCATION_HISTORY_TABLE + " (" +
-				"location_history_id INT(11) PRIMARY KEY," +
-				"latitude DOUBLE," +
-				"longitude DOUBLE," +
-				"update_date_time DATETIME)");
+                "location_history_id INT(11) PRIMARY KEY," +
+                "latitude DOUBLE," +
+                "longitude DOUBLE," +
+                "update_date_time DATETIME)");
 
 		Log.i(TAG, "Recreating table " + PLACE_TYPE_TABLE);
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + PLACE_TYPE_TABLE + " (" +
-				"type_id INT(11) PRIMARY KEY," +
-				"type VARCHAR(50))");
+                "type_id INT(11) PRIMARY KEY," +
+                "type VARCHAR(50))");
 
 		Log.i(TAG, "Recreating table " + FRIEND_TABLE);
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + FRIEND_TABLE + " (" +
-				"symbiosis_id INT(11) PRIMARY KEY," +
-				"last_place_id INT(11)," +
-				"home_place_id INT(11))");
+                "symbiosis_id INT(11) PRIMARY KEY," +
+                "last_place_id INT(11)," +
+                "home_place_id INT(11))");
 
 		Log.i(TAG, "Recreating table " + SUPPLIER_TABLE);
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + SUPPLIER_TABLE + " (" +
-				"symbiosis_id INT(11) PRIMARY KEY," +
-				"last_geolocation_id INT(11))");
+                "symbiosis_id INT(11) PRIMARY KEY," +
+                "last_geolocation_id INT(11))");
 
 		Log.i(TAG, "Recreating table " + USER_PREFERENCES);
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + USER_PREFERENCES + " (" +
-				"name VARCHAR(20) PRIMARY KEY," +
-				"preference VARCHAR(20)," +
-				"description VARCHAR(20)," +
-				"data_type VARCHAR(20))");
+                "name VARCHAR(20) PRIMARY KEY," +
+                "preference VARCHAR(20)," +
+                "description VARCHAR(20)," +
+                "data_type VARCHAR(20))");
 
 		db.execSQL("REPLACE INTO " + USER_PREFERENCES + " (name, preference, description, data_type) VALUES " +
-				"('show_intro',			'1', 'Enable intro video',	'boolean')," +
-				"('auto_login',			'0', 'Login automatically',	'boolean')," +
-				"('suggest_gps',		'1', 'Ask to enable GPS',	'boolean')," +
-				"('auto_enable_gps',	'1', 'Auto enable GPS',		'boolean')," +
-				"('show_location',		'1', 'Share location',		'boolean')," +
-				"('show_distance',		'1', 'Share distance',		'boolean')," +
-				"('receive_requests',	'1', 'Allow interaction',	'boolean')," +
-				"('show_history', 		'1', 'Show history',		'boolean')," +
-				"('ask_on_exit', 		'1', 'Check before exiting','boolean')," +
-				"('request_gps_perms',	'1', 'Ask GPS permissions', 'boolean')");
+                "('show_intro',			'1', 'Enable intro video',	'boolean')," +
+                "('auto_login',			'0', 'Login automatically',	'boolean')," +
+                "('suggest_gps',		'1', 'Ask to enable GPS',	'boolean')," +
+                "('auto_enable_gps',	'1', 'Auto enable GPS',		'boolean')," +
+                "('show_location',		'1', 'Share location',		'boolean')," +
+                "('show_distance',		'1', 'Share distance',		'boolean')," +
+                "('receive_requests',	'1', 'Allow interaction',	'boolean')," +
+                "('show_history', 		'1', 'Show history',		'boolean')," +
+                "('ask_on_exit', 		'1', 'Check before exiting','boolean')," +
+                "('request_gps_perms',	'1', 'Ask GPS permissions', 'boolean')");
 
+		Log.i(TAG, "Populating data for current user " + REQUIRED_PERMS);
+		db.execSQL(format("INSERT INTO " + USER_TABLE +
+                " (symbiosis_id,username,imei,imsi,password,last_location_id,home_place_id,type) VALUES" +
+                " (0, null, %s, %s, null, null, null, 'USER')",
+                Startup.getStreetsCommon().getIMEI(),
+                Startup.getStreetsCommon().getIMSI()));
 
 		Log.i(TAG, "Recreating table " + REQUIRED_PERMS);
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + REQUIRED_PERMS + " (permission VARCHAR(50) PRIMARY KEY)");
@@ -165,44 +176,35 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 	//database functions
 	public HashMap<String, HashMap<String, String>> getUserPreferences()
 	{
-		try
-		{
-			Log.i(TAG, "Checking user preferences.");
-            HashMap<String, String> userPreferenceValues = new HashMap<>();
-            HashMap<String, String> userPreferenceDescriptions = new HashMap<>();
-            HashMap<String, String> userPreferenceTypes = new HashMap<>();
+        Log.i(TAG, "Checking user preferences.");
+        HashMap<String, String> userPreferenceValues = new HashMap<>();
+        HashMap<String, String> userPreferenceDescriptions = new HashMap<>();
+        HashMap<String, String> userPreferenceTypes = new HashMap<>();
 
-			Cursor preferences = getStreetsWritableDatabase().rawQuery(
-				"SELECT name, preference, description, data_type FROM " + USER_PREFERENCES, null);
+        Cursor preferences = getStreetsWritableDatabase().rawQuery(
+            "SELECT name, preference, description, data_type FROM " + USER_PREFERENCES, null);
 
-			Log.i(TAG, "Found " + preferences.getCount() + " preferences.");
-			preferences.moveToFirst();
-			while (!preferences.isAfterLast())
-			{
-				Log.d(TAG, "Adding "
-					+ preferences.getString(3) + " preference: "
-					+ preferences.getString(0) + " = "
-					+ preferences.getString(1) + " : "
-					+ preferences.getString(2));
-                userPreferenceValues		.put(preferences.getString(0), preferences.getString(1)); //value
-				userPreferenceDescriptions	.put(preferences.getString(0), preferences.getString(2)); //description
-				userPreferenceTypes			.put(preferences.getString(0), preferences.getString(3)); //data_type
-				preferences.moveToNext();
-			}
+        Log.i(TAG, "Found " + preferences.getCount() + " preferences.");
+        preferences.moveToFirst();
+        while (!preferences.isAfterLast())
+        {
+            Log.d(TAG, "Adding "
+                + preferences.getString(3) + " preference: "
+                + preferences.getString(0) + " = "
+                + preferences.getString(1) + " : "
+                + preferences.getString(2));
+            userPreferenceValues		.put(preferences.getString(0), preferences.getString(1)); //value
+            userPreferenceDescriptions	.put(preferences.getString(0), preferences.getString(2)); //description
+            userPreferenceTypes			.put(preferences.getString(0), preferences.getString(3)); //data_type
+            preferences.moveToNext();
+        }
 
-			HashMap<String, HashMap<String, String>> prefInfo = new HashMap<>();
-			prefInfo.put("values", userPreferenceValues);
-			prefInfo.put("descriptions", userPreferenceDescriptions);
-			prefInfo.put("data_types", userPreferenceTypes);
+        HashMap<String, HashMap<String, String>> prefInfo = new HashMap<>();
+        prefInfo.put("values", userPreferenceValues);
+        prefInfo.put("descriptions", userPreferenceDescriptions);
+        prefInfo.put("data_types", userPreferenceTypes);
 
-			return prefInfo;
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			Log.e(TAG, "Failed to get user preferences: " + e.getMessage(), e);
-			return null;
-		}
+        return prefInfo;
 	}
 
 	public void setUserPreference(String preference, String value, String description, String data_type)
@@ -215,67 +217,69 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 
 	public ArrayList<Place> getNearbyFriendLocations()
 	{
-		try
-		{
-			Log.i(TAG, "Searching for nearby friends.");
-			ArrayList<Place> resultList = new ArrayList<>();
-			Cursor friends = getStreetsWritableDatabase().rawQuery(
-				"SELECT 'username', pt.reference, pt.latitude, pt.longitude, pt.place_id " +
-				"FROM " + FRIEND_TABLE + " ft, " + PLACE_TABLE + " pt " +
-				"WHERE ft.last_place_id = pt.place_id", null);
+        Log.i(TAG, "Searching for nearby friends.");
+        ArrayList<Place> resultList = new ArrayList<>();
+        Cursor friends = getStreetsWritableDatabase().rawQuery(
+            "SELECT 'username', pt.reference, pt.latitude, pt.longitude, pt.place_id " +
+            "FROM " + FRIEND_TABLE + " ft, " + PLACE_TABLE + " pt " +
+            "WHERE ft.last_place_id = pt.place_id", null);
 
-			Log.i(TAG, "Found " + friends.getCount() + " friends.");
-			friends.moveToFirst();
-			while (!friends.isAfterLast())
-			{
-				Log.i(TAG, "Adding friend: " + friends.getString(0));
-				resultList.add(new Place(
-					friends.getString(0),
-					friends.getString(1),
-					friends.getDouble(2),
-					friends.getDouble(3),
-					friends.getString(4),
-					null));
-				friends.moveToNext();
-			}
+        Log.i(TAG, "Found " + friends.getCount() + " friends.");
+        friends.moveToFirst();
+        while (!friends.isAfterLast())
+        {
+            Log.i(TAG, "Adding friend: " + friends.getString(0));
+            resultList.add(new Place(
+                friends.getString(0),
+                friends.getString(1),
+                friends.getDouble(2),
+                friends.getDouble(3),
+                friends.getString(4),
+                null));
+            friends.moveToNext();
+        }
 
-			return resultList;
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			Log.e(TAG, "Failed to get nearby friend locations: " + e.getMessage(), e);
-			return null;
-		}
+        return resultList;
 	}
 
-	public ArrayList<String> getPlacesOfInterest()
+    public SymbiosisUser getCurrentUser()
 	{
-		try
-		{
-			Log.i(TAG, "Getting list of places of interest .");
-			ArrayList<String> resultList = new ArrayList<>();
-			Cursor places = getStreetsWritableDatabase().rawQuery(
-					"SELECT pt.type FROM " + PLACE_TYPES_OF_INTEREST + " poi, " + PLACE_TYPE_TABLE + " pt " +
-					"WHERE poi.place_type_id = pt.type_id", null);
+        Log.i(TAG, "Getting symbiosis user details.");
 
-			Log.i(TAG, "Found " + places.getCount() + " places.");
-			places.moveToFirst();
-			while (!places.isAfterLast())
-			{
-				Log.d(TAG, "Adding place: " + places.getString(0));
-				resultList.add(places.getString(0));
-				places.moveToNext();
-			}
+        Cursor symbiosisUser = getStreetsWritableDatabase().rawQuery(
+            "SELECT symbiosis_id, username, imei, imsi, password, last_location_id, home_place_id, type " +
+            "FROM " + USER_TABLE + " WHERE type = 'USER' LIMIT 1", null);
 
-			return resultList;
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			Log.e(TAG, "Failed to get nearby friend locations: " + e.getMessage(), e);
-			return null;
-		}
+        Log.i(TAG, "Found " + symbiosisUser.getCount() + " records.");
+
+        symbiosisUser.moveToFirst();
+
+        Log.i(TAG, "Populating data for user id: " + symbiosisUser.getString(0));
+
+        return new SymbiosisUser(
+            symbiosisUser.getLong(0),   symbiosisUser.getString(1), symbiosisUser.getString(2),
+            symbiosisUser.getString(3), symbiosisUser.getString(4), symbiosisUser.getLong(5),
+            symbiosisUser.getLong(6),   symbiosisUser.getString(7));
+	}
+
+    public ArrayList<String> getPlacesOfInterest()
+	{
+        Log.i(TAG, "Getting list of places of interest .");
+        ArrayList<String> resultList = new ArrayList<>();
+        Cursor places = getStreetsWritableDatabase().rawQuery(
+                "SELECT pt.type FROM " + PLACE_TYPES_OF_INTEREST + " poi, " + PLACE_TYPE_TABLE + " pt " +
+                "WHERE poi.place_type_id = pt.type_id", null);
+
+        Log.i(TAG, "Found " + places.getCount() + " places.");
+        places.moveToFirst();
+        while (!places.isAfterLast())
+        {
+            Log.d(TAG, "Adding place: " + places.getString(0));
+            resultList.add(places.getString(0));
+            places.moveToNext();
+        }
+
+        return resultList;
 	}
 
     public void addPlaceOfInterest(String place) {
@@ -305,28 +309,39 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 	}
 
 	public ArrayList<String> getOutstandingPermissions() {
-		try
-		{
-			Log.i(TAG, "Getting list of outstanding permissions.");
-			ArrayList<String> resultList = new ArrayList<>();
-			Cursor permissions = getStreetsWritableDatabase().rawQuery("SELECT permission FROM " + REQUIRED_PERMS, null);
+        Log.i(TAG, "Getting list of outstanding permissions.");
+        ArrayList<String> resultList = new ArrayList<>();
+        Cursor permissions = getStreetsWritableDatabase().rawQuery("SELECT permission FROM " + REQUIRED_PERMS, null);
 
-			Log.i(TAG, "Found " + permissions.getCount() + " permissions.");
-			permissions.moveToFirst();
-			while (!permissions.isAfterLast())
-			{
-				Log.d(TAG, "Adding permission: " + permissions.getString(0));
-				resultList.add(permissions.getString(0));
-				permissions.moveToNext();
-			}
+        Log.i(TAG, "Found " + permissions.getCount() + " permissions.");
+        permissions.moveToFirst();
+        while (!permissions.isAfterLast())
+        {
+            Log.d(TAG, "Adding permission: " + permissions.getString(0));
+            resultList.add(permissions.getString(0));
+            permissions.moveToNext();
+        }
 
-			return resultList;
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			Log.e(TAG, "Failed to get outstanding permissions: " + e.getMessage(), e);
-			return null;
-		}
+        return resultList;
 	}
+
+    public void saveCurrentUser(SymbiosisUser symbiosisUser) {
+
+        Startup.getSecurityContext().verifyUserDetails(symbiosisUser);
+
+        Log.i(TAG, "Updating symbiosis user details.");
+
+        getWritableDatabase().execSQL(format("REPLACE INTO " + USER_TABLE +
+                        " (symbiosis_id,username,imei,imsi,password,last_location_id,home_place_id,type) VALUES" +
+                        " (%d, %s, %s, %s, %s, %d, %d, %s)",
+                symbiosisUser.symbiosisUserID,
+                "'" + symbiosisUser.username + "'",
+                "'" + symbiosisUser.imei + "'",
+                "'" + symbiosisUser.imsi + "'",
+                "'" + symbiosisUser.password + "'",
+                symbiosisUser.lastLocationID,
+                symbiosisUser.homePlaceID,
+                "'" + symbiosisUser.type + "'"
+        ));
+    }
 }

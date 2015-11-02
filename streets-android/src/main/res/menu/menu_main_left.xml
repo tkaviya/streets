@@ -14,16 +14,14 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/menu_left_header">
 
-    <!--<group-->
-        <!--android:checkableBehavior="all"-->
-        <!--android:id="@+id/streets_options">-->
+    <group android:id="@+id/streets_options"
+           android:checkableBehavior="all">
+    </group>
 
-    <!--</group>-->
-
-    <!--<item android:title="Recent Searches">-->
-        <!--<menu>-->
+    <item android:id="@+id/item_recent_searches" android:title="Recent Searches">
+    <menu android:id="@+id/menu_recent_searches">
             <!--<item-->
                 <!--android:icon="@drawable/ic_cast_light"-->
                 <!--android:title="A grade shit" />-->
@@ -33,7 +31,7 @@
             <!--<item-->
                 <!--android:icon="@drawable/ic_cast_light"-->
                 <!--android:title="Snow white fresh" />-->
-        <!--</menu>-->
-    <!--</item>-->
+        </menu>
+    </item>
 
 </menu>

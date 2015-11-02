@@ -54,7 +54,7 @@ public class PlacesListAdapter extends BaseExpandableListAdapter
 		if (convertView == null) {
 			convertView = inflater.inflate(R.layout.listrow_details, null);
 		}
-		text = (TextView) convertView.findViewById(R.id.textView1);
+		text = (TextView) convertView.findViewById(R.id.navigationItemText);
 		text.setText(children);
 		convertView.setOnClickListener(new OnClickListener() {
 			@Override
