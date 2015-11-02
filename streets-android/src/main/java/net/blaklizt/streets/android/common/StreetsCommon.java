@@ -2,8 +2,13 @@ package net.blaklizt.streets.android.common;
 
 import android.app.Activity;
 import android.content.Context;
+import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
+import android.telephony.TelephonyManager;
 import android.util.Log;
+
+import net.blaklizt.streets.android.activity.Startup;
+import net.blaklizt.streets.android.common.utils.Validator;
 import net.blaklizt.streets.android.persistence.StreetsDBHelper;
 
 import java.util.ArrayList;
@@ -33,8 +38,10 @@ public class StreetsCommon
 	//Application context
 	private Context context = null;
 
-	//Applicate user
-	private Integer symbiosisUserID = 0;
+	//Application user
+	private SymbiosisUser symbiosisUser = null;
+	private String imei = null;
+	private String imsi = null;
 
 	//Streets DB classes
 	protected static StreetsDBHelper streetsDBHelper = null;
@@ -50,20 +57,20 @@ public class StreetsCommon
 	private static HashMap<String, String> userPreferenceDescriptions = new HashMap<>();
 	private static HashMap<String, String> userPreferenceTypes = new HashMap<>();
 
-	public static StreetsCommon getInstance(Context context, Integer symbiosisUserID)
+	public static StreetsCommon getInstance(Context context)
 	{
 		if (streetsCommon == null) {
-			streetsCommon = new StreetsCommon(context, symbiosisUserID);
+			streetsCommon = new StreetsCommon(context);
             Log.i(TAG, "Created new instance of StreetsCommon");
 		}
 		return streetsCommon;
 	}
 
-	private StreetsCommon(Context context, Integer symbiosisUserID)
+	private StreetsCommon(Context context)
 	{
 		this.context = context;
 
-		this.symbiosisUserID = symbiosisUserID;
+        streetsCommon = this;
 
 		//initialize DB
 		getStreetsDBHelper();
@@ -188,4 +195,47 @@ public class StreetsCommon
 	public void removeOutstandingPermission(String permission) {
 		getStreetsDBHelper().removeOutstandingPermission(permission);
 	}
+
+    public SymbiosisUser getSymbiosisUser() {
+        if (symbiosisUser == null) {
+            symbiosisUser = getStreetsDBHelper().getCurrentUser();
+            Log.i(TAG, "Got current symbiosis user details for user id: " + symbiosisUser.symbiosisUserID);
+            Log.i(TAG, "username -> " + symbiosisUser.username);
+            Log.i(TAG, "imei     -> " + symbiosisUser.imei);
+            Log.i(TAG, "imsi     -> " + symbiosisUser.imsi);
+        }
+        return symbiosisUser;
+    }
+
+    public void saveUserDetails() {
+        getStreetsDBHelper().saveCurrentUser(symbiosisUser);
+    }
+
+    public String getIMEI() {
+        if (Validator.isNullOrEmpty(this.imei)) {
+            TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            if (telephonyManager != null && !Validator.isNullOrEmpty(this.imei = telephonyManager.getDeviceId())) {
+                Log.i(TAG, "Service 'TelephonyManager' returned IMEI: " + this.imei);
+            } else {
+                this.imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+                Log.i(TAG, "TelephonyManager was null. Service 'Settings.Secure' returned IMEI: " + this.imei);
+            }
+        }
+        return this.imei;
+    }
+
+    public String getIMSI() {
+        if (Validator.isNullOrEmpty(this.imsi)) {
+            TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            if (telephonyManager != null && !Validator.isNullOrEmpty(this.imsi = telephonyManager.getSimSerialNumber())) {
+                Log.i(TAG, "Service 'TelephonyManager' returned IMSI: " + this.imsi);
+            }
+        }
+        return this.imsi;
+    }
+
+    public void setUserID(Long userID) {
+        getSymbiosisUser().symbiosisUserID = userID;
+        saveUserDetails();
+    }
 }

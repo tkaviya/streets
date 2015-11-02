@@ -41,7 +41,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.MenuActivity"
+        <activity android:name=".activity.MenuLayout"
             android:launchMode="singleInstance"
             android:parentActivityName=".activity.Startup"
             android:icon="@drawable/default_icon"
@@ -63,14 +63,6 @@
                   <!--android:label="@string/app_name"-->
                   <!--android:configChanges="orientation|keyboardHidden">-->
         <!--</activity>-->
-        <activity android:name=".activity.Streets"
-                  android:launchMode="singleInstance"
-                  android:parentActivityName=".activity.Startup"
-                  android:icon="@drawable/default_icon"
-                  android:label="@string/app_name"
-                  android:screenOrientation="portrait"
-                  android:configChanges="orientation|keyboardHidden">
-        </activity>
     </application>
 
 </manifest>

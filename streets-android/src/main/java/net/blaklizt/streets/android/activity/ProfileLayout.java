@@ -25,7 +25,7 @@ public class ProfileLayout extends Fragment
 		Log.i(TAG, "+++ ON CREATE VIEW +++");
 		super.onCreateView(inflater, container, savedInstanceState);
 		this.inflater = inflater;
-		View view = inflater.inflate(R.layout.activity_profile, container, false);
+		View view = inflater.inflate(R.layout.profile_layout, container, false);
 		profileLayout = this;
         return view;
 	}

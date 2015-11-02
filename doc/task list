@@ -26,3 +26,7 @@ ratings -> referral, jobs, feedback, usage, advertising
 
 power hour
 taxi operators
+
+
+bugs:
+attach to root on createView

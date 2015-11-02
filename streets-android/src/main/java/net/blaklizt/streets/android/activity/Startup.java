@@ -1,7 +1,6 @@
 package net.blaklizt.streets.android.activity;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -10,9 +9,16 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.Toast;
+import android.widget.VideoView;
+
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.common.utils.SecurityContext;
+
 import org.json.JSONObject;
 
 /**
@@ -39,7 +45,7 @@ public class Startup extends AppCompatActivity implements
 			Log.i(TAG, "Authenticating...");
 
 //			ServerCommunication.sendServerRequest("action=Login&channel=" + StreetsCommon.CHANNEL + "&username=" + username.getText().toString() + "&edtPassword=" + edtPassword.getText().toString());
-			String loginResponse = "{response_code:1, response_message:\"success\"}";
+			String loginResponse = "{response_code:1, response_message:\"success\", symbiosis_user_id:1}";
 
 			if (loginResponse == null)
 			{
@@ -53,6 +59,9 @@ public class Startup extends AppCompatActivity implements
 
 				if (responseJSON.getInt("response_code") == 1)//ResponseCode.SUCCESS.getValue())
 				{
+                    Long symbiosisUserID = responseJSON.getLong("symbiosis_user_id");
+                    getStreetsCommon().setUserID(symbiosisUserID);
+
 					Log.i(TAG, "Login successful");
 					runOnUiThread(new Runnable() {
 						@Override public void run() {
@@ -63,7 +72,7 @@ public class Startup extends AppCompatActivity implements
 						}
 					});
 
-					Intent mainActivity = new Intent(getInstance(), MenuActivity.class);
+					Intent mainActivity = new Intent(getInstance(), MenuLayout.class);
 					startActivity(mainActivity);
 				}
 				else if (responseJSON.getInt("response_code") < 0)
@@ -99,7 +108,6 @@ public class Startup extends AppCompatActivity implements
 			return null;
 		}
 
-
 		@Override
 		protected void onPreExecute()
 		{
@@ -124,6 +132,8 @@ public class Startup extends AppCompatActivity implements
 	private static Startup startup;
 
     private static StreetsCommon streetsCommon = null;
+
+    private static SecurityContext securityContext = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -172,9 +182,17 @@ public class Startup extends AppCompatActivity implements
 
     public static StreetsCommon getStreetsCommon() {
         if (streetsCommon == null) {
-            streetsCommon = StreetsCommon.getInstance(getInstance(), 0);
+            streetsCommon = StreetsCommon.getInstance(getInstance());
         }
         return streetsCommon;
+    }
+
+    public static SecurityContext getSecurityContext() {
+
+        if (securityContext == null) {
+            securityContext = SecurityContext.getInstance(getInstance());
+        }
+        return securityContext;
     }
 
     public void playIntroVideo() {
@@ -203,7 +221,7 @@ public class Startup extends AppCompatActivity implements
     public void onResume() {
         Log.i(TAG, "+++ ON RESUME +++");
         super.onResume();
-        if (MenuActivity.getInstance() != null) {
+        if (MenuLayout.getInstance() != null) {
             onDestroy();
         }
     }
