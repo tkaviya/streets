@@ -82,12 +82,7 @@ public class MenuLayout extends AppCompatActivity implements ViewAnimator.ViewAn
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerLayout.setScrimColor(Color.TRANSPARENT);
         linearLayout = (LinearLayout) findViewById(R.id.left_drawer);
-        linearLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawerLayout.closeDrawers();
-            }
-        });
+        linearLayout.setOnClickListener(v -> drawerLayout.closeDrawers());
 
 
         setActionBar();

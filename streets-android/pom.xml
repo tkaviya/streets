@@ -40,7 +40,7 @@
         <!--</repository>-->
     <!--</repositories>-->
 
-    <!--<dependencies>-->
+    <!--<processDependencies>-->
         <!--<dependency>-->
             <!--<groupId>com.google.android</groupId>-->
             <!--<artifactId>android</artifactId>-->
@@ -87,7 +87,7 @@
             <!--<artifactId>universal-image-loader</artifactId>-->
             <!--<version>1.9.2</version>-->
         <!--</dependency &ndash;&gt;-->
-    <!--</dependencies>-->
+    <!--</processDependencies>-->
 
 
     <!--<build>-->

@@ -11,7 +11,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -27,13 +26,17 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.common.TaskInfo;
+import net.blaklizt.streets.android.common.USER_PREFERENCE;
 import net.blaklizt.streets.android.listener.EnableGPSDialogueListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
+import static java.util.Collections.singletonList;
 
 /******************************************************************************
  * *
@@ -55,8 +58,8 @@ import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
  * GNU General Public License for more details.                            *
  * *
  ******************************************************************************/
-public class LocationUpdateTask extends AsyncTask<Void, Void, Void>
-        implements StatusChangeNotifier, GpsStatus.Listener, LocationListener,
+public class LocationUpdateTask extends TaskInfo
+        implements GpsStatus.Listener, LocationListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final String TAG = StreetsCommon.getTag(LocationUpdateTask.class);
@@ -73,13 +76,14 @@ public class LocationUpdateTask extends AsyncTask<Void, Void, Void>
     private LocationManager locationManager = null;
     private LocationProvider currentProvider = null;
 
-    public LocationUpdateTask(MapLayout mapLayout) {
-        this.mapLayout = mapLayout;
+    public LocationUpdateTask() {
+        super(new ArrayList<>(singletonList(GoogleMapTask.class.getSimpleName())),
+              new ArrayList<>(Collections.singletonList(MapLayout.class)), true, false);
+        this.mapLayout = MapLayout.getInstance();
     }
 
-    @SuppressWarnings("permission")
     @Override
-    protected Void doInBackground(Void... params) {
+    protected Object doInBackground(Object[] params) {
 
         if (locationManager == null) {
             Log.i(TAG, "Initializing location manager");
@@ -87,7 +91,7 @@ public class LocationUpdateTask extends AsyncTask<Void, Void, Void>
             if (!arePermissionsGranted &&
                     (Startup.getStreetsCommon().getUserPreferenceValue("suggest_gps").equals("1") ||
                             Startup.getStreetsCommon().getUserPreferenceValue("auto_enable_gps").equals("1"))) {
-                Startup.getStreetsCommon().setUserPreference("request_gps_perms", "1"); //reset preferences if permissions were updated
+                Startup.getStreetsCommon().setUserPreference(USER_PREFERENCE.REQUEST_GPS_PERMS, "1"); //reset preferences if permissions were updated
             }
         }
 
@@ -283,11 +287,11 @@ public class LocationUpdateTask extends AsyncTask<Void, Void, Void>
             if (grantResults[c] != PERMISSION_GRANTED) {
                 Log.i(TAG, "Permission was denied for " + permissions[c] + ". Aborting location updates.");
                 Startup.getStreetsCommon().addOutstandingPermission(permissions[c]);
-                Startup.getStreetsCommon().setUserPreference("request_gps_perms", "0"); //if user rejects, he probably does not want to be bothered
+                Startup.getStreetsCommon().setUserPreference(USER_PREFERENCE.REQUEST_GPS_PERMS, "0"); //if user rejects, he probably does not want to be bothered
             } else {
                 Log.i(TAG, "Permission granted for " + permissions[c]);
                 Startup.getStreetsCommon().removeOutstandingPermission(permissions[c]);
-                Startup.getStreetsCommon().setUserPreference("request_gps_perms", "1"); //reset preferences if permissions were updated
+                Startup.getStreetsCommon().setUserPreference(USER_PREFERENCE.REQUEST_GPS_PERMS, "1"); //reset preferences if permissions were updated
                 arePermissionsGranted = false;
             }
         }
@@ -384,11 +388,6 @@ public class LocationUpdateTask extends AsyncTask<Void, Void, Void>
             ex.printStackTrace();
             Log.e(TAG, "Failed to update to new location", ex);
         }
-    }
-
-    @Override
-    public void onPostExecute(Void result) {
-        onStatusChange(this, SequentialTaskManager.TaskStatus.COMPLETED);
     }
 
     public void drawMarker(Location location){

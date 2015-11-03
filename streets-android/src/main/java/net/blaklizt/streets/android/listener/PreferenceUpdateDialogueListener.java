@@ -7,6 +7,7 @@ import android.util.Log;
 
 import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.common.USER_PREFERENCE;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,22 +33,23 @@ public class PreferenceUpdateDialogueListener implements DialogInterface.OnClick
 
 	private AlertDialog.Builder alertBuilder;
 
-	private HashMap<Integer, String> preferenceIndexes = new HashMap<>();
+	private HashMap<Integer, USER_PREFERENCE> preferenceIndexes = new HashMap<>();
 
 	private ArrayList<String> multipleChoiceQuestions = new ArrayList<>();
 
 	private ArrayList<Boolean> questionDefaults = new ArrayList<>();
 
-	private String mainQuestion, mainPreference;
+	private String mainQuestion;
+    private USER_PREFERENCE mainPreference;
 
 	private ArrayList<DialogInterface.OnClickListener> additionalCallbacks = new ArrayList<>();
 
-	public PreferenceUpdateDialogueListener(Context context, String question, String preference) {
+	public PreferenceUpdateDialogueListener(Context context, String question, USER_PREFERENCE preference) {
 		this(context, question, preference, "Yes", "No");
 	}
 
 	public PreferenceUpdateDialogueListener(Context context, String question,
-				String preference, String positiveButtonText, String negativeButtonText) {
+				USER_PREFERENCE preference, String positiveButtonText, String negativeButtonText) {
 		this.mainQuestion = question;
 		this.mainPreference = preference;
         alertBuilder = new AlertDialog.Builder(context);
@@ -55,7 +57,7 @@ public class PreferenceUpdateDialogueListener implements DialogInterface.OnClick
 	}
 
 	public PreferenceUpdateDialogueListener addPreferenceQuestion(String question,
-			String prefToUpdateOnPositiveResponse, boolean isCheckedDefault)
+			USER_PREFERENCE prefToUpdateOnPositiveResponse, boolean isCheckedDefault)
 	{
 		multipleChoiceQuestions.add(question);
 		questionDefaults.add(isCheckedDefault);

@@ -1,20 +1,26 @@
 package net.blaklizt.streets.android.common;
 
-import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
+import android.support.design.widget.Snackbar;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.utils.Validator;
+import net.blaklizt.streets.android.listener.PreferenceUpdateDialogueListener;
 import net.blaklizt.streets.android.persistence.StreetsDBHelper;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Locale;
+
+import static net.blaklizt.streets.android.common.utils.SecurityContext.securityTermination;
+import static net.blaklizt.streets.android.common.utils.SecurityContext.unknownError;
 
 /**
  * Created with IntelliJ IDEA.
@@ -29,11 +35,6 @@ public class StreetsCommon
 
 	//Symbiosis channel
 	public static final String CHANNEL = "ANDROID";
-
-	//List of activities started, destroy all on EndApplication
-	private static LinkedList<Activity> activities = new LinkedList<>();
-
-	private static ArrayList<BackgroundRunner> backgroundTasks = new ArrayList<>();
 
 	//Application context
 	private Context context = null;
@@ -53,9 +54,7 @@ public class StreetsCommon
 	private static StreetsCommon streetsCommon = null;
 
 	//user preferences
-	private static HashMap<String, String> userPreferenceValues = new HashMap<>();
-	private static HashMap<String, String> userPreferenceDescriptions = new HashMap<>();
-	private static HashMap<String, String> userPreferenceTypes = new HashMap<>();
+	private static HashMap<String, USER_PREFERENCE> userPreferenceValues = new HashMap<>();
 
 	public static StreetsCommon getInstance(Context context)
 	{
@@ -78,9 +77,6 @@ public class StreetsCommon
 		//initialize user preferences
 		getUserPreferenceValues();
 
-		//initialize TTS
-		getTextToSpeech();
-
 	}
 
 	public static String getTag(Class streetsClass) { return TAG + "_" + streetsClass.getSimpleName(); }
@@ -96,92 +92,123 @@ public class StreetsCommon
 
 	public TextToSpeech getTextToSpeech()
 	{
-		try
-		{
+		try {
 			if (ttsEngine == null) {
 				Log.i(TAG, "Initializing text to speech engine");
-				ttsEngine = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
-					@Override
-					public void onInit(int i) {
-						Log.i(TAG, "Initialized text to speech engine");
-						ttsEngine.setLanguage(Locale.US);
-					}
-				});
-			}
-			return ttsEngine;
-		}
-		catch (Exception ex)
-		{
+				ttsEngine = new TextToSpeech(context, status -> {
+                    Log.i(TAG, "Initialized text to speech engine");
+                    ttsEngine.setLanguage(Locale.US);
+                });
+			} return ttsEngine;
+		} catch (Exception ex) {
 			ex.printStackTrace();
 			Log.e(TAG, "Failed to initialize ttsEngine", ex);
-			return null;
+			showToast(TAG, "Failed to initialize text to speech!" + ex.getMessage(), Toast.LENGTH_LONG);
+            new PreferenceUpdateDialogueListener(context,
+                "Speech failed to start. Would you like to turn off Text To Speech permanently?",
+                USER_PREFERENCE.ENABLE_TTS, "Disable", "Cancel").show();
+            return null;
 		}
 	}
 
-	public void endApplication()
+    public void speak(final String speechText)
+    {
+        Log.i(TAG, "Speaking text: " + speechText);
+        String ttsEnabled = getUserPreferenceValue(USER_PREFERENCE.ENABLE_TTS);
+        if (Validator.isNullOrEmpty(ttsEnabled) && ttsEnabled.equals("1")) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                getTextToSpeech().speak(speechText, TextToSpeech.QUEUE_FLUSH, null, String.valueOf(new Date().getTime()));
+            } else {
+                getTextToSpeech().speak(speechText, TextToSpeech.QUEUE_FLUSH, null);
+            }
+        }
+    }
+
+    public static void showSnackBar(TAG, final String TAG, final String text, final int duration) {
+
+        if      (duration == Snackbar.LENGTH_LONG)  { Log.w(TAG, text); }
+        else if (duration == Snackbar.LENGTH_SHORT) { Log.i(TAG, text); }
+
+        if (Startup.getInstance() != null && Startup.getInstance().getCurrentFocus() != null) {
+            Startup.getInstance().runOnUiThread(() ->
+                    Snackbar.make(Startup.getInstance().getCurrentFocus(), text, duration).show());
+        }
+    }
+
+    public static void showToast(final String TAG, final String text, final int duration) {
+
+        if      (duration == Toast.LENGTH_LONG)  { Log.w(TAG, text); }
+        else if (duration == Toast.LENGTH_SHORT) { Log.i(TAG, text); }
+
+        if (Startup.getInstance() != null && Startup.getInstance().getCurrentFocus() != null) {
+            Startup.getInstance().runOnUiThread(() ->
+                    Toast.makeText(Startup.getInstance().getApplicationContext(), text, duration).show());
+        }
+    }
+
+    public void endApplication()
 	{
-		try
-		{
-			//shutdown common classes
+		try { //shutdown common classes
 			Log.i(TAG, "Terminating common classes.");
 			if (streetsDBHelper != null) {
 				streetsDBHelper.close();
-				streetsDBHelper = null;
 			}
 			if (ttsEngine != null) {
 				ttsEngine.shutdown();
-				ttsEngine = null;
 			}
-		}
-		catch (Exception ex)
-		{
+		} catch (Exception ex) {
 			ex.printStackTrace();
 			Log.e(TAG, "Failed to shutdown common classes cleanly: " + ex.getMessage(), ex);
-		}
-	}
-
-    public String getUserPreferenceValue(String preference) {
-        if (!getUserPreferenceValues().containsKey(preference)) {
-            Log.i(TAG, "Preference " + preference + " does not exist");
+		} finally {
+            streetsDBHelper = null;
+            ttsEngine = null;
         }
-		Log.i(TAG, preference + " = " + getUserPreferenceValues().get(preference));
-        return getUserPreferenceValues().get(preference);
+    }
+
+    public String getUserPreferenceValue(USER_PREFERENCE preference) {
+        if (!getUserPreferenceValues().containsKey(preference.pref_name)) {
+            Log.i(TAG, "Preference " + preference.pref_name + " does not exist");
+            securityTermination("Preference " + preference.pref_name + " does not exist in the database.\n\n" +
+                    "Please update your application to avoid data corruption, crashes & unexpected behaviour");
+        }
+		Log.i(TAG, preference.pref_name + " = " + getUserPreferenceValues().get(preference.pref_name).pref_value);
+        return getUserPreferenceValues().get(preference.pref_name).pref_value;
     }
 
 	public void initUserPreferenceData() {
 		Log.i(TAG, "Loading user preferences from DB");
-        HashMap<String, HashMap<String, String>> preferences = getStreetsDBHelper().getUserPreferences();
-        userPreferenceValues		=	preferences.get("values");
-		userPreferenceDescriptions	=	preferences.get("descriptions");
-		userPreferenceTypes			=	preferences.get("data_types");
+        try { userPreferenceValues = getStreetsDBHelper().getUserPreferences(); }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            securityTermination("User preferences could not be read from the database.\n\n" +
+                "Please update your application to the latest version to avoid potential data corruption.");
+        }
+
+        if (userPreferenceValues == null || userPreferenceValues.isEmpty()) {
+            securityTermination("User preferences could not be read from the database.\n\n" +
+                    "Please update your application to the latest version to avoid potential data corruption.");
+        }
 	}
 
-    public HashMap<String, String> getUserPreferenceValues() {
+    public HashMap<String, USER_PREFERENCE> getUserPreferenceValues() {
         if (userPreferenceValues.size() == 0) { initUserPreferenceData(); }
         return userPreferenceValues;
     }
 
-    public HashMap<String, String> getUserPreferenceDescriptions() {
-        if (userPreferenceDescriptions.size() == 0) { initUserPreferenceData(); }
-        return userPreferenceDescriptions;
-    }
-
-    public HashMap<String, String> getUserPreferenceTypes() {
-        if (userPreferenceTypes.size() == 0) { initUserPreferenceData(); }
-        return userPreferenceTypes;
-    }
-
-	public void setUserPreference(String preference, String value) {
-		Log.i(TAG, "Setting " + preference + " = " + value);
-		String description = getUserPreferenceDescriptions().get(preference);
-		String data_type = getUserPreferenceTypes().get(preference);
-		if (description != null && data_type != null) {
-			getUserPreferenceValues().remove(preference);
-			getUserPreferenceValues().put(preference, value);
-			getStreetsDBHelper().setUserPreference(preference, value, description, data_type);
-		} else {
-			throw new IllegalArgumentException("Preference type " + preference + " is unknown and cannot be saved. Your app needs an upgrade.");
-		}
+	public void setUserPreference(USER_PREFERENCE preference, String value) {
+        try {
+            Log.i(TAG, "Setting " + preference + " = " + value);
+            String description = getUserPreferenceValues().get(preference.pref_name).pref_description;
+            String data_type = getUserPreferenceValues().get(preference.pref_name).pref_data_type;
+            getUserPreferenceValues().remove(preference.pref_name);
+            preference.pref_value = value;
+            getUserPreferenceValues().put(preference.pref_name, preference);
+            getStreetsDBHelper().setUserPreference(preference, value, description, data_type);
+		} catch (Exception ex) {
+            unknownError("User preferences could not be read from the database.\n\n" +
+                "Please update your application to the latest version to avoid potential data corruption.",
+                ex.getStackTrace());
+        }
 	}
 
 	public ArrayList<String> getOutstandingPermissions() {
@@ -237,5 +264,13 @@ public class StreetsCommon
     public void setUserID(Long userID) {
         getSymbiosisUser().symbiosisUserID = userID;
         saveUserDetails();
+    }
+
+    public void writeEventLog(TASK_TYPE task_type, STATUS_CODES status, String description) {
+        getStreetsDBHelper().logApplicationEvent(task_type, status, description);
+    }
+
+    public void logTaskEvent(TaskInfo taskInfo, STATUS_CODES status) {
+        getStreetsDBHelper().logTaskEvent(taskInfo, status);
     }
 }

@@ -8,6 +8,7 @@ import android.util.Log;
 
 import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.common.USER_PREFERENCE;
 
 /**
  * Created with IntelliJ IDEA.
@@ -57,19 +58,19 @@ public class EnableGPSDialogueListener implements DialogInterface.OnClickListene
 				//Yes button clicked
 				Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 				context.startActivity(myIntent);
-                Startup.getStreetsCommon().setUserPreference("suggest_gps", askAgain ? "1" : "0");
+                Startup.getStreetsCommon().setUserPreference(USER_PREFERENCE.SUGGEST_GPS, askAgain ? "1" : "0");
 				if (!askAgain) {
-					Startup.getStreetsCommon().setUserPreference("auto_enable_gps", "1"); //auto_enable without asking
-					Startup.getStreetsCommon().setUserPreference("request_gps_perms", "1"); //reset preferences if permissions were updated
+					Startup.getStreetsCommon().setUserPreference(USER_PREFERENCE.AUTO_ENABLE_GPS, "1"); //auto_enable without asking
+					Startup.getStreetsCommon().setUserPreference(USER_PREFERENCE.REQUEST_GPS_PERMS, "1"); //reset preferences if permissions were updated
 				}
 				break;
 
 			case DialogInterface.BUTTON_NEGATIVE:
 				//No button clicked
-                Startup.getStreetsCommon().setUserPreference("suggest_gps", askAgain ? "1" : "0");
+                Startup.getStreetsCommon().setUserPreference(USER_PREFERENCE.SUGGEST_GPS, askAgain ? "1" : "0");
 				if (!askAgain) {
-					Startup.getStreetsCommon().setUserPreference("auto_enable_gps", "0"); //never enable and don't ask
-					Startup.getStreetsCommon().setUserPreference("request_gps_perms", "0"); //don't request GPS perms
+					Startup.getStreetsCommon().setUserPreference(USER_PREFERENCE.AUTO_ENABLE_GPS, "0"); //never enable and don't ask
+					Startup.getStreetsCommon().setUserPreference(USER_PREFERENCE.REQUEST_GPS_PERMS, "0"); //don't request GPS perms
 				}
 				break;
 		}

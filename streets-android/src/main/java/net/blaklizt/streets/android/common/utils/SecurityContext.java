@@ -1,17 +1,19 @@
 package net.blaklizt.streets.android.common.utils;
 
-import android.app.Activity;
-import android.app.Application;
-import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
 import net.blaklizt.streets.android.activity.Startup;
+import net.blaklizt.streets.android.common.STATUS_CODES;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.SymbiosisUser;
+import net.blaklizt.streets.android.common.TASK_TYPE;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
+
+import static java.lang.String.format;
+import static net.blaklizt.streets.android.common.StreetsCommon.showToast;
 
 /******************************************************************************
  * *
@@ -39,57 +41,66 @@ public class SecurityContext {
 
     private static final String TAG = StreetsCommon.getTag(SecurityContext.class);
 
-    private static final HashMap<String, Object> defaultDataSet = new HashMap<>();
+    private static final HashMap<String, Object> userDefaultDataSet = new HashMap<>();
 
     private static SecurityContext securityContext = null;
 
-    private Activity activity;
+    public enum ERROR_SEVERITY { GENERAL, SEVERE }
 
     static {
-        defaultDataSet.put("symbiosisUserID", 0L);
-        defaultDataSet.put("username", null);
-        defaultDataSet.put("imei", null);
-        defaultDataSet.put("imsi", null);
-        defaultDataSet.put("password", null);
-        defaultDataSet.put("last_location_id", null);
-        defaultDataSet.put("home_place_id", null);
-        defaultDataSet.put("type", null);
+        userDefaultDataSet.put("symbiosisUserID", 0L);
+        userDefaultDataSet.put("username", null);
+        userDefaultDataSet.put("imei", null);
+        userDefaultDataSet.put("imsi", null);
+        userDefaultDataSet.put("password", null);
+        userDefaultDataSet.put("last_location_id", null);
+        userDefaultDataSet.put("home_place_id", null);
+        userDefaultDataSet.put("type", null);
     }
 
-    public SecurityContext(Activity activity) {
-        this.activity = activity;
+    public static HashMap<String, Object> getUserDefaultDataSet() {
+        return userDefaultDataSet;
+    }
+
+    public SecurityContext() {
         securityContext = this;
     }
 
-    public static SecurityContext getInstance(Activity activity) {
+    public static SecurityContext getInstance() {
         if (securityContext == null) {
-            securityContext = new SecurityContext(activity);
+            securityContext = new SecurityContext();
             Log.i(TAG, "Created new instance of StreetsCommon");
         }
         return securityContext;
     }
 
-    public void securityTermination(String message) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(
-                        Startup.getSecurityContext().activity,
-                        "Security verification failed!\n\n" + message + "\n\nApplication will terminate.",
-                        Toast.LENGTH_LONG).show();
-                Startup.getInstance().finish();
-                activity.finish();
-            }
-        });
+    public static void handleApplicationError(ERROR_SEVERITY errorSeverity, String displayMsg, StackTraceElement[] stackTrace, TASK_TYPE taskType) {
+        StringBuilder stacktraceMessage = new StringBuilder();
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            stacktraceMessage.append(stackTraceElement.toString()).append("\n");
+        }
+        handleApplicationError(errorSeverity, displayMsg, stacktraceMessage.toString(), taskType);
     }
 
-    public boolean verifyUserDetails(SymbiosisUser symbiosisUser) {
+    public static void handleApplicationError(ERROR_SEVERITY errorSeverity, String displayMsg, String error, TASK_TYPE taskType) {
+
+        Startup.getStreetsCommon().writeEventLog(taskType, STATUS_CODES.GENERAL_ERROR, error);
+        if (errorSeverity == ERROR_SEVERITY.GENERAL) {
+            Log.w(TAG, "A general error occurred: " + displayMsg + "\n" + error);
+        } else if (errorSeverity == ERROR_SEVERITY.GENERAL) {
+            Log.e(TAG, "A severe system error occurred: " + displayMsg + "\n" + error + "\nApplication will terminate.");
+            Startup.getInstance().onDestroy();
+        }
+    }
+
+    public static boolean verifyUserDetails(SymbiosisUser symbiosisUser) {
 
         Log.i(TAG, "Verifying details of current user.");
 
         if (symbiosisUser == null) {
             Log.e(TAG, "SymbiosisUser cannot be null!");
-            return false;
+            handleApplicationError(ERROR_SEVERITY.SEVERE, "User session is invalid! Please login again.",
+                "SymbiosisUser was null", TASK_TYPE.SYS_SECURITY);
         }
 
         SymbiosisUser dbUser = Startup.getStreetsCommon().getSymbiosisUser();
@@ -104,36 +115,33 @@ public class SecurityContext {
                 Log.i(TAG, "CurrentUserValue: " + databaseValue);
 
                 if (fieldValue == null) {
-                    if (databaseValue != null && defaultDataSet.get(fieldName) != null) {
-                        securityTermination("Value of " + fieldName + " is invalid");
+                    if (databaseValue != null && userDefaultDataSet.get(fieldName) != null) {
+                        handleApplicationError(ERROR_SEVERITY.SEVERE, "Value of mandatory field " + fieldName + " is invalid.",
+                                fieldName + " of SymbiosisUser was null.", TASK_TYPE.SYS_SECURITY);
                         return false;
-                    } else {
-                        continue;
-                    }
+                    } else { continue; }
                 }
 
                 if (!fieldValue.equals(databaseValue)) {
-                    if (!defaultDataSet.containsKey(fieldName)) {
-                        securityTermination("Value of " + fieldName + " is invalid");
+                    if (!userDefaultDataSet.containsKey(fieldName)) {
+                        handleApplicationError(ERROR_SEVERITY.SEVERE, "Value of field " + fieldName + " is invalid.",
+                            format(fieldName + " of SymbiosisUser was modified outside system context.\nDB Value = %s, Default Value = null",
+                                databaseValue), TASK_TYPE.SYS_SECURITY);
                         return false;
-                    } else if (!fieldValue.equals(defaultDataSet.get(fieldName))) {
-                        securityTermination("Value of " + fieldName + " is invalid");
+                    } else if (!fieldValue.equals(userDefaultDataSet.get(fieldName))) {
+                        handleApplicationError(ERROR_SEVERITY.SEVERE, "Value of field " + fieldName + " is invalid.",
+                            format(fieldName + " of SymbiosisUser was modified outside system context.\nDB Value = %s, Default Value = %s",
+                                databaseValue, userDefaultDataSet.get(fieldName)), TASK_TYPE.SYS_SECURITY);
                         return false;
                     }
                 }
             } catch (Exception ex) {
-                securityTermination("Failed to verify value of " + fieldName);
-                Log.e(TAG, "Failed to verify value of " + fieldName, ex);
                 ex.printStackTrace();
+                handleApplicationError(ERROR_SEVERITY.SEVERE, "Failed to verify value of " + fieldName,
+                    "Failed to verify value of " + fieldName + ": " + ex.getMessage(), TASK_TYPE.SYS_SECURITY);
                 return false;
             }
         }
-
         return true;
-//        return ((dbUser.symbiosisUserID.equals(defaultDataSet.get("SymbiosisUserID")) || (dbUser.symbiosisUserID.equals(symbiosisUser.symbiosisUserID))) &&
-//                ((dbUser.username == defaultDataSet.get("Username")) || (dbUser.username.equals(symbiosisUser.username))) &&
-//                ((dbUser.imei  == defaultDataSet.get("Imei")) || (dbUser.imei.equals(symbiosisUser.imei))) &&
-//                ((dbUser.imsi  == defaultDataSet.get("Imsi")) || (dbUser.imsi.equals(symbiosisUser.imsi))) &&
-//                ((dbUser.password  == defaultDataSet.get("Password")) || (dbUser.password.equals(symbiosisUser.password))));
     }
 }

@@ -82,7 +82,7 @@ public class MapLayout extends Fragment implements Navigator.OnPathSetListener, 
             setRetainInstance(true);
         }
 
-//        startTasks();
+        startTasks();
 
         return mapView;
 	}
@@ -102,9 +102,9 @@ public class MapLayout extends Fragment implements Navigator.OnPathSetListener, 
         if (TASK_EXECUTION_INFO.isEmpty()) {
             Log.i(TAG, "Initializing task execution information.");
 
-            TASK_EXECUTION_INFO.put(gMapTask,     new TaskInfo<>(new GoogleMapTask(this), null, true, false));
-            TASK_EXECUTION_INFO.put(locationTask, new TaskInfo<>(new LocationUpdateTask(this), new ArrayList<>(singletonList(gMapTask)), true, false));
-            TASK_EXECUTION_INFO.put(placesTask,   new TaskInfo<>(new PlacesTask(this), new ArrayList<>(asList(gMapTask, locationTask)), true, false));
+            TASK_EXECUTION_INFO.put(gMapTask,     new GoogleMapTask());
+            TASK_EXECUTION_INFO.put(locationTask, new LocationUpdateTask());
+            TASK_EXECUTION_INFO.put(placesTask,   new PlacesTask());
         }
 
         Log.i(TAG, "Queuing tasks for dependency managed execution.");

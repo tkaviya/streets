@@ -1,14 +1,16 @@
 package net.blaklizt.streets.android.common;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
+import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
-import net.blaklizt.streets.android.activity.helpers.StatusChangeListener;
-import net.blaklizt.streets.android.activity.helpers.StatusChangeNotifier;
+import net.blaklizt.streets.android.activity.helpers.StreetsProviderPattern;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+
+import static net.blaklizt.streets.android.activity.helpers.SequentialTaskManager.onTaskUpdate;
 
 /******************************************************************************
  * *
@@ -30,63 +32,103 @@ import java.util.Date;
  * GNU General Public License for more details.                            *
  * *
  ******************************************************************************/
-public class TaskInfo<T extends AsyncTask<Void,Void,Void> & StatusChangeNotifier> implements StatusChangeListener {
+public abstract class TaskInfo extends AsyncTask implements StreetsProviderPattern {
 
-    private static final String TAG = StreetsCommon.getTag(TaskInfo.class);
+    protected final String TAG = StreetsCommon.getTag(this.getClass());
+    protected final boolean allowOnlyOnce;
+    protected final boolean allowMultiInstance;
+    protected ArrayList<String> processDependencies = new ArrayList<>();
+    protected HashMap<String, Class> viewDependencies = new HashMap<>();
+    protected Date requestedTime = null, startTime = null, endTime = null;
 
-    T currentTask = null;
-    Class<T> taskType;
-    ArrayList<T> tasks;
-    boolean allowOnlyOnce;
-    boolean allowMultiInstance;
+    protected TASK_TYPE taskType;
+    protected STATUS_CODES finalStatus;
 
-    ArrayList<String> dependencies      = new ArrayList<>();
-    ArrayList<Date> requestedTimes      = new ArrayList<>();
-    ArrayList<Date> startTimes          = new ArrayList<>();
-    ArrayList<Date> endTimes            = new ArrayList<>();
-
-    public TaskInfo(T task, ArrayList<String> dependencies, boolean allowOnce, boolean allowConcurrent)
+    protected TaskInfo(ArrayList<String> processDependencies, ArrayList<Class> viewDependencies,
+           boolean allowOnlyOnce, boolean allowConcurrent, TASK_TYPE taskType)
     {
-        this.currentTask = task;
-        this.dependencies = dependencies;
-        this.allowOnlyOnce= allowOnce;
+        if (processDependencies != null) {
+            this.processDependencies = processDependencies;
+        }
+
+        if (viewDependencies != null) {
+            for (Class dependency : viewDependencies) {
+                this.viewDependencies.put(dependency.getSimpleName(), dependency);
+            }
+        }
+
+        this.allowOnlyOnce = allowOnlyOnce;
         this.allowMultiInstance = allowConcurrent;
+        this.taskType = taskType;
+
+        Startup.getInstance().registerOnDestroyHandler(this);
     }
 
-    public String name() { return currentTask != null ? currentTask.getClass().getSimpleName() : taskType.getSimpleName(); }
+    public Date getRequestedTime() { return requestedTime; }
+
+    public Date getStartTime() { return startTime; }
+
+    public Date getEndTime() { return endTime; }
 
     public boolean allowsMultiInstance() { return allowMultiInstance; }
 
     public boolean allowsOnlyOnce() { return allowOnlyOnce; }
 
-    public T getAsyncTask() {
-        if (currentTask == null)
-        {
-            requestedTimes.add(new Date());
+    public TASK_TYPE getTaskType() {
+        return taskType;
+    }
 
-            Log.i(TAG, "Task request registered for task " + currentTask.getClass().getSimpleName());
+    public STATUS_CODES getFinalStatus() {
+        return finalStatus;
+    }
 
-            tasks.add(currentTask);
-
-            currentTask.registerStatusChangeListener(this);
+    public boolean setRequestedTimeIfNotSet(Date requestedTime) {
+        if (this.requestedTime == null && requestedTime != null) {
+            this.requestedTime = requestedTime;
+            return true;
         }
-        return currentTask;
+        return false;
     }
 
-    public ArrayList<String> getDependencies() {
-        return dependencies;
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
     }
 
-    public void removeDependency(String dependency) {
-        getDependencies().remove(dependency);
+    public ArrayList<String> getProcessDependencies() {
+        return processDependencies;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected final void onPostExecute(Object result) {
+        super.onPostExecute(result);
+        endTime = new Date();
+        Startup.getStreetsCommon().logTaskEvent(this, STATUS_CODES.SUCCESS);
+        onTaskUpdate(this, SequentialTaskManager.TaskStatus.COMPLETED);
+        onPostExecuteRelay(result);
     }
 
     @Override
-    public void onStatusUpdate(AsyncTask asyncTask, SequentialTaskManager.TaskStatus newStatus) {
-        switch (newStatus) {
-            case STARTED: { startTimes.add(new Date()); break; }
-            case COMPLETED: { endTimes.add(new Date()); break; }
-            case CANCELLED: { endTimes.add(new Date()); break; }
-        }
+    protected final void onCancelled() {
+        super.onCancelled();
+        endTime = new Date();
+        Startup.getStreetsCommon().logTaskEvent(this, STATUS_CODES.CANCELLED);
+        onTaskUpdate(this, SequentialTaskManager.TaskStatus.CANCELLED);
+        onCancelledRelay();
+    }
+
+    @Override
+    public final void onTermination() {
+        if (!getStatus().equals(Status.FINISHED)) { cancel(true); }
+    }
+
+    /* this method is only here to allow you to still catch onPostExecute */
+    protected void onPostExecuteRelay(Object result) {}
+
+    /* this method is only here to allow you to still catch onPostExecute */
+    protected void onCancelledRelay() {}
+
+    public HashMap<String, Class> getViewDependencies() {
+        return viewDependencies;
     }
 }

@@ -1,10 +1,8 @@
 package net.blaklizt.streets.android.activity.helpers;
 
-import android.os.AsyncTask;
-
 /******************************************************************************
  * *
- * Created:     29 / 10 / 2015                                             *
+ * Created:     02 / 11 / 2015                                             *
  * Platform:    Red Hat Linux 9                                            *
  * Author:      Tich de Blak (Tsungai Kaviya)                              *
  * Copyright:   Blaklizt Entertainment                                     *
@@ -24,7 +22,9 @@ import android.os.AsyncTask;
  ******************************************************************************/
 
 
-public interface StatusChangeListener {
+public interface StreetsProviderPattern {
 
-    void onStatusUpdate(AsyncTask managedAsyncTask, SequentialTaskManager.TaskStatus newStatus);
+    default void onTermination() { /* only called if you call registerOnDestroyHandler on Startup class */ }
+
+    default String getClassName() { return this.getClass().getSimpleName() + "InterfaceName"; }
 }

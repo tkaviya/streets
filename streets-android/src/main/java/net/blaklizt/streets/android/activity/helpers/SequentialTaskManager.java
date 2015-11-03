@@ -1,14 +1,21 @@
 package net.blaklizt.streets.android.activity.helpers;
 
 import android.os.AsyncTask;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
+import android.widget.Toast;
 
+import net.blaklizt.streets.android.activity.Startup;
+import net.blaklizt.streets.android.common.STATUS_CODES;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.common.TASK_TYPE;
 import net.blaklizt.streets.android.common.TaskInfo;
+import net.blaklizt.streets.android.common.utils.SecurityContext;
 import net.blaklizt.streets.android.common.utils.Try;
 
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.TreeMap;
+import java.util.concurrent.CancellationException;
 
 import static java.lang.String.format;
 
@@ -34,11 +41,9 @@ import static java.lang.String.format;
  ******************************************************************************/
 
 
-public class SequentialTaskManager implements StatusChangeListener {
+public class SequentialTaskManager {
 
     private static final String TAG = StreetsCommon.getTag(LocationUpdateTask.class);
-
-    public static ArrayList<StatusChangeListener> statusChangeListeners;
 
     public enum TaskStatus { COMPLETED, STARTED, CANCELLED }
 
@@ -48,70 +53,100 @@ public class SequentialTaskManager implements StatusChangeListener {
 
     private static TreeMap<String, TaskInfo> completedTasks        = new TreeMap<>();
 
-    private static TreeMap<String, TaskInfo> dependencyList        = new TreeMap<>();
+    private static TreeMap<String, TaskInfo> processDependencyList = new TreeMap<>();
+
+    private static TreeMap<String, Class> viewdependencyList    = new TreeMap<>();
 
     private static Try<TaskInfo, String> execute(TaskInfo newTaskInfo) {
-        Log.i(TAG, format("Executing task %s", newTaskInfo.name()));
-        runningTasks.put(newTaskInfo.name(), newTaskInfo);
-        newTaskInfo.getAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        Log.i(TAG, format("Executing task %s", newTaskInfo.getClassName()));
+        runningTasks.put(newTaskInfo.getClassName(), newTaskInfo);
+        Date currentTime = new Date();
+
+        try
+        {
+            newTaskInfo.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
+        catch (CancellationException ex) {}
+        catch (Exception ex) {
+            ex.printStackTrace();
+            SecurityContext.getInstance().handleApplicationError(SecurityContext.ERROR_SEVERITY.GENERAL,
+                "Background task " + newTaskInfo.getClassName() + "failed to execute! ", ex.getStackTrace(), TASK_TYPE.SYS_TASK);
+        }
+
+
+        onTaskUpdate(newTaskInfo, TaskStatus.STARTED);
+        newTaskInfo.setRequestedTimeIfNotSet(currentTime);
+        newTaskInfo.setStartTime(currentTime);
         return Try.success(newTaskInfo);
     }
 
     public static Try<TaskInfo, String> runImmediately(TaskInfo newTaskInfo) {
-        Log.i(TAG, format("Scheduling task %s for immediate execution", newTaskInfo.name()));
-        if (!outstandingTasks.containsKey(newTaskInfo.name())) {
-            outstandingTasks.put(newTaskInfo.name(), newTaskInfo);
+        Log.i(TAG, format("Scheduling task %s for immediate execution", newTaskInfo.getClassName()));
+        if (!outstandingTasks.containsKey(newTaskInfo.getClassName())) {
+            outstandingTasks.put(newTaskInfo.getClassName(), newTaskInfo);
         }
+        newTaskInfo.setRequestedTimeIfNotSet(new Date());
         return execute(newTaskInfo);
     }
 
     public static Try<TaskInfo, String> schedule(TaskInfo newTaskInfo) {
-        Log.i(TAG, format("Scheduling task %s to run when prerequisites are met", newTaskInfo.name()));
-        if (outstandingTasks.containsKey(newTaskInfo.name())) {
-            Log.i(TAG, format("Scheduling task %s which already has a pending execution!", newTaskInfo.name()));
+        Log.i(TAG, format("Scheduling task %s to run when prerequisites are met", newTaskInfo.getClassName()));
+        if (outstandingTasks.containsKey(newTaskInfo.getClassName())) {
+            Log.i(TAG, format("Scheduling task %s which already has a pending execution!", newTaskInfo.getClassName()));
         }
-        outstandingTasks.put(newTaskInfo.name(), newTaskInfo);
+        outstandingTasks.put(newTaskInfo.getClassName(), newTaskInfo);
+        newTaskInfo.setRequestedTimeIfNotSet(new Date());
         return Try.success(newTaskInfo);
     }
 
     public static Try<TaskInfo, String> isAllowedAtLeastOnce(TaskInfo newTaskInfo) {
-        Log.i(TAG, format("Checking if we can run %s", newTaskInfo.name()));
+        Log.i(TAG, format("Checking if we can run %s", newTaskInfo.getClassName()));
 
         if (newTaskInfo.allowsOnlyOnce()) {
-            if (!(completedTasks.containsKey(newTaskInfo.name()) ||
-                outstandingTasks.containsKey(newTaskInfo.name()) ||
-                    runningTasks.containsKey(newTaskInfo.name()))) {
-                return Try.fail("Task is not allowed. It can only execute once: " + newTaskInfo.name());
+            if (!(completedTasks.containsKey(newTaskInfo.getClassName()) ||
+                outstandingTasks.containsKey(newTaskInfo.getClassName()) ||
+                    runningTasks.containsKey(newTaskInfo.getClassName()))) {
+                return Try.fail("Task is not allowed. It can only execute once: " + newTaskInfo.getClassName());
             }
         }
-        Log.i(TAG, "Task isAllowedAtLeastOnce " + newTaskInfo.name());
+        Log.i(TAG, "Task isAllowedAtLeastOnce " + newTaskInfo.getClassName());
         return Try.success(newTaskInfo);
     }
 
     public static Try<TaskInfo, String> isNotBlockedInstance(TaskInfo newTaskInfo) {
-        Log.i(TAG, format("Checking if %s isNotBlockedInstance", newTaskInfo.name()));
+        Log.i(TAG, format("Checking if %s isNotBlockedInstance", newTaskInfo.getClassName()));
 
-        if (!newTaskInfo.allowsMultiInstance() && runningTasks.containsKey(newTaskInfo.name())) {
-            return Try.fail(format("Task %s cannot begin immediately. Only 1 instance can run at the same time", newTaskInfo.name()));
+        if (!newTaskInfo.allowsMultiInstance() && runningTasks.containsKey(newTaskInfo.getClassName())) {
+            return Try.fail(format("Task %s cannot begin immediately. Only 1 instance can run at the same time", newTaskInfo.getClassName()));
         }
-        Log.i(TAG, "Task isNotBlockedInstance " + newTaskInfo.name());
+        Log.i(TAG, "Task isNotBlockedInstance " + newTaskInfo.getClassName());
         return Try.success(newTaskInfo);
 
 
     }
 
-    public static Try<TaskInfo, String> hasNoOutstandingDependencies(TaskInfo newTaskInfo) {
-        Log.i(TAG, format("Checking dependencies for %s", newTaskInfo.name()));
+    public static Try<TaskInfo, String> hasNoProcessDependencies(TaskInfo newTaskInfo) {
+        Log.i(TAG, format("Checking processDependencies for %s", newTaskInfo.getClassName()));
 
-        if (newTaskInfo.getDependencies().size() > 0) {
-            if (!completedTasks.keySet().containsAll(newTaskInfo.getDependencies())) {
-                Log.i(TAG, format("Added %s to list of tasks awaiting dependencies...", newTaskInfo.name()));
-                dependencyList.put(newTaskInfo.name(), newTaskInfo);
-                return Try.fail(format("Task is %s cannot execute. Some dependencies are still outstanding: ", newTaskInfo.name()));
+        if (newTaskInfo.getProcessDependencies().size() > 0) {
+            if (!completedTasks.keySet().containsAll(newTaskInfo.getProcessDependencies())) {
+                Log.i(TAG, format("Added %s to list of tasks awaiting processDependencies...", newTaskInfo.getClassName()));
+                processDependencyList.put(newTaskInfo.getClassName(), newTaskInfo);
+                return Try.fail(format("Task is %s cannot execute. Some processDependencies are still outstanding: ", newTaskInfo.getClassName()));
             }
         }
-        Log.i(TAG, "Task hasNoOutstandingDependencies " + newTaskInfo.name());
+        Log.i(TAG, "Task hasNoOutstandingDependencies " + newTaskInfo.getClassName());
         return Try.success(newTaskInfo);
+    }
+
+    public static Try<TaskInfo, String> hasNoViewDependencies(TaskInfo newTaskInfo) {
+        Log.i(TAG, format("Checking viewDependencies for %s", newTaskInfo.getClassName()));
+
+        if (newTaskInfo.getViewDependencies().size() > 0) {
+            return Try.fail("View dependencies not met");
+        } else {
+            return Try.success(newTaskInfo);
+        }
     }
 
     public static Try<TaskInfo, String> runWhenAvailable(TaskInfo newTaskInfo) {
@@ -119,12 +154,14 @@ public class SequentialTaskManager implements StatusChangeListener {
         Log.i(TAG, "Scheduling task for later execution: " + newTaskInfo);
         Log.i(TAG, "Allows MultiInstance: " + newTaskInfo.allowsMultiInstance());
         Log.i(TAG, "Allows Only Once: " + newTaskInfo.allowsOnlyOnce());
-        Log.i(TAG, "Number of dependencies: " + newTaskInfo.getDependencies().size());
+        Log.i(TAG, "Number of processDependencies: " + newTaskInfo.getProcessDependencies().size());
 
+        newTaskInfo.setRequestedTimeIfNotSet(new Date());
         return isAllowedAtLeastOnce(newTaskInfo)
             .map(SequentialTaskManager::isNotBlockedInstance, (s) -> schedule(newTaskInfo))
             .map(SequentialTaskManager::runImmediately, (s) -> schedule(newTaskInfo))
-            .map(SequentialTaskManager::hasNoOutstandingDependencies, Try::fail);
+            .map(SequentialTaskManager::hasNoProcessDependencies, (s) -> hasNoViewDependencies(newTaskInfo))
+            .map(Try::success, Try::fail);
     }
 
     public static void cancelRunningTasks() {
@@ -134,32 +171,29 @@ public class SequentialTaskManager implements StatusChangeListener {
 
         for (String runningTaskName : runningTasks.keySet()) {
             Log.i(TAG, format("Terminating task %s", runningTaskName));
-            runningTasks.get(runningTaskName).getAsyncTask().cancel(true);
+            runningTasks.get(runningTaskName).cancel(true);
         }
     }
 
-    @Override
-    public void onStatusUpdate(AsyncTask asyncTask, TaskStatus newStatus) {
+    public static void onTaskUpdate(TaskInfo asyncTask, TaskStatus newStatus) {
         //initiate all tasks that were held up by the now completed task
-        String taskName = asyncTask.getClass().getSimpleName();
         switch (newStatus) {
             case COMPLETED: {
-                if (outstandingTasks != null) {
-                    completedTasks.put(taskName, runningTasks.get(taskName));
-                    runningTasks.remove(taskName);
-                    outstandingTasks.remove(taskName);
 
-                    for (String awaitingTask : dependencyList.keySet()) {
-                        if (dependencyList.get(awaitingTask) != null &&
-                            dependencyList.get(awaitingTask).getDependencies().contains(taskName)) {
-                            Log.i(TAG, format("Dependency %s resolved for awaiting task %s. Attempting to schedule.", taskName, awaitingTask));
-                            if (runWhenAvailable(dependencyList.get(awaitingTask)).isSuccess()) {
-                                Log.i(TAG, format("Scheduled previously awaiting job %s.", awaitingTask));
-                                dependencyList.remove(awaitingTask);
-                            }
+                StreetsCommon.showSnackBar(TAG, "Background task " + asyncTask.getClassName() + " completed", Snackbar.LENGTH_SHORT);
+                completedTasks.put(asyncTask.getClassName(), runningTasks.get(asyncTask.getClassName()));
+                runningTasks.remove(asyncTask.getClassName());
+
+                for (String awaitingTask : processDependencyList.keySet()) {
+                    TaskInfo awaitingTaskInfo = processDependencyList.get(awaitingTask);
+                    if (awaitingTask != null && awaitingTaskInfo.getProcessDependencies().contains(asyncTask.getClassName())) {
+                        Log.i(TAG, format("Dependency %s resolved for awaiting task %s. Attempting to schedule.", asyncTask.getClassName(), awaitingTask));
+                        if (runWhenAvailable(processDependencyList.get(awaitingTask)).isSuccess()) {
+                            StreetsCommon.showSnackBar(TAG, "Starting task " + asyncTask.getClassName(), Snackbar.LENGTH_SHORT);
+                            Log.i(TAG, format("Scheduled previously awaiting job %s.", awaitingTask));
+                            processDependencyList.remove(awaitingTask);
                         }
                     }
-
                 }
                 break;
             }

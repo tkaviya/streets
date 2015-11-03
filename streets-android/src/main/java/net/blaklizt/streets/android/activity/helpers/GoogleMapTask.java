@@ -1,6 +1,5 @@
 package net.blaklizt.streets.android.activity.helpers;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -13,6 +12,10 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.common.TaskInfo;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 /******************************************************************************
  * *
@@ -34,74 +37,76 @@ import net.blaklizt.streets.android.common.StreetsCommon;
  * GNU General Public License for more details.                            *
  * *
  ******************************************************************************/
-public class GoogleMapTask extends AsyncTask<Void, Void, Void> implements StatusChangeNotifier {
+public class GoogleMapTask extends TaskInfo implements StreetsProviderPattern {
 
     private static final String TAG = StreetsCommon.getTag(GoogleMapTask.class);
 
     private MapLayout mapLayout;
 
-    public GoogleMapTask(MapLayout mapLayout) {
-        this.mapLayout = mapLayout;
+    public GoogleMapTask() {
+        super(null, new ArrayList<>(Collections.singletonList(MapLayout.class)), true, false);
+        mapLayout = MapLayout.getInstance();
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
+    protected Object doInBackground(Object[] params) {
 
         if (mapLayout.getGoogleMap().isPresent()) {
             Log.i(TAG, "Google map already initialized");
             return null;
         }
 
-        Log.i(TAG, "Initializing Google Map");
+        mapLayout.getActivity().runOnUiThread(new Runnable() {
+            @Override public void run() {
+                Log.i(TAG, "Initializing Google Map");
 
-        //Create global configuration and initialize ImageLoader with this configuration
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(mapLayout.getActivity().getApplicationContext()).build();
-        ImageLoader.getInstance().init(config);
+                //Create global configuration and initialize ImageLoader with this configuration
+                ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(mapLayout.getActivity().getApplicationContext()).build();
+                ImageLoader.getInstance().init(config);
 
-        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(mapLayout.getActivity().getApplicationContext());
-        // Showing status
-        if (status != ConnectionResult.SUCCESS) // Google Play Services are not available
-        {
-            Log.i(TAG, "Google Play Services are not available");
-        }
-        else // Google Play Services are available
-        {
-            Log.i(TAG, "Google Play Services are available");
-            // Getting reference to the SupportMapFragment of activity_main.xml
-            MapFragment fm = (MapFragment) mapLayout.getActivity().getFragmentManager().findFragmentById(R.id.map_fragment);
+                int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(mapLayout.getActivity().getApplicationContext());
+                // Showing status
+                if (status != ConnectionResult.SUCCESS) // Google Play Services are not available
+                {
+                    Log.i(TAG, "Google Play Services are not available");
+                }
+                else // Google Play Services are available
+                {
+                    Log.i(TAG, "Google Play Services are available");
+                    // Getting reference to the SupportMapFragment of activity_main.xml
+                    MapFragment fm = (MapFragment) mapLayout.getActivity().getFragmentManager().findFragmentById(R.id.map_fragment);
 
-            // Getting GoogleMap object from the fragment
-            mapLayout.setGoogleMap(fm.getMap());
+                    // Getting GoogleMap object from the fragment
+                    mapLayout.setGoogleMap(fm.getMap());
 
-            Log.i(TAG, "Got Google map");
+                    Log.i(TAG, "Got Google map");
 
-            mapLayout.getGoogleMap().get().setMyLocationEnabled(true);
+                    mapLayout.getGoogleMap().get().setMyLocationEnabled(true);
 
-            mapLayout.getGoogleMap().get().getUiSettings().setZoomGesturesEnabled(true);
+                    mapLayout.getGoogleMap().get().getUiSettings().setZoomGesturesEnabled(true);
 
-            mapLayout.getGoogleMap().get().getUiSettings().setZoomControlsEnabled(true);
+                    mapLayout.getGoogleMap().get().getUiSettings().setZoomControlsEnabled(true);
 
-//            mapLayout.getGoogleMap().get().setOnMarkerClickListener(mapLayout);
+//                  mapLayout.getGoogleMap().get().setOnMarkerClickListener(mapLayout);
 
-            mapLayout.getGoogleMap().get().setInfoWindowAdapter(mapLayout);
+                    mapLayout.getGoogleMap().get().setInfoWindowAdapter(mapLayout);
 
-//            mapLayout.getGoogleMap().get().setOnMapLoadedCallback(mapLayout);
-        }
+//                  mapLayout.getGoogleMap().get().setOnMapLoadedCallback(mapLayout);
+                }
+            }
+        });
+
         return null;
     }
 
     @Override
-    public void onCancelled() {
-        super.onCancelled();
-
-        if (mapLayout.getGoogleMap().isPresent()) {
-            mapLayout.getGoogleMap().ifPresent(GoogleMap::stopAnimation);
-        }
-
+    public void onCancelledRelay() {
+        mapLayout.getGoogleMap().ifPresent(GoogleMap::stopAnimation);
     }
 
     @Override
-    public void onPostExecute(Void result) {
-//        onStatusChange(this, SequentialTaskManager.TaskStatus.COMPLETED);
+    public void onTerminationRelay() {
+        Log.i(TAG, "Shutting down class " + getClassName());
+        mapLayout.getGoogleMap().ifPresent(GoogleMap::stopAnimation);
     }
 }

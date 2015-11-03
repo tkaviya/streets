@@ -1,11 +1,9 @@
 package net.blaklizt.streets.android.activity;
 
-import android.app.ProgressDialog;
-import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -16,10 +14,16 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import net.blaklizt.streets.android.R;
+import net.blaklizt.streets.android.activity.helpers.LoginTask;
+import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
+import net.blaklizt.streets.android.activity.helpers.StreetsProviderPattern;
+import net.blaklizt.streets.android.common.STATUS_CODES;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.common.TASK_TYPE;
+import net.blaklizt.streets.android.common.USER_PREFERENCE;
 import net.blaklizt.streets.android.common.utils.SecurityContext;
 
-import org.json.JSONObject;
+import java.util.ArrayList;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,104 +32,15 @@ import org.json.JSONObject;
  * Time: 4:30 PM
  */
 public class Startup extends AppCompatActivity implements
-	View.OnClickListener, MediaPlayer.OnCompletionListener
+        View.OnClickListener, MediaPlayer.OnCompletionListener, StreetsProviderPattern
 {
-	private Button btnLogin = null;
-	private EditText edtPassword = null;
+	public Button btnLogin = null;
+	public EditText edtPassword = null;
 	private CheckBox chkAutoLogin = null;
-	int counter = 5;
 
-	private class LoginTask extends AsyncTask<Void, Void, Void>
-	{
-		ProgressDialog progressDialog;
+    private ArrayList<StreetsProviderPattern> shutdownCallbackQueue = new ArrayList<>();
 
-		@Override
-		protected Void doInBackground(Void... param)
-		{
-			Log.i(TAG, "Authenticating...");
-
-//			ServerCommunication.sendServerRequest("action=Login&channel=" + StreetsCommon.CHANNEL + "&username=" + username.getText().toString() + "&edtPassword=" + edtPassword.getText().toString());
-			String loginResponse = "{response_code:1, response_message:\"success\", symbiosis_user_id:1}";
-
-			if (loginResponse == null)
-			{
-				runOnUiThread(() -> Toast.makeText(getInstance(), "Login Failed. Check Internet Connection.", Toast.LENGTH_SHORT).show());
-				return null;
-			}
-
-			try
-			{
-				JSONObject responseJSON = new JSONObject(loginResponse);
-
-				if (responseJSON.getInt("response_code") == 1)//ResponseCode.SUCCESS.getValue())
-				{
-                    Long symbiosisUserID = responseJSON.getLong("symbiosis_user_id");
-                    getStreetsCommon().setUserID(symbiosisUserID);
-
-					Log.i(TAG, "Login successful");
-					runOnUiThread(new Runnable() {
-						@Override public void run() {
-							Toast.makeText(getInstance(), "Login successful", Toast.LENGTH_SHORT).show();
-							if (chkAutoLogin.isChecked()) {
-								getStreetsCommon().setUserPreference("auto_login", "1");
-							}
-						}
-					});
-
-					Intent mainActivity = new Intent(getInstance(), MenuLayout.class);
-					startActivity(mainActivity);
-				}
-				else if (responseJSON.getInt("response_code") < 0)
-				{
-					Log.i(TAG, "Login failed with internal error: " + responseJSON.getString("response_message"));
-					runOnUiThread(() -> Toast.makeText(getInstance(), "Login Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show());
-				}
-				else
-				{
-					final String loginResponseStr = responseJSON.getString("response_message");
-					Log.i(TAG, "Login failed: " + responseJSON.getString("response_message"));
-					getStreetsCommon().setUserPreference("auto_login", "0"); //disable auto login to prevent running out of attempts
-					runOnUiThread(() -> Toast.makeText(getInstance(), loginResponseStr, Toast.LENGTH_SHORT).show());
-
-					if (--counter <= 0)
-					{
-						runOnUiThread(new Runnable() {
-							@Override public void run() {
-								edtPassword.setEnabled(false);
-								btnLogin.setEnabled(false);
-								Toast.makeText(getInstance(), "Maximum login attempts. Please contact support", Toast.LENGTH_LONG).show();
-							}
-						});
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				Log.e(TAG, "Login failed: " + e.getMessage(), e);
-				e.printStackTrace();
-				runOnUiThread(() -> Toast.makeText(getInstance(), "Login Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show());
-			}
-			return null;
-		}
-
-		@Override
-		protected void onPreExecute()
-		{
-			progressDialog = ProgressDialog.show(getInstance(), "Authenticating", "Authenticating...", true, false);
-			progressDialog.show();
-		}
-
-		@Override
-		protected void onProgressUpdate(Void... progress) { }
-
-		@Override
-		protected void onPostExecute(Void result)
-		{
-			progressDialog.hide();
-		}
-	}
-
-	private static final String TAG = StreetsCommon.getTag(Startup.class);
+    private final String TAG = getClassName();//StreetsCommon.getTag(Startup.class);
 
 	private VideoView videoView;
 
@@ -149,7 +64,7 @@ public class Startup extends AppCompatActivity implements
 			btnLogin = (Button) findViewById(R.id.btnLogin);
 			chkAutoLogin = (CheckBox) findViewById(R.id.chkAutoLogin);
 
-			if (getStreetsCommon().getUserPreferenceValue("show_intro").equals("1")) {
+			if (getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.SHOW_INTRO).equals("1")) {
                 playIntroVideo();
 			} else {
 				onCompletion(null);
@@ -170,8 +85,8 @@ public class Startup extends AppCompatActivity implements
 	@Override
 	public void onCompletion(MediaPlayer mp) {
 		Log.i(TAG, "+++ ON COMPLETION +++");
-		if (getStreetsCommon().getUserPreferenceValue("auto_login").equals("1")) {
-			new LoginTask().execute();
+		if (getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.AUTO_LOGIN).equals("1")) {
+			SequentialTaskManager.runImmediately(new LoginTask(this));
 		}
 		else {
 			edtPassword.setVisibility(View.VISIBLE);
@@ -190,9 +105,13 @@ public class Startup extends AppCompatActivity implements
     public static SecurityContext getSecurityContext() {
 
         if (securityContext == null) {
-            securityContext = SecurityContext.getInstance(getInstance());
+            securityContext = SecurityContext.getInstance();
         }
         return securityContext;
+    }
+
+    public void registerOnDestroyHandler(StreetsProviderPattern onDestroyHandler) {
+        shutdownCallbackQueue.add(onDestroyHandler);
     }
 
     public void playIntroVideo() {
@@ -214,7 +133,7 @@ public class Startup extends AppCompatActivity implements
 	public void onClick(View view)
 	{
         Log.i(TAG, "+++ ON CLICK +++");
-		new LoginTask().execute();
+		new LoginTask(this).execute();
 	}
 
     @Override
@@ -228,10 +147,26 @@ public class Startup extends AppCompatActivity implements
 
     @Override
     public void onDestroy() {
-		Log.i(TAG, "+++ ON DESTROY +++");
+
+		StreetsCommon.showSnackBar(TAG, "[- Now leaving Tha Streetz -]\n ...Goodbye...", Snackbar.LENGTH_SHORT);
+
+        Log.i(TAG, "+++ ON DESTROY +++");
 		super.onDestroy();
-        if (videoView != null) { videoView.stopPlayback(); }
+
+        Log.i(TAG, "Terminating video...");
+        if (videoView != null) { videoView.stopPlayback(); videoView = null; }
+
+        for (StreetsProviderPattern shutdownHandler : shutdownCallbackQueue) {
+            shutdownHandler.onTermination();
+        }
+
+        shutdownCallbackQueue.clear();
+        shutdownCallbackQueue = null;
+
         if (streetsCommon != null) { streetsCommon.endApplication(); }
+
+        getStreetsCommon().writeEventLog(TASK_TYPE.SYS_TASK, STATUS_CODES.SUCCESS, "Shutdown completely cleanly");
+        finish();
     }
 
 	@Override

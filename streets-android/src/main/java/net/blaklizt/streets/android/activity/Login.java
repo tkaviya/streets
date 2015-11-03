@@ -47,7 +47,7 @@
 //			{
 //				runOnUiThread(new Runnable() {
 //					@Override public void run() {
-//						Toast.makeText(getInstance(), "Login Failed. Check Internet Connection.", Toast.LENGTH_SHORT).show();
+//						showToast(TAG, "Login Failed. Check Internet Connection.", Toast.LENGTH_SHORT).show();
 //					}
 //				});
 //				return null;
@@ -60,7 +60,7 @@
 //				if (responseJSON.getInt("response_code") == 1)//ResponseCode.SUCCESS.getValue())
 //				{
 //					Log.i(TAG, "Login successful");
-//					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), "Login successful", Toast.LENGTH_SHORT).show(); } });
+//					runOnUiThread(new Runnable() { @Override public void run() { showToast(TAG, "Login successful", Toast.LENGTH_SHORT).show(); } });
 //					Intent mainActivity = new Intent(getInstance(), Streets.class);
 //					startActivity(mainActivity);
 //					StreetsCommon.registerStreetsActivity(Streets.getInstance());
@@ -68,13 +68,13 @@
 //				else if (responseJSON.getInt("response_code") < 0)
 //				{
 //					Log.i(TAG, "Login failed with internal error: " + responseJSON.getString("response_message"));
-//					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), "Login Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show(); } });
+//					runOnUiThread(new Runnable() { @Override public void run() { showToast(TAG, "Login Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show(); } });
 //				}
 //				else
 //				{
 //					final String loginResponseStr = responseJSON.getString("response_message");
 //					Log.i(TAG, "Login failed: " + responseJSON.getString("response_message"));
-//					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), loginResponseStr, Toast.LENGTH_SHORT).show(); } });
+//					runOnUiThread(new Runnable() { @Override public void run() { showToast(loginResponseStr, Toast.LENGTH_SHORT).show(); } });
 //
 //					if (--counter <= 0)
 //					{
@@ -83,7 +83,7 @@
 //								username.setEnabled(false);
 //								password.setEnabled(false);
 //								loginBtn.setEnabled(false);
-//								Toast.makeText(getInstance(), "Maximum login attempts. Please contact support", Toast.LENGTH_LONG).show();
+//								showToast(TAG, "Maximum login attempts. Please contact support", Toast.LENGTH_LONG).show();
 //							}
 //						});
 //					}
@@ -93,7 +93,7 @@
 //			{
 //				Log.e(TAG, "Login failed: " + e.getMessage(), e);
 //				e.printStackTrace();
-//				runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), "Login Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show(); } });
+//				runOnUiThread(new Runnable() { @Override public void run() { showToast(TAG, "Login Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show(); } });
 //			}
 //			return null;
 //		}

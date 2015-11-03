@@ -60,7 +60,7 @@
 //
 //			if (registerResponse == null)
 //			{
-//				Toast.makeText(getInstance(), "Registration Failed. Check Internet Connection.", Toast.LENGTH_SHORT).show();
+//				showToast(TAG, "Registration Failed. Check Internet Connection.", Toast.LENGTH_SHORT).show();
 //				return null;
 //			}
 //
@@ -71,7 +71,7 @@
 //				if (responseJSON.getInt("response_code") == 1)//ResponseCode.SUCCESS.getValue())
 //				{
 //					Log.i(TAG, "Registration successful");
-//					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), "Registration successful", Toast.LENGTH_SHORT).show(); } });
+//					runOnUiThread(new Runnable() { @Override public void run() { showToast(TAG, "Registration successful", Toast.LENGTH_SHORT).show(); } });
 //					Intent mainActivity = new Intent(getInstance(), Streets.class);
 //					startActivity(mainActivity);
 //					StreetsCommon.registerStreetsActivity(Streets.getInstance());
@@ -79,20 +79,20 @@
 //				else if (responseJSON.getInt("response_code") < 0)
 //				{
 //					Log.i(TAG, "Registration failed with internal error: " + responseJSON.getString("response_message"));
-//					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), "Registration Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show(); } });
+//					runOnUiThread(new Runnable() { @Override public void run() { showToast(TAG, "Registration Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show(); } });
 //				}
 //				else
 //				{
 //					final String registerResponseStr = responseJSON.getString("response_message");
 //					Log.i(TAG, "Registration failed: " + responseJSON.getString("response_message"));
-//					runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), registerResponseStr, Toast.LENGTH_SHORT).show(); } });
+//					runOnUiThread(new Runnable() { @Override public void run() { showToast(registerResponseStr, Toast.LENGTH_SHORT).show(); } });
 //				}
 //			}
 //			catch (Exception e)
 //			{
 //				Log.e(TAG, "Registration failed: " + e.getMessage(), e);
 //				e.printStackTrace();
-//				runOnUiThread(new Runnable() { @Override public void run() { Toast.makeText(getInstance(), "Registration Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show(); } });
+//				runOnUiThread(new Runnable() { @Override public void run() { showToast(TAG, "Registration Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT).show(); } });
 //			}
 //			return null;
 //		}

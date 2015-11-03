@@ -1,6 +1,5 @@
 package net.blaklizt.streets.android.activity.helpers;
 
-import android.os.AsyncTask;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
 
@@ -11,12 +10,17 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.common.TaskInfo;
 import net.blaklizt.streets.android.common.utils.Optional;
 import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.location.places.PlacesService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+
+import static java.util.Arrays.asList;
+import static net.blaklizt.streets.android.common.StreetsCommon.showSnackBar;
 
 /******************************************************************************
  * *
@@ -38,76 +42,60 @@ import java.util.HashMap;
  * GNU General Public License for more details.                            *
  * *
  ******************************************************************************/
-public class PlacesTask extends AsyncTask<Void, Void, Void> implements StatusChangeNotifier {
+public class PlacesTask extends TaskInfo {
 
     private final String TAG = StreetsCommon.getTag(PlacesTask.class);
     private Optional<ArrayList<Place>> nearbyPlaces = Optional.empty();
     private HashMap<Integer, Place> map = new HashMap<>();
     private MapLayout mapLayout;
 
-    public PlacesTask(MapLayout mapLayout) {
-        this.mapLayout = mapLayout;
+    public PlacesTask() {
+        super(new ArrayList<>(asList(GoogleMapTask.class.getSimpleName(), LocationUpdateTask.class.getSimpleName())),
+              new ArrayList<>(Collections.singletonList(MapLayout.class)), false, false);
     }
 
     @Override
-    protected Void doInBackground(Void... param) {
+    protected Object doInBackground(Object[] params) {
         Log.i(TAG, "+++ doInBackground +++");
 
-        if (mapLayout.getCurrentLocation().get() != null) {
+        if (mapLayout.getCurrentLocation().isPresent()) {
             nearbyPlaces = PlacesService.nearby_search(
-                    mapLayout.getCurrentLocation().get().getLatitude(), mapLayout.getCurrentLocation().get().getLongitude(), 5000,
-                    Startup.getStreetsCommon().getStreetsDBHelper().getPlacesOfInterest()
+                mapLayout.getCurrentLocation().get().getLatitude(), mapLayout.getCurrentLocation().get().getLongitude(),
+                5000, Startup.getStreetsCommon().getStreetsDBHelper().getPlacesOfInterest()
             );
         }
         else {
-            showSnackbar("Current location unknown. Check location settings.", Snackbar.LENGTH_SHORT);
+            showSnackBar(TAG, "Current location unknown. Check location settings.", Snackbar.LENGTH_SHORT);
         }
         return null;
-    }
-
-    private void showSnackbar(final String text, final int duration) {
-        if (mapLayout.getView() != null) {
-            mapLayout.getActivity().runOnUiThread(
-                new Runnable() {
-                    @Override public void run() {
-                        Snackbar snackbar = Snackbar.make(mapLayout.getView(), text, duration);
-                        snackbar.show();
-                    }
-                }
-            );
-        }
     }
 
     @Override
     protected void onPreExecute() {
         Log.i(TAG, "+++ onPreExecute +++");
         super.onPreExecute();
-        onStatusChange(this, SequentialTaskManager.TaskStatus.STARTED);
-        showSnackbar("Updating location", Snackbar.LENGTH_LONG);
+        showSnackBar(TAG, "Updating location", Snackbar.LENGTH_LONG);
     }
 
     @Override
-    protected void onCancelled() {
+    protected void onCancelledRelay() {
         Log.i(TAG, "+++ onCancelled +++");
-        super.onCancelled();
-        onStatusChange(this, SequentialTaskManager.TaskStatus.CANCELLED);
+        super.onCancelledRelay();
     }
 
     @Override
-    protected void onProgressUpdate(Void... progress) {
+    protected void onProgressUpdate(Object [] args) {
         Log.i(TAG, "+++ onProgressUpdate +++");
         super.onProgressUpdate();
     }
 
     @Override
-    protected void onPostExecute(Void result) {
+    protected void onPostExecuteRelay(Object result) {
         Log.i(TAG, "+++ onPostExecute +++");
         super.onPostExecute(result);
-        onStatusChange(this, SequentialTaskManager.TaskStatus.COMPLETED);
 
         if (nearbyPlaces != null && nearbyPlaces.isPresent()) {
             ArrayList<Place> places = nearbyPlaces.get();
-
             if (mapLayout.getGoogleMap().isPresent()) {
                 mapLayout.getGoogleMap().get().clear();
                 for (Place place : places) {

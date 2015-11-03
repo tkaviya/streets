@@ -7,21 +7,17 @@ package net.blaklizt.streets.android.adapter;
 */
 
 import android.app.Activity;
-import android.os.Build;
-import android.speech.tts.TextToSpeech;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckedTextView;
 import android.widget.TextView;
+
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.Group;
-
-import java.util.Date;
 
 public class PlacesListAdapter extends BaseExpandableListAdapter
 {
@@ -56,20 +52,7 @@ public class PlacesListAdapter extends BaseExpandableListAdapter
 		}
 		text = (TextView) convertView.findViewById(R.id.navigationItemText);
 		text.setText(children);
-		convertView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-				{
-					Startup.getStreetsCommon().getTextToSpeech()
-							.speak(children, TextToSpeech.QUEUE_FLUSH, null, String.valueOf(new Date().getTime()));
-				}
-				else
-				{
-                    Startup.getStreetsCommon().getTextToSpeech().speak(children, TextToSpeech.QUEUE_FLUSH, null);
-				}
-			}
-		});
+		convertView.setOnClickListener(v -> Startup.getStreetsCommon().speak(children));
 		return convertView;
 	}
 
