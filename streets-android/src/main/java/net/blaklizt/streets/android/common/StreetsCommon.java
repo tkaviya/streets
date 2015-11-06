@@ -10,6 +10,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import net.blaklizt.streets.android.activity.Startup;
+import net.blaklizt.streets.android.common.utils.SecurityContext;
 import net.blaklizt.streets.android.common.utils.Validator;
 import net.blaklizt.streets.android.listener.PreferenceUpdateDialogueListener;
 import net.blaklizt.streets.android.persistence.StreetsDBHelper;
@@ -18,9 +19,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
-
-import static net.blaklizt.streets.android.common.utils.SecurityContext.securityTermination;
-import static net.blaklizt.streets.android.common.utils.SecurityContext.unknownError;
 
 /**
  * Created with IntelliJ IDEA.
@@ -124,7 +122,7 @@ public class StreetsCommon
         }
     }
 
-    public static void showSnackBar(TAG, final String TAG, final String text, final int duration) {
+    public static void showSnackBar(final String TAG, final String text, final int duration) {
 
         if      (duration == Snackbar.LENGTH_LONG)  { Log.w(TAG, text); }
         else if (duration == Snackbar.LENGTH_SHORT) { Log.i(TAG, text); }
@@ -168,8 +166,9 @@ public class StreetsCommon
     public String getUserPreferenceValue(USER_PREFERENCE preference) {
         if (!getUserPreferenceValues().containsKey(preference.pref_name)) {
             Log.i(TAG, "Preference " + preference.pref_name + " does not exist");
-            securityTermination("Preference " + preference.pref_name + " does not exist in the database.\n\n" +
-                    "Please update your application to avoid data corruption, crashes & unexpected behaviour");
+            writeEventLog(TASK_TYPE.USER_PREF_READ, STATUS_CODES.GENERAL_ERROR,
+                "Preference " + preference.pref_name + " does not exist in the database.\n\n" +
+                "Please update your application to avoid data corruption, crashes & unexpected behaviour");
         }
 		Log.i(TAG, preference.pref_name + " = " + getUserPreferenceValues().get(preference.pref_name).pref_value);
         return getUserPreferenceValues().get(preference.pref_name).pref_value;
@@ -180,13 +179,17 @@ public class StreetsCommon
         try { userPreferenceValues = getStreetsDBHelper().getUserPreferences(); }
         catch (Exception ex) {
             ex.printStackTrace();
-            securityTermination("User preferences could not be read from the database.\n\n" +
-                "Please update your application to the latest version to avoid potential data corruption.");
+            SecurityContext.handleApplicationError(SecurityContext.ERROR_SEVERITY.SEVERE,
+                "User preferences could not be read from the database.\n\n" +
+                "Please update your application to the latest version to avoid potential data corruption.",
+                ex.getStackTrace(), TASK_TYPE.USER_PREF_READ);
         }
 
         if (userPreferenceValues == null || userPreferenceValues.isEmpty()) {
-            securityTermination("User preferences could not be read from the database.\n\n" +
-                    "Please update your application to the latest version to avoid potential data corruption.");
+            SecurityContext.handleApplicationError(SecurityContext.ERROR_SEVERITY.SEVERE,
+                "User preferences could not be read from the database.\n\n" +
+                "Please update your application to the latest version to avoid potential data corruption.",
+                "getUserPreferences returned no results", TASK_TYPE.USER_PREF_READ);
         }
 	}
 
@@ -205,9 +208,10 @@ public class StreetsCommon
             getUserPreferenceValues().put(preference.pref_name, preference);
             getStreetsDBHelper().setUserPreference(preference, value, description, data_type);
 		} catch (Exception ex) {
-            unknownError("User preferences could not be read from the database.\n\n" +
+            SecurityContext.handleApplicationError(SecurityContext.ERROR_SEVERITY.SEVERE,
+                "User preferences could not be updated.\n\n" +
                 "Please update your application to the latest version to avoid potential data corruption.",
-                ex.getStackTrace());
+                ex.getStackTrace(), TASK_TYPE.USER_PREF_UPDATE);
         }
 	}
 

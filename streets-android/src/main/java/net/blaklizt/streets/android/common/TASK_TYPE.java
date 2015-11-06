@@ -14,7 +14,8 @@ public enum TASK_TYPE
 
     USER_AUTH           ("10", "user_auth",         "user authentication"),
     USER_INPUT          ("11", "user_data",         "user input data"),
-    USER_PREF_UPDATE    ("12", "user_customization","user preference customization"),
+    USER_PREF_READ      ("12", "user_read",         "read user preference"),
+    USER_PREF_UPDATE    ("13", "user_customization","user preference customization"),
 
     NET_ACCESS          ("30", "net_access",        "network access"),
 
