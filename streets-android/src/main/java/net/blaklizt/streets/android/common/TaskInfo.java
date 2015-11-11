@@ -120,13 +120,17 @@ public abstract class TaskInfo extends AsyncTask implements StreetsProviderPatte
     @Override
     public final void onTermination() {
         if (!getStatus().equals(Status.FINISHED)) { cancel(true); }
+        onTerminationRelay();
     }
 
     /* this method is only here to allow you to still catch onPostExecute */
     protected void onPostExecuteRelay(Object result) {}
 
-    /* this method is only here to allow you to still catch onPostExecute */
+    /* this method is only here to allow you to still catch onCancelledRelay */
     protected void onCancelledRelay() {}
+
+    /* this method is only here to allow you to still catch onTerminationRelay */
+    protected void onTerminationRelay() {}
 
     public HashMap<String, Class> getViewDependencies() {
         return viewDependencies;

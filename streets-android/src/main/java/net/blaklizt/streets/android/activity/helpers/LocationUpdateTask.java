@@ -26,6 +26,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.common.TASK_TYPE;
 import net.blaklizt.streets.android.common.TaskInfo;
 import net.blaklizt.streets.android.common.USER_PREFERENCE;
 import net.blaklizt.streets.android.listener.EnableGPSDialogueListener;
@@ -78,7 +79,7 @@ public class LocationUpdateTask extends TaskInfo
 
     public LocationUpdateTask() {
         super(new ArrayList<>(singletonList(GoogleMapTask.class.getSimpleName())),
-              new ArrayList<>(Collections.singletonList(MapLayout.class)), true, false);
+              new ArrayList<>(Collections.singletonList(MapLayout.class)), true, false, TASK_TYPE.BG_PLACES_TASK);
         this.mapLayout = MapLayout.getInstance();
     }
 
@@ -89,8 +90,8 @@ public class LocationUpdateTask extends TaskInfo
             Log.i(TAG, "Initializing location manager");
             //at activity start, if user has not disabled location stuff, request permissions.
             if (!arePermissionsGranted &&
-                    (Startup.getStreetsCommon().getUserPreferenceValue("suggest_gps").equals("1") ||
-                            Startup.getStreetsCommon().getUserPreferenceValue("auto_enable_gps").equals("1"))) {
+                    (Startup.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.SUGGEST_GPS).equals("1") ||
+                            Startup.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.AUTO_ENABLE_GPS).equals("1"))) {
                 Startup.getStreetsCommon().setUserPreference(USER_PREFERENCE.REQUEST_GPS_PERMS, "1"); //reset preferences if permissions were updated
             }
         }
@@ -103,7 +104,7 @@ public class LocationUpdateTask extends TaskInfo
             locationManager.addGpsStatusListener(this);
 
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                if (Startup.getStreetsCommon().getUserPreferenceValue("suggest_gps").equals("1")) {
+                if (Startup.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.SUGGEST_GPS).equals("1")) {
 
                     EnableGPSDialogueListener enableGpsListener = new EnableGPSDialogueListener(mapLayout.getActivity());
 
@@ -115,7 +116,7 @@ public class LocationUpdateTask extends TaskInfo
                                     EnableGPSDialogueListener.EnableGPSOptionListener.getInstance())
                             .setPositiveButton("Yes", enableGpsListener)
                             .setNegativeButton("No", enableGpsListener).create().show();
-                } else if (Startup.getStreetsCommon().getUserPreferenceValue("auto_enable_gps").equals("1")) {
+                } else if (Startup.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.AUTO_ENABLE_GPS).equals("1")) {
                     Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                     mapLayout.startActivity(myIntent);
                 }
@@ -255,7 +256,7 @@ public class LocationUpdateTask extends TaskInfo
         ArrayList<String> outstandingPermissions = Startup.getStreetsCommon().getOutstandingPermissions();
 
         Log.i(TAG, "Outstanding permissions: " + outstandingPermissions.size());
-        if (outstandingPermissions.size() > 0 && Startup.getStreetsCommon().getUserPreferenceValue("request_gps_perms").equals("1")) {
+        if (outstandingPermissions.size() > 0 && Startup.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.REQUEST_GPS_PERMS).equals("1")) {
             Log.i(TAG, "Not enough permissions to do location updates. Requesting from user.");
             mapLayout.requestPermissions(outstandingPermissions.toArray(new String[outstandingPermissions.size()]), PERMISSION_LOCATION_INFO);
             arePermissionsGranted = false;

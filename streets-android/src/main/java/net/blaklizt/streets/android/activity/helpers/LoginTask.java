@@ -9,6 +9,7 @@ import android.widget.Toast;
 import net.blaklizt.streets.android.activity.MenuLayout;
 import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.common.TASK_TYPE;
 import net.blaklizt.streets.android.common.TaskInfo;
 import net.blaklizt.streets.android.common.USER_PREFERENCE;
 
@@ -48,7 +49,7 @@ public class LoginTask extends TaskInfo {
     private Startup startup;
 
     public LoginTask(Startup startup) {
-        super(null, new ArrayList<>(Collections.singletonList(Startup.class)), false, false);
+        super(null, new ArrayList<>(Collections.singletonList(Startup.class)), false, false, TASK_TYPE.FG_LOGIN_TASK);
         this.startup = startup;
     }
 
@@ -88,7 +89,7 @@ public class LoginTask extends TaskInfo {
                 final String loginResponseStr = responseJSON.getString("response_message");
                 Log.i(TAG, "Login failed: " + responseJSON.getString("response_message"));
                 Startup.getStreetsCommon().setUserPreference(USER_PREFERENCE.AUTO_LOGIN, "0"); //disable auto login to prevent running out of attempts
-                showToast(loginResponseStr, Toast.LENGTH_SHORT);
+                showToast(TAG, loginResponseStr, Toast.LENGTH_SHORT);
 
                 if (--counter <= 0) {
                     startup.runOnUiThread(new Runnable() {

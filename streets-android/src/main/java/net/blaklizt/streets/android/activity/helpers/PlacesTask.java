@@ -10,6 +10,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.common.TASK_TYPE;
 import net.blaklizt.streets.android.common.TaskInfo;
 import net.blaklizt.streets.android.common.utils.Optional;
 import net.blaklizt.streets.android.location.places.Place;
@@ -51,7 +52,7 @@ public class PlacesTask extends TaskInfo {
 
     public PlacesTask() {
         super(new ArrayList<>(asList(GoogleMapTask.class.getSimpleName(), LocationUpdateTask.class.getSimpleName())),
-              new ArrayList<>(Collections.singletonList(MapLayout.class)), false, false);
+              new ArrayList<>(Collections.singletonList(MapLayout.class)), false, false, TASK_TYPE.BG_PLACES_TASK);
     }
 
     @Override

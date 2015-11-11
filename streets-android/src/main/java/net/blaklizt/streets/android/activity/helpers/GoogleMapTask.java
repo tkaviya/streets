@@ -12,6 +12,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.common.TASK_TYPE;
 import net.blaklizt.streets.android.common.TaskInfo;
 
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class GoogleMapTask extends TaskInfo implements StreetsProviderPattern {
     private MapLayout mapLayout;
 
     public GoogleMapTask() {
-        super(null, new ArrayList<>(Collections.singletonList(MapLayout.class)), true, false);
+        super(null, new ArrayList<>(Collections.singletonList(MapLayout.class)), true, false, TASK_TYPE.BG_GOOGLE_MAP_TASK);
         mapLayout = MapLayout.getInstance();
     }
 
