@@ -14,7 +14,6 @@ import com.google.android.gms.maps.model.Marker;
 
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.GoogleMapTask;
-import net.blaklizt.streets.android.activity.helpers.LocationUpdateTask;
 import net.blaklizt.streets.android.activity.helpers.PlacesTask;
 import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
@@ -74,7 +73,7 @@ public class MapLayout extends StreetsAbstractView implements Navigator.OnPathSe
 
         Log.i(TAG, "Queuing tasks for dependency managed execution.");
         SequentialTaskManager.runImmediately(AppContext.getBackgroundExecutionTask(GoogleMapTask.class));
-        SequentialTaskManager.runImmediately(AppContext.getBackgroundExecutionTask(LocationUpdateTask.class));
+//        SequentialTaskManager.runImmediately(AppContext.getBackgroundExecutionTask(LocationUpdateTask.class));
         SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(PlacesTask.class));
     }
 

@@ -40,11 +40,11 @@ public class Startup extends AppCompatActivity implements OnClickListener, OnCom
 
 	private static Startup startup;
 
-	Startup() { AppContext.getInstance(this.getApplicationContext()); startup = this; }
-
     @Override
 	public void onCreate(Bundle savedInstanceState)
 	{
+        AppContext.getInstance(this.getApplicationContext()); startup = this;
+
         Log.i(TAG, "+++ ON CREATE +++");
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.intro_layout);
