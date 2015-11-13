@@ -2,6 +2,7 @@ package net.blaklizt.streets.android.activity;
 
 import android.content.Context;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -25,6 +26,7 @@ import net.blaklizt.streets.android.common.utils.Optional;
 import net.blaklizt.streets.android.location.navigation.Directions;
 import net.blaklizt.streets.android.location.navigation.Navigator;
 import net.blaklizt.streets.android.navigation.Places;
+import net.blaklizt.streets.android.sidemenu.fragment.StreetsFragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +40,7 @@ import static java.util.Collections.singletonList;
  * Date: 6/21/14
  * Time: 5:58 PM
  */
-public class MapLayout extends Fragment implements Navigator.OnPathSetListener, GoogleMap.InfoWindowAdapter
+public class MapLayout extends StreetsFragment implements Navigator.OnPathSetListener, GoogleMap.InfoWindowAdapter
 
         //OnMarkerClickListener,
 {
@@ -47,14 +49,17 @@ public class MapLayout extends Fragment implements Navigator.OnPathSetListener, 
 
     private static final String TAG = StreetsCommon.getTag(MapLayout.class);
 
-
 	private static MapLayout mapLayout = null;
+
+    private static LocationUpdateTask locationUpdateTask = null;
 
 	private View mapView;
 
 	private GoogleMap googleMap;
     private Location currentLocation = null;
-    
+
+    private LocationManager locationManager = null;
+
 	private Navigator navigator;
 	private ImageView location_image;
 	private TextView location_info;
@@ -62,6 +67,7 @@ public class MapLayout extends Fragment implements Navigator.OnPathSetListener, 
 
     public MapLayout() {
         mapLayout = this;
+        registerStreetsFragment("Tha Streetz", R.drawable.icn_close);
     }
 
 	@Override
@@ -80,6 +86,9 @@ public class MapLayout extends Fragment implements Navigator.OnPathSetListener, 
             location_image = (ImageView) mapView.findViewById(R.id.location_image_view);
             location_info = (TextView) mapView.findViewById(R.id.location_categories_text_view);
             setRetainInstance(true);
+
+
+            setLocationManager((LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE));
         }
 
         startTasks();
@@ -109,6 +118,7 @@ public class MapLayout extends Fragment implements Navigator.OnPathSetListener, 
 
         Log.i(TAG, "Queuing tasks for dependency managed execution.");
         SequentialTaskManager.runImmediately(TASK_EXECUTION_INFO.get(gMapTask));
+        SequentialTaskManager.runImmediately(TASK_EXECUTION_INFO.get(locationTask));
         SequentialTaskManager.runWhenAvailable(TASK_EXECUTION_INFO.get(placesTask));
     }
 
@@ -165,16 +175,25 @@ public class MapLayout extends Fragment implements Navigator.OnPathSetListener, 
         this.googleMap = googleMap;
     }
 
+    public Optional<GoogleMap> getGoogleMap() {
+        return Optional.ofNullable(googleMap);
+    }
+
     public void setCurrentLocation(Location currentLocation) {
         this.currentLocation = currentLocation;
     }
 
-	public Optional<GoogleMap> getGoogleMap() {
-		return Optional.ofNullable(googleMap);
-	}
-
     public Optional<Location> getCurrentLocation() {
         return Optional.ofNullable(currentLocation);
+    }
+
+	public Optional<LocationManager> getLocationManager() {
+		return Optional.ofNullable(locationManager);
+	}
+
+    public void setLocationManager(LocationManager locationManager) {
+        this.locationManager = locationManager;
+        this.locationManager.addGpsStatusListener(locationUpdateTask);
     }
 
     public static MapLayout getInstance() {

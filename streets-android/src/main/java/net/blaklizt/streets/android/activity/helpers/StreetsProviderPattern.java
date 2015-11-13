@@ -24,7 +24,7 @@ package net.blaklizt.streets.android.activity.helpers;
 
 public interface StreetsProviderPattern {
 
-    default void onTermination() { /* only called if you call registerOnDestroyHandler on Startup class */ }
+    void onTermination();// { /* only called if you call registerOnDestroyHandler on Startup class */ }
 
-    default String getClassName() { return this.getClass().getSimpleName() + "InterfaceName"; }
+    String getClassName();// { return this.getClass().getSimpleName() + "InterfaceName"; }
 }

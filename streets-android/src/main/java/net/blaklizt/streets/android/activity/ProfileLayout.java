@@ -14,7 +14,7 @@ import net.blaklizt.streets.android.common.StreetsCommon;
 /**
  * Created by tsungai.kaviya on 2015-09-23.
  */
-public class ProfileLayout extends Fragment
+public class ProfileLayout extends StreetsFragment
 {
 	private static final String TAG = StreetsCommon.getTag(ProfileLayout.class);
 	private static ProfileLayout profileLayout;

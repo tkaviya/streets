@@ -10,9 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
-import net.blaklizt.streets.android.NavigationListAdapter;
-import net.blaklizt.streets.android.common.Group;
+
 import net.blaklizt.streets.android.R;
+import net.blaklizt.streets.android.adapter.NavigationListAdapter;
+import net.blaklizt.streets.android.common.Group;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.location.navigation.Steps;
 
@@ -24,7 +25,7 @@ import java.util.ArrayList;
  * Date: 6/22/14
  * Time: 12:05 AM
  */
-public class NavigationLayout extends Fragment
+public class NavigationLayout extends StreetsFragment
 {
     private static final String TAG = StreetsCommon.getTag(NavigationLayout.class);
 	private static NavigationLayout navigationLayout;

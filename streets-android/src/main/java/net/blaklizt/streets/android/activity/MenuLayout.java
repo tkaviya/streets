@@ -3,9 +3,7 @@ package net.blaklizt.streets.android.activity;
 import android.app.FragmentTransaction;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -19,13 +17,14 @@ import android.widget.LinearLayout;
 
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.common.StreetsCommon;
-import net.blaklizt.streets.android.sidemenu.fragment.ContentFragment;
+import net.blaklizt.streets.android.common.TaskInfo;
+import net.blaklizt.streets.android.sidemenu.fragment.StreetsFragment;
 import net.blaklizt.streets.android.sidemenu.interfaces.Resourceble;
-import net.blaklizt.streets.android.sidemenu.interfaces.ScreenShotable;
 import net.blaklizt.streets.android.sidemenu.model.SlideMenuItem;
 import net.blaklizt.streets.android.sidemenu.util.ViewAnimator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import io.codetail.animation.SupportAnimator;
@@ -58,14 +57,13 @@ import static java.lang.String.format;
 public class MenuLayout extends AppCompatActivity implements ViewAnimator.ViewAnimatorListener {
 
     private static final String TAG = StreetsCommon.getTag(MenuLayout.class);
+    public static final HashMap<String, StreetsFragment> streetsViews = new HashMap<>();
     private static MenuLayout menuLayout;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
-    private List<SlideMenuItem> list = new ArrayList<>();
-    private ContentFragment contentFragment;
+    private StreetsFragment contentFragment;
     private ViewAnimator viewAnimator;
     private LinearLayout linearLayout;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,7 +72,7 @@ public class MenuLayout extends AppCompatActivity implements ViewAnimator.ViewAn
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_menu_layout);
         menuLayout = this;
-        contentFragment = ContentFragment.newInstance(R.layout.map_layout);
+        contentFragment = StreetsFragment.newInstance(R.layout.map_layout);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content_frame, MapLayout.getInstance())
                 .setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
@@ -84,33 +82,21 @@ public class MenuLayout extends AppCompatActivity implements ViewAnimator.ViewAn
         linearLayout = (LinearLayout) findViewById(R.id.left_drawer);
         linearLayout.setOnClickListener(v -> drawerLayout.closeDrawers());
 
+        List<SlideMenuItem> menuItemList = new ArrayList<>();
+        menuItemList.add(new SlideMenuItem("Close", R.drawable.icn_close));
+        for (StreetsFragment fragment : streetsViews.values()) {
+            menuItemList.add(fragment.getSlideMenuItem());
+        }
 
         setActionBar();
         createMenuList();
-        viewAnimator = new ViewAnimator<>(this, list, contentFragment, drawerLayout, this);
+        viewAnimator = new ViewAnimator<>(this, menuItemList, contentFragment, drawerLayout, this);
 
     }
 
     public static MenuLayout getInstance() { return menuLayout; }
 
     private void createMenuList() {
-
-        SlideMenuItem menuItem0 = new SlideMenuItem(ContentFragment.CLOSE, R.drawable.icn_close);
-        list.add(menuItem0);
-        SlideMenuItem menuItem = new SlideMenuItem(ContentFragment.THA_STREETZ, android.R.drawable.ic_dialog_map);
-        list.add(menuItem);
-        SlideMenuItem menuItem2 = new SlideMenuItem(ContentFragment.NAVIGATION, R.drawable.world_search);
-        list.add(menuItem2);
-        SlideMenuItem menuItem3 = new SlideMenuItem(ContentFragment.PROFILE, R.drawable.icon_profile);
-        list.add(menuItem3);
-        SlideMenuItem menuItem4 = new SlideMenuItem(ContentFragment.CHAT, R.drawable.chat);
-        list.add(menuItem4);
-        SlideMenuItem menuItem5 = new SlideMenuItem(ContentFragment.FRIENDS, R.drawable.friends_group);
-        list.add(menuItem5);
-        SlideMenuItem menuItem6 = new SlideMenuItem(ContentFragment.INVITE_REFER, R.drawable.plus);
-        list.add(menuItem6);
-        SlideMenuItem menuItem7 = new SlideMenuItem(ContentFragment.CONTACT_US, R.drawable.mail);
-        list.add(menuItem7);
     }
 
 
@@ -181,35 +167,26 @@ public class MenuLayout extends AppCompatActivity implements ViewAnimator.ViewAn
         }
     }
 
-    private Fragment getReplacementFragement(int position) {
-        switch (position) {
-            case 1: return MapLayout.getInstance();
-            case 2: return NavigationLayout.getInstance();
-            case 3: return ProfileLayout.getInstance();
-            case 4: return MapLayout.getInstance();
-            case 5: return NavigationLayout.getInstance();
-            case 6: return ProfileLayout.getInstance();
-            case 7: return MapLayout.getInstance();
-            case 8: return NavigationLayout.getInstance();
-            default: return MapLayout.getInstance();
-        }
+    private StreetsFragment getReplacementFragement(int position) {
+        return streetsViews.get(position - 1);
     }
 
-    private ScreenShotable replaceFragment(ScreenShotable screenShotable, int topPosition) {
+    private StreetsFragment replaceFragment(StreetsFragment streetsFragment, int topPosition) {
         View view = findViewById(R.id.content_frame);
         int finalRadius = Math.max(view.getWidth(), view.getHeight());
         SupportAnimator animator = ViewAnimationUtils.createCircularReveal(view, 0, topPosition, 0, finalRadius);
         animator.setInterpolator(new AccelerateInterpolator());
         animator.setDuration(ViewAnimator.CIRCULAR_REVEAL_ANIMATION_DURATION);
         animator.start();
-        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, getReplacementFragement(topPosition)).commit();
-        return contentFragment;
+        StreetsFragment replacementFragment = getReplacementFragement(topPosition);
+        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, replacementFragment).commit();
+        return replacementFragment;
     }
 
     @Override
-    public ScreenShotable onSwitch(Resourceble slideMenuItem, ScreenShotable screenShotable, int position) {
+    public StreetsFragment onSwitch(Resourceble slideMenuItem, StreetsFragment screenShotable, int position) {
         switch (slideMenuItem.getName()) {
-            case ContentFragment.CLOSE:
+            case StreetsFragment.CLOSE:
                 return screenShotable;
             default:
                 return replaceFragment(screenShotable, position);

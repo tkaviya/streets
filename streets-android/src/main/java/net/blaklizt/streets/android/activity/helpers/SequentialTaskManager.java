@@ -14,6 +14,7 @@ import net.blaklizt.streets.android.common.utils.SecurityContext;
 import net.blaklizt.streets.android.common.utils.Try;
 
 import java.util.Date;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CancellationException;
 
@@ -92,10 +93,11 @@ public class SequentialTaskManager {
     public static Try<TaskInfo, String> schedule(TaskInfo newTaskInfo) {
         Log.i(TAG, format("Scheduling task %s to run when prerequisites are met", newTaskInfo.getClassName()));
         if (outstandingTasks.containsKey(newTaskInfo.getClassName())) {
-            Log.i(TAG, format("Scheduling task %s which already has a pending execution!", newTaskInfo.getClassName()));
+            Log.i(TAG, format("Task %s already has a pending execution! Will not schedule another instance.", newTaskInfo.getClassName()));
+        } else {
+            outstandingTasks.put(newTaskInfo.getClassName(), newTaskInfo);
+            newTaskInfo.setRequestedTimeIfNotSet(new Date());
         }
-        outstandingTasks.put(newTaskInfo.getClassName(), newTaskInfo);
-        newTaskInfo.setRequestedTimeIfNotSet(new Date());
         return Try.success(newTaskInfo);
     }
 
@@ -151,7 +153,7 @@ public class SequentialTaskManager {
 
     public static Try<TaskInfo, String> runWhenAvailable(TaskInfo newTaskInfo) {
 
-        Log.i(TAG, "Scheduling task for later execution: " + newTaskInfo);
+        Log.i(TAG, "Scheduling task for later execution: " + newTaskInfo.getClassName());
         Log.i(TAG, "Allows MultiInstance: " + newTaskInfo.allowsMultiInstance());
         Log.i(TAG, "Allows Only Once: " + newTaskInfo.allowsOnlyOnce());
         Log.i(TAG, "Number of processDependencies: " + newTaskInfo.getProcessDependencies().size());
@@ -179,17 +181,20 @@ public class SequentialTaskManager {
         //initiate all tasks that were held up by the now completed task
         switch (newStatus) {
             case COMPLETED: {
+                String completedTask = asyncTask.getClassName();
+                StreetsCommon.showSnackBar(TAG, "Background task " + completedTask + " completed", Snackbar.LENGTH_SHORT);
+                completedTasks.put(completedTask, runningTasks.get(completedTask));
+                runningTasks.remove(completedTask);
 
-                StreetsCommon.showSnackBar(TAG, "Background task " + asyncTask.getClassName() + " completed", Snackbar.LENGTH_SHORT);
-                completedTasks.put(asyncTask.getClassName(), runningTasks.get(asyncTask.getClassName()));
-                runningTasks.remove(asyncTask.getClassName());
+                Set<String> tasksWithDependencies = processDependencyList.keySet();
 
-                for (String awaitingTask : processDependencyList.keySet()) {
+                for (String awaitingTask : tasksWithDependencies) {
                     TaskInfo awaitingTaskInfo = processDependencyList.get(awaitingTask);
-                    if (awaitingTask != null && awaitingTaskInfo.getProcessDependencies().contains(asyncTask.getClassName())) {
-                        Log.i(TAG, format("Dependency %s resolved for awaiting task %s. Attempting to schedule.", asyncTask.getClassName(), awaitingTask));
+                    if (awaitingTaskInfo.getProcessDependencies().contains(completedTask)) {
+                        awaitingTaskInfo.getProcessDependencies().remove(completedTask);
+                        Log.i(TAG, format("Dependency %s resolved for awaiting task %s. Attempting to schedule.", completedTask, awaitingTask));
                         if (runWhenAvailable(processDependencyList.get(awaitingTask)).isSuccess()) {
-                            StreetsCommon.showSnackBar(TAG, "Starting task " + asyncTask.getClassName(), Snackbar.LENGTH_SHORT);
+                            StreetsCommon.showSnackBar(TAG, "Starting task " + completedTask, Snackbar.LENGTH_SHORT);
                             Log.i(TAG, format("Scheduled previously awaiting job %s.", awaitingTask));
                             processDependencyList.remove(awaitingTask);
                         }

@@ -10,8 +10,8 @@ import android.widget.ImageView;
 
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.sidemenu.animation.FlipAnimation;
+import net.blaklizt.streets.android.sidemenu.fragment.StreetsFragment;
 import net.blaklizt.streets.android.sidemenu.interfaces.Resourceble;
-import net.blaklizt.streets.android.sidemenu.interfaces.ScreenShotable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,18 +24,18 @@ public class ViewAnimator<T extends Resourceble> {
     private List<T> list;
 
     private List<View> viewList = new ArrayList<>();
-    private ScreenShotable screenShotable;
+    private StreetsFragment streetsFragment;
     private DrawerLayout drawerLayout;
     private ViewAnimatorListener animatorListener;
 
     public ViewAnimator(AppCompatActivity activity,
                         List<T> items,
-                        ScreenShotable screenShotable,
+                        StreetsFragment streetsFragment,
                         final DrawerLayout drawerLayout,
                         ViewAnimatorListener animatorListener) {
         this.appCompatActivity = activity;
         this.list = items;
-        this.screenShotable = screenShotable;
+        this.streetsFragment = streetsFragment;
         this.drawerLayout = drawerLayout;
         this.animatorListener = animatorListener;
     }
@@ -66,10 +66,6 @@ public class ViewAnimator<T extends Resourceble> {
                 public void run() {
                     if (position < viewList.size()) {
                         animateView((int) position);
-                    }
-                    if (position == viewList.size() - 1) {
-                        screenShotable.takeScreenShot();
-                        setViewsClickable(true);
                     }
                 }
             }, (long) delay);
@@ -162,13 +158,13 @@ public class ViewAnimator<T extends Resourceble> {
     }
 
     private void switchItem(Resourceble slideMenuItem, int topPosition) {
-        this.screenShotable = animatorListener.onSwitch(slideMenuItem, screenShotable, topPosition);
+        this.streetsFragment = animatorListener.onSwitch(slideMenuItem, streetsFragment, topPosition);
         hideMenuContent();
     }
 
     public interface ViewAnimatorListener {
 
-        public ScreenShotable onSwitch(Resourceble slideMenuItem, ScreenShotable screenShotable, int position);
+        public StreetsFragment onSwitch(Resourceble slideMenuItem, StreetsFragment streetsFragment, int position);
 
         public void disableHomeButton();
 

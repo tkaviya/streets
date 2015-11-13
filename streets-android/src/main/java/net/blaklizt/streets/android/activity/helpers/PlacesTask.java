@@ -53,6 +53,7 @@ public class PlacesTask extends TaskInfo {
     public PlacesTask() {
         super(new ArrayList<>(asList(GoogleMapTask.class.getSimpleName(), LocationUpdateTask.class.getSimpleName())),
               new ArrayList<>(Collections.singletonList(MapLayout.class)), false, false, TASK_TYPE.BG_PLACES_TASK);
+        this.mapLayout = MapLayout.getInstance();
     }
 
     @Override
@@ -92,8 +93,6 @@ public class PlacesTask extends TaskInfo {
 
     @Override
     protected void onPostExecuteRelay(Object result) {
-        Log.i(TAG, "+++ onPostExecute +++");
-        super.onPostExecute(result);
 
         if (nearbyPlaces != null && nearbyPlaces.isPresent()) {
             ArrayList<Place> places = nearbyPlaces.get();

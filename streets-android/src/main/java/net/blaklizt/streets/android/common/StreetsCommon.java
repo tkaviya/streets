@@ -164,14 +164,14 @@ public class StreetsCommon
     }
 
     public String getUserPreferenceValue(USER_PREFERENCE preference) {
-        if (!getUserPreferenceValues().containsKey(preference.pref_name)) {
-            Log.i(TAG, "Preference " + preference.pref_name + " does not exist");
+        if (!getUserPreferenceValues().containsKey(preference.name())) {
+            Log.i(TAG, "Preference " + preference.name() + " does not exist");
             writeEventLog(TASK_TYPE.USER_PREF_READ, STATUS_CODES.GENERAL_ERROR,
-                "Preference " + preference.pref_name + " does not exist in the database.\n\n" +
+                "Preference " + preference.name() + " does not exist in the database.\n\n" +
                 "Please update your application to avoid data corruption, crashes & unexpected behaviour");
         }
-		Log.i(TAG, preference.pref_name + " = " + getUserPreferenceValues().get(preference.pref_name).pref_value);
-        return getUserPreferenceValues().get(preference.pref_name).pref_value;
+		Log.i(TAG, preference.name() + " = " + getUserPreferenceValues().get(preference.name()).pref_value);
+        return getUserPreferenceValues().get(preference.name()).pref_value;
     }
 
 	public void initUserPreferenceData() {
@@ -201,11 +201,11 @@ public class StreetsCommon
 	public void setUserPreference(USER_PREFERENCE preference, String value) {
         try {
             Log.i(TAG, "Setting " + preference + " = " + value);
-            String description = getUserPreferenceValues().get(preference.pref_name).pref_description;
-            String data_type = getUserPreferenceValues().get(preference.pref_name).pref_data_type;
-            getUserPreferenceValues().remove(preference.pref_name);
+            String description = getUserPreferenceValues().get(preference.name()).pref_description;
+            String data_type = getUserPreferenceValues().get(preference.name()).pref_data_type;
+            getUserPreferenceValues().remove(preference.name());
             preference.pref_value = value;
-            getUserPreferenceValues().put(preference.pref_name, preference);
+            getUserPreferenceValues().put(preference.name(), preference);
             getStreetsDBHelper().setUserPreference(preference, value, description, data_type);
 		} catch (Exception ex) {
             SecurityContext.handleApplicationError(SecurityContext.ERROR_SEVERITY.SEVERE,

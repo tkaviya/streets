@@ -17,8 +17,13 @@ import net.blaklizt.streets.android.common.utils.SecurityContext;
 import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.location.places.PlaceTypes;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -37,11 +42,13 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
     private static final String TAG = StreetsCommon.getTag(StreetsDBHelper.class);
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 9;
 
 	private static final String DATABASE_NAME = "Neighbourhood.db";
 
 	private static final ArrayList<String> ALL_TABLES = new ArrayList<>();
+
+    private static final SimpleDateFormat STREETS_DATE_FORMAT = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss", Locale.ENGLISH);
 
     /* static / setup tables */
     private static final String TASK_TYPE_TABLE = "task_type";                  static { ALL_TABLES.add(TASK_TYPE_TABLE); }
@@ -64,8 +71,14 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 
     private SQLiteDatabase sqlLiteDatabase = null;
 
-    public StreetsDBHelper(Context context) { super(context, DATABASE_NAME, null, DATABASE_VERSION); }
+    private Context context;
 
+    public StreetsDBHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
+    }
+
+    @Override
     public void onCreate(SQLiteDatabase db) {
 
 		for (String tableName : ALL_TABLES) {
@@ -75,37 +88,41 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 
         Log.i(TAG, "Recreating table " + TASK_TYPE_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TASK_TYPE_TABLE + " (" +
-                "task_type_id INT(11) PRIMARY KEY," +
+                "task_type_id INTEGER PRIMARY KEY," +
                 "task_type_name VARCHAR(30)," +
-                "description VARCHAR(50)");
+                "description VARCHAR(50))");
 
         Log.i(TAG, "Recreating table " + STATUS_CODE_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + STATUS_CODE_TABLE + " (" +
-                "status_code INT(11) PRIMARY KEY," +
+                "status_code INTEGER PRIMARY KEY," +
                 "status_name VARCHAR(30)," +
-                "status_description VARCHAR(50)");
+                "status_description VARCHAR(50))");
 
         Log.i(TAG, "Recreating table " + PLACE_TYPE_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + PLACE_TYPE_TABLE + " (" +
-                "place_type_id INT(11) PRIMARY KEY," +
+                "place_type_id INTEGER PRIMARY KEY," +
                 "place_type_name VARCHAR(50))");
 
         Log.i(TAG, "Recreating table " + USER_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + USER_TABLE + " (" +
-                "symbiosis_id INT(11) PRIMARY KEY," +
+                "symbiosis_id INTEGER PRIMARY KEY," +
                 "username VARCHAR(256)," +
                 "imei VARCHAR(256)," +
                 "imsi VARCHAR(128)," +
                 "password VARCHAR(50)," +
-                "last_location_id INT(11)," +
-                "home_place_id INT(11)," +
+                "last_location_id INTEGER," +
+                "home_place_id INTEGER," +
                 "type VARCHAR(50))");
+
+        Log.i(TAG, "Recreating table " + REQUIRED_PERMS);
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + REQUIRED_PERMS + " (" +
+                "permission VARCHAR(50) PRIMARY KEY)");
 
         //fixed places that are never remove
         Log.i(TAG, "Recreating table " + PLACE_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + PLACE_TABLE + " (" +
-                "place_id INT(11) PRIMARY KEY," +
-                "place_type_id INT(11)," +
+                "place_id INTEGER PRIMARY KEY," +
+                "place_type_id INTEGER," +
                 "name VARCHAR(50)," +
                 "reference VARCHAR(100)," +
                 "latitude DOUBLE," +
@@ -115,21 +132,21 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
         //table the grows and is truncated after a while
         Log.i(TAG, "Recreating table " + LOCATION_HISTORY_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + LOCATION_HISTORY_TABLE + " (" +
-                "location_history_id INT(11) PRIMARY KEY," +
+                "location_history_id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "latitude DOUBLE," +
                 "longitude DOUBLE," +
                 "update_date_time DATETIME)");
 
 		Log.i(TAG, "Recreating table " + FRIEND_TABLE);
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + FRIEND_TABLE + " (" +
-                "symbiosis_id INT(11) PRIMARY KEY," +
-                "last_place_id INT(11)," +
-                "home_place_id INT(11))");
+                "symbiosis_id INTEGER PRIMARY KEY," +
+                "last_place_id INTEGER," +
+                "home_place_id INTEGER)");
 
 		Log.i(TAG, "Recreating table " + SUPPLIER_TABLE);
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + SUPPLIER_TABLE + " (" +
-                "symbiosis_id INT(11) PRIMARY KEY," +
-                "last_geolocation_id INT(11))");
+                "symbiosis_id INTEGER PRIMARY KEY," +
+                "last_geolocation_id INTEGER)");
 
 		Log.i(TAG, "Recreating table " + USER_PREFERENCE_TABLE);
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + USER_PREFERENCE_TABLE + " (" +
@@ -141,126 +158,179 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 
         Log.i(TAG, "Recreating table " + TASK_HISTORY_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TASK_HISTORY_TABLE + " (" +
-                "task_history_id INT(11) AUTO_INCREMENT PRIMARY KEY," +
+                "task_history_id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "task_type_id VARCHAR(30)," +
                 "request_time DATETIME," +
                 "start_time DATETIME," +
                 "end_time DATETIME," +
-                "final_status INT(3)");
+                "final_status INT(3))");
 
         Log.i(TAG, "Recreating table " + EVENT_HISTORY_TABLE);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + EVENT_HISTORY_TABLE + " (" +
-                "history_id INT(11) AUTO_INCREMENT PRIMARY KEY," +
-                "event_type_id INT(11)," +
+                "history_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "event_type_id INTEGER," +
                 "event_time DATETIME," +
                 "final_status INT(3)," +
-                "description BLOB");
+                "description BLOB)");
 
-        initTaskData();
+        initTaskData(db);
 
-        initPlaceData();
+        initPlaceData(db);
 
-        initUserData();
+        initUserData(db);
 
-        initPreferenceData();
+        initPreferenceData(db);
+
+        persistOnline(db);
     }
 
+    @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) { onCreate(db); }
 
+    @Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		onUpgrade(db, oldVersion, newVersion);
     }
 
-	private SQLiteDatabase getStreetsWritableDatabase() {
-		if (sqlLiteDatabase == null) { sqlLiteDatabase = getWritableDatabase(); }
+	private synchronized SQLiteDatabase getStreetsWritableDatabase() {
+		if (sqlLiteDatabase == null) {
+            sqlLiteDatabase = getWritableDatabase();
+        }
 		return sqlLiteDatabase;
 	}
 
-    public void initUserData() {
-        Log.i(TAG, "Populating data for current user " + REQUIRED_PERMS);
-        getStreetsWritableDatabase().execSQL("INSERT INTO " + USER_TABLE +
-                " (symbiosis_id,username,imei,imsi,password,last_location_id,home_place_id,type) VALUES" +
-                " (" + SecurityContext.getUserDefaultDataSet().get("symbiosis_id") + "," +
-                " (" + SecurityContext.getUserDefaultDataSet().get("username") + "," +
-                " (" + Startup.getStreetsCommon().getIMEI() + "," +
-                " (" + Startup.getStreetsCommon().getIMSI() + "," +
-                " (" + SecurityContext.getUserDefaultDataSet().get("password") + "," +
-                " (" + SecurityContext.getUserDefaultDataSet().get("last_location_id") + "," +
-                " (" + SecurityContext.getUserDefaultDataSet().get("home_place_id") + "," +
-                " (" + SecurityContext.getUserDefaultDataSet().get("type") + ")");
-
-        Log.i(TAG, "Recreating table " + REQUIRED_PERMS);
-        getStreetsWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS "
-                + REQUIRED_PERMS + " (permission VARCHAR(50) PRIMARY KEY)");
+    private synchronized void persistOnline(SQLiteDatabase db) {
+        Log.i(TAG, "Mapping populated table data " + REQUIRED_PERMS);
+        StringBuilder tableInfo = new StringBuilder();
+        for (String table : ALL_TABLES) {
+            Log.i(TAG, "Mapping table " + table);
+            tableInfo.append("========================").append(table).append("========================");
+            Cursor data = db.rawQuery("SELECT * FROM " + table, null);
+            Log.i(TAG, "Found " + data.getCount() + " records.");
+            data.moveToFirst();
+            for (String columnName : data.getColumnNames()) {
+                tableInfo.append(columnName).append("\t");
+            }
+            tableInfo.append("\n");
+            while (!data.isAfterLast()) {
+                for (int c = 0; c < data.getColumnCount(); c++) {
+                    tableInfo.append(data.getString(c)).append(",\t");
+                }
+                tableInfo.append("\n");
+                data.moveToNext();
+            }
+            data.close();
+            tableInfo.append("==========================================================\n\n");
+        }
+        writeToFile(tableInfo.toString());
     }
 
-    public void initPlaceData() {
+    private void writeToFile(String data) {
+        try {
+            File file = new File(context.getExternalFilesDir(null), "db_info.txt");
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(file));
+            outputStreamWriter.write(data);
+            outputStreamWriter.close();
+        }
+        catch (IOException e) {
+            Log.e("Exception", "File write failed: " + e.toString());
+        }
+    }
+
+    private Object getDBRepresentation(Object object) {
+        if (object == null) {
+            return "null";
+        } else if (object.getClass().isAssignableFrom(Number.class)) {
+            return object;
+        }  else if (object instanceof Date) {
+            return "'" + STREETS_DATE_FORMAT.format(object) + "'";
+        } else {
+            return "'" + String.valueOf(object) + "'";
+        }
+    }
+
+    public void initUserData(SQLiteDatabase db) {
+        Log.i(TAG, "Populating data for current user " + REQUIRED_PERMS);
+        String sql = "INSERT INTO " + USER_TABLE +
+                " (symbiosis_id,username,imei,imsi,password,last_location_id,home_place_id,type) VALUES (" +
+                getDBRepresentation(SecurityContext.getUserDefaultDataSet().get("symbiosis_id")) + "," +
+                getDBRepresentation(SecurityContext.getUserDefaultDataSet().get("username")) + "," +
+                getDBRepresentation(Startup.getStreetsCommon().getIMEI()) + "," +
+                getDBRepresentation(Startup.getStreetsCommon().getIMSI()) + "," +
+                getDBRepresentation(SecurityContext.getUserDefaultDataSet().get("password")) + "," +
+                getDBRepresentation(SecurityContext.getUserDefaultDataSet().get("last_location_id")) + "," +
+                getDBRepresentation(SecurityContext.getUserDefaultDataSet().get("home_place_id")) + "," +
+                getDBRepresentation(SecurityContext.getUserDefaultDataSet().get("type")) + ")";
+        Log.d(TAG, "Creating system user. SQL: " + sql);
+        db.execSQL(sql);
+    }
+
+    public void initPlaceData(SQLiteDatabase db) {
         Log.i(TAG, "Recreating table " + PLACE_TYPES_OF_INTEREST);
-        getStreetsWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS "
+        db.execSQL("CREATE TABLE IF NOT EXISTS "
                 + PLACE_TYPES_OF_INTEREST + " (place_type_id VARCHAR(50) PRIMARY KEY)");
 
         ArrayList <String> defaultPlaces = PlaceTypes.getDefaultPlaces();
-        getStreetsWritableDatabase().execSQL("DELETE FROM " + PLACE_TYPES_OF_INTEREST);
+        db.execSQL("DELETE FROM " + PLACE_TYPES_OF_INTEREST);
 
         if (defaultPlaces.size() >= 1) {
             String sql = "INSERT INTO " + PLACE_TYPES_OF_INTEREST + " (place_type_id) SELECT place_type_id FROM "
                     + PLACE_TYPE_TABLE + " WHERE place_type_name IN (";
             for (String place : defaultPlaces) {
-                sql += "'" + place + "',";
+                sql += getDBRepresentation(place) + ",";
             }
 
             sql = sql.substring(0, sql.length() - 1) + ")";
             Log.d(TAG, "Inserting default places. SQL: " + sql);
-            getStreetsWritableDatabase().execSQL(sql);
+            db.execSQL(sql);
         }
     }
 
-    public void initPreferenceData() {
+    public void initPreferenceData(SQLiteDatabase db) {
         String sql = "REPLACE INTO " + USER_PREFERENCE_TABLE +
             " (pref_id, pref_name, pref_value, pref_description, pref_data_type) VALUES ";
 
         for (USER_PREFERENCE pref : USER_PREFERENCE.values()) {
-            sql += "('" + pref.pref_id + "', '" + pref.pref_name + "', '" + pref.pref_value + "', '"
+            sql += "('" + pref.pref_id + "', '" + pref.name() + "', '" + pref.pref_value + "', '"
                         + pref.pref_description + "', '" + pref.pref_data_type + "'),";
         }
 
-        sql = sql.substring(0, sql.length() - 1) + ")";
+        sql = sql.substring(0, sql.length() - 1);
         Log.d(TAG, "Inserting default preference data. SQL:\n" + sql);
-        getStreetsWritableDatabase().execSQL(sql);
+        db.execSQL(sql);
     }
 
-    public void initTaskData() {
+    public void initTaskData(SQLiteDatabase db) {
         String sql = "REPLACE INTO " + TASK_TYPE_TABLE + " (task_type_id, task_type_name, description) VALUES ";
 
         for (TASK_TYPE taskType : TASK_TYPE.values()) {
             sql += "('" + taskType.task_type_id + "', '" + taskType.task_type_name + "', '" + taskType.description + "'),";
         }
 
-        sql = sql.substring(0, sql.length() - 1) + ")";
+        sql = sql.substring(0, sql.length() - 1);
         Log.d(TAG, "Inserting task type data. SQL:\n" + sql);
-        getStreetsWritableDatabase().execSQL(sql);
+        db.execSQL(sql);
     }
 
     public void logApplicationEvent(TASK_TYPE task_type, STATUS_CODES status, String description) {
 
-        String sql = "INSERT INTO " + EVENT_HISTORY_TABLE + " (event_type, event_time, final_status, description) VALUES " +
-                "('" + task_type.task_type_id + "', sysdate(), " +  status.status_code + ", '" + description + "'),";
+        String sql = "INSERT INTO " + EVENT_HISTORY_TABLE + " (event_type_id, event_time, final_status, description) VALUES " +
+                "('" + task_type.task_type_id + "', CURRENT_TIMESTAMP, " +  status.status_code + ", '" + description + "')";
 
         Log.i(TAG, "Inserting application event log for event type: " + task_type.task_type_name + " | Status: " + status.status_name);
-        if (status.status_code != STATUS_CODES.GENERAL_ERROR.status_code) {
+        if (!status.status_code.equals(STATUS_CODES.GENERAL_ERROR.status_code)) {
             Log.d(TAG, "If : " + task_type.task_type_name);
         }
         getStreetsWritableDatabase().execSQL(sql);
     }
 
     public void logTaskEvent(TaskInfo taskInfo, STATUS_CODES status) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy", Locale.ENGLISH);
         String sql = "INSERT INTO " + TASK_HISTORY_TABLE + " (task_type_id, request_time, start_time, end_time, final_status) VALUES " +
-                "('" + taskInfo.getTaskType() + "', " +
-                (taskInfo.getRequestedTime() == null ? "'null'" : "'" + sdf.format(taskInfo.getRequestedTime()) + "', ") +
-                (taskInfo.getStartTime() == null ? "'null'" : "'" + sdf.format(taskInfo.getStartTime()) + "', ") +
-                (taskInfo.getEndTime() == null ? "'null'" : "'" + sdf.format(taskInfo.getEndTime()) + "', ") +
-                status.status_code + "),";
+                "(" + getDBRepresentation(taskInfo.getTaskType()) + ", " +
+                getDBRepresentation(taskInfo.getRequestedTime()) + ", " +
+                getDBRepresentation(taskInfo.getStartTime()) + ", " +
+                getDBRepresentation(taskInfo.getEndTime()) + ", " +
+                status.status_code + ")";
 
         Log.i(TAG, "Inserting task event log. SQL: " + sql);
         getStreetsWritableDatabase().execSQL(sql);
@@ -284,7 +354,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
                         + preferences.getString(0) + " = "
                         + preferences.getString(1) + " : "
                         + preferences.getString(2));
-                USER_PREFERENCE result = USER_PREFERENCE.valueOf(preferences.getString(0));
+                USER_PREFERENCE result = USER_PREFERENCE.valueOf(preferences.getString(0).toUpperCase());
                 result.pref_value = preferences.getString(1);
                 userPreferenceValues.put(preferences.getString(0), result); //value
                 preferences.moveToNext();
@@ -292,9 +362,10 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
             preferences.close();
             return userPreferenceValues;
         } catch (Exception ex) {
+            ex.printStackTrace();
             handleApplicationError(SecurityContext.ERROR_SEVERITY.SEVERE, "Failed to get user preferences! " +
-                ex.getMessage(), ex.getStackTrace(), TASK_TYPE.SYS_DB);
-            return null; //will never return
+                    ex.getMessage(), ex.getStackTrace(), TASK_TYPE.SYS_DB);
+            return null; //will never return. should terminate with exception
         }
 	}
 
@@ -303,7 +374,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 		Log.d(TAG, "Updating user preference " + preference + " to " + value);
 		getStreetsWritableDatabase().execSQL("REPLACE INTO " + USER_PREFERENCE_TABLE +
 				" (pref_id, pref_name, pref_value, pref_description, pref_data_type) VALUES" +
-				" ('" + preference.pref_id + "','" + preference.pref_name +
+				" ('" + preference.pref_id + "','" + preference.name() +
                 "','" + value + "','" + description + "','" + data_type + "')");
 	}
 
@@ -349,10 +420,12 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 
         Log.i(TAG, "Populating data for user id: " + symbiosisUser.getString(0));
 
-        return new SymbiosisUser(
+        SymbiosisUser result = new SymbiosisUser(
             symbiosisUser.getLong(0),   symbiosisUser.getString(1), symbiosisUser.getString(2),
             symbiosisUser.getString(3), symbiosisUser.getString(4), symbiosisUser.getLong(5),
             symbiosisUser.getLong(6),   symbiosisUser.getString(7));
+        symbiosisUser.close();
+        return result;
 	}
 
     public ArrayList<String> getPlacesOfInterest()
@@ -371,6 +444,8 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
             resultList.add(places.getString(0));
             places.moveToNext();
         }
+
+        places.close();
 
         return resultList;
 	}
@@ -414,6 +489,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
             resultList.add(permissions.getString(0));
             permissions.moveToNext();
         }
+        permissions.close();
 
         return resultList;
 	}

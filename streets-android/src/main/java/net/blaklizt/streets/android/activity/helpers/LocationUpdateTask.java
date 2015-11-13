@@ -12,6 +12,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
+import android.os.Looper;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -70,11 +71,11 @@ public class LocationUpdateTask extends TaskInfo
     //location provider data
     private final static String PROVIDER_CHEAPEST = "passive";
     private final static Integer MINIMUM_REFRESH_TIME = 600000;
+    private static LocationManager locationManager = null;
     private String defaultProvider = PROVIDER_CHEAPEST;        //default working provider
     private boolean firstLocationUpdate = true;
 
     private MapLayout mapLayout;
-    private LocationManager locationManager = null;
     private LocationProvider currentProvider = null;
 
     public LocationUpdateTask() {
@@ -86,7 +87,10 @@ public class LocationUpdateTask extends TaskInfo
     @Override
     protected Object doInBackground(Object[] params) {
 
-        if (locationManager == null) {
+        Looper.prepare();
+
+        if (mapLayout.getLocationManager().isPresent()) {
+            locationManager = mapLayout.getLocationManager().get();
             Log.i(TAG, "Initializing location manager");
             //at activity start, if user has not disabled location stuff, request permissions.
             if (!arePermissionsGranted &&
@@ -98,8 +102,9 @@ public class LocationUpdateTask extends TaskInfo
 
         Log.i(TAG, "Getting system location service");
         // Getting LocationManager object from System Service LOCATION_SERVICE
-        locationManager = (LocationManager) mapLayout.getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        mapLayout.setLocationManager((LocationManager) mapLayout.getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE));
 
+        Looper.loop();
         try {
             locationManager.addGpsStatusListener(this);
 
@@ -128,6 +133,8 @@ public class LocationUpdateTask extends TaskInfo
             se.printStackTrace();
             Log.e(TAG, "Failed to do location updates. " + se.getMessage(), se);
         }
+
+        Looper.getMainLooper().quit();
         return null;
     }
 

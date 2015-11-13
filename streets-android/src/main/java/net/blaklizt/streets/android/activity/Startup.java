@@ -40,7 +40,7 @@ public class Startup extends AppCompatActivity implements
 
     private ArrayList<StreetsProviderPattern> shutdownCallbackQueue = new ArrayList<>();
 
-    private final String TAG = getClassName();//StreetsCommon.getTag(Startup.class);
+    private final String TAG =  StreetsCommon.getTag(Startup.class);
 
 	private VideoView videoView;
 
@@ -165,7 +165,7 @@ public class Startup extends AppCompatActivity implements
 
         if (streetsCommon != null) { streetsCommon.endApplication(); }
 
-        getStreetsCommon().writeEventLog(TASK_TYPE.SYS_TASK, STATUS_CODES.SUCCESS, "Shutdown completely cleanly");
+        getStreetsCommon().writeEventLog(TASK_TYPE.SYS_TASK, STATUS_CODES.SUCCESS, "Shutdown completed cleanly");
         finish();
     }
 
@@ -178,4 +178,13 @@ public class Startup extends AppCompatActivity implements
 
 	public static Startup getInstance() { return startup; }
 
+    @Override
+    public void onTermination() {
+
+    }
+
+    @Override
+    public String getClassName() {
+        return this.getClass().getSimpleName();
+    }
 }

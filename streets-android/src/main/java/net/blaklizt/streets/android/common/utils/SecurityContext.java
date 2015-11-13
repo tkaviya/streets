@@ -55,7 +55,7 @@ public class SecurityContext {
         userDefaultDataSet.put("password", null);
         userDefaultDataSet.put("last_location_id", null);
         userDefaultDataSet.put("home_place_id", null);
-        userDefaultDataSet.put("type", null);
+        userDefaultDataSet.put("type", "USER");
     }
 
     public static HashMap<String, Object> getUserDefaultDataSet() {

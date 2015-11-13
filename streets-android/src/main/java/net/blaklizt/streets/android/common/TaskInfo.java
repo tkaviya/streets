@@ -1,6 +1,7 @@
 package net.blaklizt.streets.android.common;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
@@ -101,6 +102,7 @@ public abstract class TaskInfo extends AsyncTask implements StreetsProviderPatte
     @SuppressWarnings("unchecked")
     @Override
     protected final void onPostExecute(Object result) {
+        Log.i(TAG, "+++ onPostExecute +++");
         super.onPostExecute(result);
         endTime = new Date();
         Startup.getStreetsCommon().logTaskEvent(this, STATUS_CODES.SUCCESS);
@@ -110,6 +112,7 @@ public abstract class TaskInfo extends AsyncTask implements StreetsProviderPatte
 
     @Override
     protected final void onCancelled() {
+        Log.i(TAG, "+++ onCancelled +++");
         super.onCancelled();
         endTime = new Date();
         Startup.getStreetsCommon().logTaskEvent(this, STATUS_CODES.CANCELLED);
@@ -119,8 +122,14 @@ public abstract class TaskInfo extends AsyncTask implements StreetsProviderPatte
 
     @Override
     public final void onTermination() {
+        Log.i(TAG, "+++ onTermination +++");
         if (!getStatus().equals(Status.FINISHED)) { cancel(true); }
         onTerminationRelay();
+    }
+
+    @Override
+    public String getClassName() {
+        return this.getClass().getSimpleName();
     }
 
     /* this method is only here to allow you to still catch onPostExecute */
