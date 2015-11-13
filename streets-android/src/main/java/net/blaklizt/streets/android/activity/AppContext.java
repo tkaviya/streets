@@ -62,8 +62,10 @@ public class AppContext {
     private static final HashMap<Class<? extends TaskInfo>, TaskInfo> TASK_EXECUTION_INFO = new HashMap<>();
     /* List of fragment views created for this application. */
     private static final HashMap<Class<? extends StreetsAbstractView>, StreetsAbstractView> STREETS_FRAGMENTS = new HashMap<>();
-    /* List of menus, menu names and menu icons */
-    private static final HashMap<String, SlideMenuItem> FRAGMENT_MENU_REGISTRY = new HashMap<>();
+    /* Mapping of fragment views to their menus */
+    private static final HashMap<Class<? extends StreetsAbstractView>, SlideMenuItem> FRAGMENT_MENU_REGISTRY = new HashMap<>();
+    /* Mapping of menus to their fragments */
+    private static final HashMap<String, Class<? extends StreetsAbstractView>> MENU_FRAGMENT_REGISTRY = new HashMap<>();
 
     public static HashMap<Class<? extends TaskInfo>, TaskInfo> getTaskExecutionInfo() {
         return TASK_EXECUTION_INFO;
@@ -73,8 +75,12 @@ public class AppContext {
         return STREETS_FRAGMENTS;
     }
 
-    public static HashMap<String, SlideMenuItem> getFragmentMenuRegistry() {
+    public static HashMap<Class<? extends StreetsAbstractView>, SlideMenuItem> getFragmentMenuRegistry() {
         return FRAGMENT_MENU_REGISTRY;
+    }
+
+    public static HashMap<String, Class<? extends StreetsAbstractView>> getMenuFragmentRegistry() {
+        return MENU_FRAGMENT_REGISTRY;
     }
 
     /* List of configured user preference options and values */
@@ -134,26 +140,27 @@ public class AppContext {
 
     public static final Class<? extends StreetsAbstractView> DEFAULT_FRAGMENT_VIEW = MapLayout.class;
 
+
     public static final String MNU_CLOSE = "Close";
     private static final String MNU_THA_STREETZ = "Tha Streetz";
     private static final String MNU_NAVIGATION = "Discover & Connect";
     private static final String MNU_PROFILE = "Profile";
-    private static final String MNU_CHAT = "Chat";
-    private static final String MNU_FRIENDS = "Friends";
-    private static final String MNU_INVITE_REFER = "Invite or Refer";
-    private static final String MNU_CONTACT_US = "Contact Us";
+//    private static final String MNU_CHAT = "Chat";
+//    private static final String MNU_FRIENDS = "Friends";
+//    private static final String MNU_INVITE_REFER = "Invite or Refer";
+//    private static final String MNU_CONTACT_US = "Contact Us";
 
     static {
         Log.i(TAG, "Initializing fragment menu information.");
         if (FRAGMENT_MENU_REGISTRY.isEmpty()) {
-            FRAGMENT_MENU_REGISTRY.put(MNU_CLOSE,                               new SlideMenuItem(MNU_CLOSE,        R.drawable.icn_close));
-            FRAGMENT_MENU_REGISTRY.put(MapLayout.class.getSimpleName(),         new SlideMenuItem(MNU_THA_STREETZ,  android.R.drawable.ic_dialog_map));
-            FRAGMENT_MENU_REGISTRY.put(NavigationLayout.class.getSimpleName(),  new SlideMenuItem(MNU_NAVIGATION,   R.drawable.world_search));
-            FRAGMENT_MENU_REGISTRY.put(ProfileLayout.class.getSimpleName(),     new SlideMenuItem(MNU_PROFILE,      R.drawable.icon_profile));
-            FRAGMENT_MENU_REGISTRY.put(MNU_CHAT,            new SlideMenuItem(MNU_CHAT,         R.drawable.chat));
-            FRAGMENT_MENU_REGISTRY.put(MNU_FRIENDS,         new SlideMenuItem(MNU_FRIENDS,      R.drawable.friends_group));
-            FRAGMENT_MENU_REGISTRY.put(MNU_INVITE_REFER,    new SlideMenuItem(MNU_INVITE_REFER, R.drawable.plus));
-            FRAGMENT_MENU_REGISTRY.put(MNU_CONTACT_US,      new SlideMenuItem(MNU_CONTACT_US,   R.drawable.mail));
+            FRAGMENT_MENU_REGISTRY.put(MENU_FRAGMENT_REGISTRY.put(MNU_CLOSE, null),                         new SlideMenuItem(MNU_CLOSE,        R.drawable.icn_close));
+            FRAGMENT_MENU_REGISTRY.put(MENU_FRAGMENT_REGISTRY.put(MNU_THA_STREETZ, MapLayout.class),        new SlideMenuItem(MNU_THA_STREETZ,  android.R.drawable.ic_dialog_map));
+            FRAGMENT_MENU_REGISTRY.put(MENU_FRAGMENT_REGISTRY.put(MNU_NAVIGATION, NavigationLayout.class),  new SlideMenuItem(MNU_NAVIGATION,   R.drawable.world_search));
+            FRAGMENT_MENU_REGISTRY.put(MENU_FRAGMENT_REGISTRY.put(MNU_PROFILE, ProfileLayout.class),        new SlideMenuItem(MNU_PROFILE,      R.drawable.icon_profile));
+//            MENU_VIEW_ITEMS.put(MNU_CHAT,            new SlideMenuItem(MNU_CHAT,         R.drawable.chat));
+//            MENU_VIEW_ITEMS.put(MNU_FRIENDS,         new SlideMenuItem(MNU_FRIENDS,      R.drawable.friends_group));
+//            MENU_VIEW_ITEMS.put(MNU_INVITE_REFER,    new SlideMenuItem(MNU_INVITE_REFER, R.drawable.plus));
+//            MENU_VIEW_ITEMS.put(MNU_CONTACT_US,      new SlideMenuItem(MNU_CONTACT_US,   R.drawable.mail));
         }
     }
 

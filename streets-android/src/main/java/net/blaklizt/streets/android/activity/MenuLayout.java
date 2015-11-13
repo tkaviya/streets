@@ -1,9 +1,12 @@
 package net.blaklizt.streets.android.activity;
 
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +21,7 @@ import android.widget.LinearLayout;
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.common.USER_PREFERENCE;
 import net.blaklizt.streets.android.sidemenu.interfaces.Resourceble;
 import net.blaklizt.streets.android.sidemenu.model.SlideMenuItem;
 import net.blaklizt.streets.android.sidemenu.util.ViewAnimator;
@@ -33,6 +37,7 @@ import io.codetail.animation.ViewAnimationUtils;
 import static java.lang.String.format;
 import static net.blaklizt.streets.android.activity.AppContext.DEFAULT_FRAGMENT_VIEW;
 import static net.blaklizt.streets.android.activity.AppContext.getFragmentView;
+import static net.blaklizt.streets.android.activity.AppContext.getMenuFragmentRegistry;
 import static net.blaklizt.streets.android.activity.AppContext.getStreetsFragments;
 
 /******************************************************************************
@@ -57,14 +62,15 @@ import static net.blaklizt.streets.android.activity.AppContext.getStreetsFragmen
  ******************************************************************************/
 
 
-public class MenuLayout extends AppCompatActivity implements ViewAnimator.ViewAnimatorListener {
+public class MenuLayout extends AppCompatActivity implements
+        ViewAnimator.ViewAnimatorListener, DialogInterface.OnClickListener,
+        DialogInterface.OnMultiChoiceClickListener {
 
     private static final String TAG = StreetsCommon.getTag(MenuLayout.class);
     public static final HashMap<String, StreetsAbstractView> streetsViews = new HashMap<>();
     private static MenuLayout menuLayout;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
-//    private StreetsFragment contentFragment;
     private ViewAnimator viewAnimator;
     private LinearLayout linearLayout;
 
@@ -75,7 +81,6 @@ public class MenuLayout extends AppCompatActivity implements ViewAnimator.ViewAn
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_menu_layout);
         menuLayout = this;
-//        contentFragment = StreetsFragment.newInstance(R.layout.map_layout);
 
         List<SlideMenuItem> menuItemList = new ArrayList<>();
         menuItemList.add(new SlideMenuItem("Close", R.drawable.icn_close));
@@ -116,6 +121,51 @@ public class MenuLayout extends AppCompatActivity implements ViewAnimator.ViewAn
     public static MenuLayout getInstance() { return menuLayout; }
 
     private void createMenuList() {
+    }
+
+
+    @Override
+    public void onClick(DialogInterface dialogInterface, int index, boolean isChecked) {
+        Log.i(TAG, dialogInterface.toString() + ": +++ ON CLICK +++");
+        Log.i(TAG, format("--- dialogInterface: %s", dialogInterface != null ? dialogInterface.toString() : null));
+        Log.i(TAG, format("--- index: %d", index));
+        Log.i(TAG, format("--- isChecked: %s", isChecked));
+        boolean exit = (index == DialogInterface.BUTTON_POSITIVE);
+        //only persist prefs on positive response
+        if (exit) {
+            AppContext.getStreetsCommon().setUserPreference(USER_PREFERENCE.ASK_ON_EXIT, !isChecked ? "1" : "0");
+        }
+    }
+
+
+    @Override
+    public void onClick(DialogInterface dialogInterface, int index) {
+        Log.i(TAG, dialogInterface.toString() + ": +++ ON CLICK +++");
+        Log.i(TAG, format("--- dialogInterface: %s", dialogInterface != null ? dialogInterface.toString() : null));
+        Log.i(TAG, format("--- index: %d", index));
+        boolean exit = (index == DialogInterface.BUTTON_POSITIVE);
+        if (exit) { Startup.getInstance().finish(); finish(); }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.i(TAG, "+++ ON BACK PRESSED +++");
+        Log.i(TAG, format("--- mDrawerLayout.isDrawerOpen: %s", drawerLayout.isDrawerOpen(GravityCompat.START)));
+//        Log.i(TAG, format("--- resideMenu.isOpened: %s", resideMenu.isOpened()));
+
+        if (drawerLayout.isDrawerOpen(GravityCompat.START) /*|| resideMenu.isOpened() */) {
+            drawerLayout.closeDrawers();
+//            resideMenu.closeMenu();
+//            resideMenu.setSwipeDirectionEnable(ResideMenu.DIRECTION_RIGHT);
+            return;
+        }
+
+        CharSequence[] items = new CharSequence[]{"Never ask again"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Exit application?")
+                .setMultiChoiceItems(items, new boolean[]{true}, this)
+                .setPositiveButton("Yes", this)
+                .setNegativeButton("No", this).show();
     }
 
 
@@ -186,10 +236,6 @@ public class MenuLayout extends AppCompatActivity implements ViewAnimator.ViewAn
         }
     }
 
-    private StreetsAbstractView getReplacementFragement(int position) {
-        return streetsViews.get(position - 1);
-    }
-
     private StreetsAbstractView replaceFragment(StreetsAbstractView streetsFragment, int topPosition) {
         View view = findViewById(R.id.content_frame);
         int finalRadius = Math.max(view.getWidth(), view.getHeight());
@@ -197,18 +243,17 @@ public class MenuLayout extends AppCompatActivity implements ViewAnimator.ViewAn
         animator.setInterpolator(new AccelerateInterpolator());
         animator.setDuration(ViewAnimator.CIRCULAR_REVEAL_ANIMATION_DURATION);
         animator.start();
-        StreetsAbstractView replacementFragment = getReplacementFragement(topPosition);
-        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, replacementFragment).commit();
-        return replacementFragment;
+        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, streetsFragment).commit();
+        return streetsFragment;
     }
 
     @Override
-    public StreetsAbstractView onSwitch(Resourceble slideMenuItem, StreetsAbstractView screenShotable, int position) {
+    public StreetsAbstractView onSwitch(Resourceble slideMenuItem, StreetsAbstractView streetsAbstractView, int position) {
         switch (slideMenuItem.getName()) {
             case AppContext.MNU_CLOSE:
-                return screenShotable;
+                return streetsAbstractView;
             default:
-                return replaceFragment(screenShotable, position);
+                return replaceFragment(getStreetsFragments().get(getMenuFragmentRegistry().get(slideMenuItem.getName())), position);
         }
     }
 
