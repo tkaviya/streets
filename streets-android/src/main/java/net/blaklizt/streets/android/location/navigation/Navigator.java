@@ -15,6 +15,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import net.blaklizt.streets.android.common.StreetsCommon;
+
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -59,7 +61,7 @@ public class Navigator {
     }
 
     public interface OnPathSetListener{
-        public void onPathSetListener(String placeName, String Address, String Type, Directions directions);
+        void onPathSetListener(String placeName, String Address, String Type, Directions directions);
     }
 
     public void setOnPathSetListener(OnPathSetListener listener){

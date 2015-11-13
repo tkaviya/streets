@@ -72,16 +72,14 @@ public class PlacesTask extends StreetsAbstractTask {
     }
 
     @Override
-    protected void onPreExecute() {
-        Log.i(TAG, "+++ onPreExecute +++");
-        super.onPreExecute();
+    protected void onPreExecuteRelay() {
+        Log.i(TAG, "+++ onPreExecuteRelay +++");
         showSnackBar(TAG, "Updating location", Snackbar.LENGTH_LONG);
     }
 
     @Override
     protected void onCancelledRelay() {
-        Log.i(TAG, "+++ onCancelled +++");
-        super.onCancelledRelay();
+        Log.i(TAG, "+++ onCancelledRelay +++");
     }
 
     @Override

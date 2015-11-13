@@ -48,11 +48,4 @@ public class ProfileLayout extends StreetsAbstractView
 		Log.i(TAG, "+++ ON RESUME +++");
 		super.onResume();
 	}
-
-	public static ProfileLayout getInstance() {
-		if (profileLayout == null) {
-			profileLayout = new ProfileLayout();
-		}
-		return profileLayout;
-	}
 }

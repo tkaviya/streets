@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.util.Log;
 
 import net.blaklizt.streets.android.activity.AppContext;
+import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.USER_PREFERENCE;
 
 import java.util.ArrayList;

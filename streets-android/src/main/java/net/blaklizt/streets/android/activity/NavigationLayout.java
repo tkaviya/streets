@@ -87,11 +87,4 @@ public class NavigationLayout extends StreetsAbstractView {
 
         navigation_steps.expandGroup(0);
     }
-
-    public static NavigationLayout getInstance() {
-        if (navigationLayout == null) {
-            navigationLayout = new NavigationLayout();
-        }
-        return navigationLayout;
-    }
 }

@@ -117,7 +117,7 @@ public class LoginTask extends StreetsAbstractTask {
     }
 
     @Override
-    protected void onPreExecute() {
+    protected void onPreExecuteRelay() {
         progressDialog = ProgressDialog.show(Startup.getInstance(), "Authenticating", "Authenticating...", true, false);
         progressDialog.show();
     }

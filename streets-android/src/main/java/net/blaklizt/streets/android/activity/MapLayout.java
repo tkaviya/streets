@@ -23,6 +23,7 @@ import net.blaklizt.streets.android.location.navigation.Directions;
 import net.blaklizt.streets.android.location.navigation.Navigator;
 
 import static java.lang.String.format;
+import static net.blaklizt.streets.android.activity.AppContext.getFragmentView;
 
 /**
  * User: tkaviya
@@ -128,7 +129,8 @@ public class MapLayout extends StreetsAbstractView implements Navigator.OnPathSe
     public void onPathSetListener(String placeName, String address, String type, Directions directions) {
         //displace route paths
 	    Log.d(TAG, "New path set");
-	    NavigationLayout.getInstance().setDirections(placeName, address, type, directions.getRoutes().get(0).getLegs().get(0).getSteps());
+        ((NavigationLayout)getFragmentView(NavigationLayout.class))
+                .setDirections(placeName, address, type, directions.getRoutes().get(0).getLegs().get(0).getSteps());
     }
 
 	@Override

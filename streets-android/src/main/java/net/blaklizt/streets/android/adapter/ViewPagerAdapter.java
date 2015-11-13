@@ -10,9 +10,12 @@ package net.blaklizt.streets.android.adapter;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import net.blaklizt.streets.android.activity.ProfileLayout;
+
 import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.activity.NavigationLayout;
+import net.blaklizt.streets.android.activity.ProfileLayout;
+
+import static net.blaklizt.streets.android.activity.AppContext.getFragmentView;
 
 public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
@@ -34,18 +37,15 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
 		if (position == 0) // if the position is 0 we are returning the First tab
 		{
-			if (MapLayout.getInstance() != null) return MapLayout.getInstance();
-			return new MapLayout();
+			return getFragmentView(MapLayout.class);
 		}
 		else if  (position == 1)
 		{
-			if (NavigationLayout.getInstance() != null) return NavigationLayout.getInstance();
-			return new NavigationLayout();
+			return getFragmentView(NavigationLayout.class);
 		}
 		else
 		{
-			if (ProfileLayout.getInstance() != null) return ProfileLayout.getInstance();
-			return new ProfileLayout();
+			return getFragmentView(ProfileLayout.class);
 		}
 	}
 
