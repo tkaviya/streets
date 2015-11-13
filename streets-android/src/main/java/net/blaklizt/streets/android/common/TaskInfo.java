@@ -100,25 +100,9 @@ public abstract class TaskInfo extends AsyncTask implements StreetsInterfaceTask
         return validateInitialized().viewDependencies;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    protected final void onPostExecute(Object result) {
-        Log.i(TAG, "+++ onPostExecute +++");
-        super.onPostExecute(result);
-        endTime = new Date();
-        AppContext.getStreetsCommon().logTaskEvent(this, STATUS_CODES.SUCCESS);
-        onTaskUpdate(this, SequentialTaskManager.TaskStatus.COMPLETED);
-        onPostExecuteRelay(result);
-    }
-
-    @Override
-    protected final void onCancelled() {
-        Log.i(TAG, "+++ onCancelled +++");
-        super.onCancelled();
-        endTime = new Date();
-        AppContext.getStreetsCommon().logTaskEvent(this, STATUS_CODES.CANCELLED);
-        onTaskUpdate(this, SequentialTaskManager.TaskStatus.CANCELLED);
-        onCancelledRelay();
+    public String getClassName() {
+        return this.getClass().getSimpleName();
     }
 
     @Override
@@ -129,16 +113,77 @@ public abstract class TaskInfo extends AsyncTask implements StreetsInterfaceTask
         onTerminationRelay();
     }
 
+    /* this class needs to catch onPreExecute, onPostExecute, onCancelled, onTermination events for internal processing.
+     * onPreExecute, onPostExecute, onCancelled, onTermination have been made final to restrict overriding to ensure correct class functionality.
+     * to catch any of these events, the class forwards the events to onXxxRelay methods which can be overridden if required.
+     * the relay classes operate identically and have identical data to the original classes. There is merely a slight processing time delay
+     * they all save event time (startTime/endTime). when onTermination is called, it means thread was active, therefore onCancelled will be called) */
     @Override
-    public String getClassName() {
-        return this.getClass().getSimpleName();
+    protected final void onPreExecute() {
+        startTime = new Date();
+        Log.i(TAG, "+++ onPreExecute +++");
+        super.onPreExecute();
+        setRequestedTimeIfNotSet(new Date());
+        onTaskUpdate(this, SequentialTaskManager.TaskStatus.STARTED);
+        onPreExecuteRelay();
     }
 
-    /* this method is only here to allow you to still catch onPostExecute */
+    /* this class needs to catch onPreExecute, onPostExecute, onCancelled, onTermination events for internal processing.
+     * onPreExecute, onPostExecute, onCancelled, onTermination have been made final to restrict overriding to ensure correct class functionality.
+     * to catch any of these events, the class forwards the events to onXxxRelay methods which can be overridden if required.
+     * the relay classes operate identically and have identical data to the original classes. There is merely a slight processing time delay
+     * they all save event time (startTime/endTime). when onTermination is called, it means thread was active, therefore onCancelled will be called) */
+    @Override
+    @SuppressWarnings("unchecked")
+    protected final void onPostExecute(Object result) {
+        endTime = new Date();
+        Log.i(TAG, "+++ onPostExecute +++");
+        super.onPostExecute(result);
+        AppContext.getStreetsCommon().logTaskEvent(this, STATUS_CODES.SUCCESS);
+        onTaskUpdate(this, SequentialTaskManager.TaskStatus.COMPLETED);
+        onPostExecuteRelay(result);
+    }
+
+
+    /* this class needs to catch onPreExecute, onPostExecute, onCancelled, onTermination events for internal processing.
+     * onPreExecute, onPostExecute, onCancelled, onTermination have been made final to restrict overriding to ensure correct class functionality.
+     * to catch any of these events, the class forwards the events to onXxxRelay methods which can be overridden if required.
+     * the relay classes operate identically and have identical data to the original classes. There is merely a slight processing time delay
+     * they all save event time (startTime/endTime). when onTermination is called, it means thread was active, therefore onCancelled will be called) */
+    @Override
+    protected final void onCancelled() {
+        endTime = new Date();
+        Log.i(TAG, "+++ onCancelled +++");
+        super.onCancelled();
+        AppContext.getStreetsCommon().logTaskEvent(this, STATUS_CODES.CANCELLED);
+        onTaskUpdate(this, SequentialTaskManager.TaskStatus.CANCELLED);
+        onCancelledRelay();
+    }
+
+    /* this class needs to catch onPreExecute, onPostExecute, onCancelled, onTermination events for internal processing.
+     * onPreExecute, onPostExecute, onCancelled, onTermination have been made final to restrict overriding to ensure correct class functionality.
+     * to catch any of these events, the class forwards the events to onXxxRelay methods which can be overridden if required.
+     * the relay classes operate identically and have identical data to the original classes. There is merely a slight processing time delay
+     * they all save event time (startTime/endTime). when onTermination is called, it means thread was active, therefore onCancelled will be called) */
+    protected void onPreExecuteRelay() {}
+
+    /* this class needs to catch onPreExecute, onPostExecute, onCancelled, onTermination events for internal processing.
+     * onPreExecute, onPostExecute, onCancelled, onTermination have been made final to restrict overriding to ensure correct class functionality.
+     * to catch any of these events, the class forwards the events to onXxxRelay methods which can be overridden if required.
+     * the relay classes operate identically and have identical data to the original classes. There is merely a slight processing time delay
+     * they all save event time (startTime/endTime). when onTermination is called, it means thread was active, therefore onCancelled will be called) */
     protected void onPostExecuteRelay(Object result) {}
 
-    /* this method is only here to allow you to still catch onCancelledRelay */
+    /* this class needs to catch onPreExecute, onPostExecute, onCancelled, onTermination events for internal processing.
+     * onPreExecute, onPostExecute, onCancelled, onTermination have been made final to restrict overriding to ensure correct class functionality.
+     * to catch any of these events, the class forwards the events to onXxxRelay methods which can be overridden if required.
+     * the relay classes operate identically and have identical data to the original classes. There is merely a slight processing time delay
+     * they all save event time (startTime/endTime). when onTermination is called, it means thread was active, therefore onCancelled will be called) */
     protected void onCancelledRelay() {}
 
-    /* this method is only here to allow you to still catch onTerminationRelay */
+    /* this class needs to catch onPreExecute, onPostExecute, onCancelled, onTermination events for internal processing.
+     * onPreExecute, onPostExecute, onCancelled, onTermination have been made final to restrict overriding to ensure correct class functionality.
+     * to catch any of these events, the class forwards the events to onXxxRelay methods which can be overridden if required.
+     * the relay classes operate identically and have identical data to the original classes. There is merely a slight processing time delay
+     * they all save event time (startTime/endTime). when onTermination is called, it means thread was active, therefore onCancelled will be called) */
     protected void onTerminationRelay() {}}

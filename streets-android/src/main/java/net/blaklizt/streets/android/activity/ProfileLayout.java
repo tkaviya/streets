@@ -9,11 +9,12 @@ import android.view.ViewGroup;
 
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
+import net.blaklizt.streets.android.common.StreetsCommon;
 
 /**
  * Created by tsungai.kaviya on 2015-09-23.
  */
-public class ProfileLayout extends StreetsAbstractView<ProfileLayout>
+public class ProfileLayout extends StreetsAbstractView
 {
 	private static final String TAG = StreetsCommon.getTag(ProfileLayout.class);
 	private static ProfileLayout profileLayout;

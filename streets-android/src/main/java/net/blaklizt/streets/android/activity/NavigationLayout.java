@@ -14,6 +14,7 @@ import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.adapter.NavigationListAdapter;
 import net.blaklizt.streets.android.common.Group;
+import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.location.navigation.Steps;
 
 import java.util.ArrayList;

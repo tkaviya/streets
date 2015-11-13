@@ -16,10 +16,8 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.LinearLayout;
 
 import net.blaklizt.streets.android.R;
-import net.blaklizt.streets.android.sidemenu.fragment.ContentFragment;
+import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.common.StreetsCommon;
-import net.blaklizt.streets.android.common.TaskInfo;
-import net.blaklizt.streets.android.sidemenu.fragment.StreetsFragment;
 import net.blaklizt.streets.android.sidemenu.interfaces.Resourceble;
 import net.blaklizt.streets.android.sidemenu.model.SlideMenuItem;
 import net.blaklizt.streets.android.sidemenu.util.ViewAnimator;
@@ -27,11 +25,15 @@ import net.blaklizt.streets.android.sidemenu.util.ViewAnimator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import io.codetail.animation.SupportAnimator;
 import io.codetail.animation.ViewAnimationUtils;
 
 import static java.lang.String.format;
+import static net.blaklizt.streets.android.activity.AppContext.DEFAULT_FRAGMENT_VIEW;
+import static net.blaklizt.streets.android.activity.AppContext.getFragmentView;
+import static net.blaklizt.streets.android.activity.AppContext.getStreetsFragments;
 
 /******************************************************************************
  * *
@@ -58,11 +60,11 @@ import static java.lang.String.format;
 public class MenuLayout extends AppCompatActivity implements ViewAnimator.ViewAnimatorListener {
 
     private static final String TAG = StreetsCommon.getTag(MenuLayout.class);
-    public static final HashMap<String, StreetsFragment> streetsViews = new HashMap<>();
+    public static final HashMap<String, StreetsAbstractView> streetsViews = new HashMap<>();
     private static MenuLayout menuLayout;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
-    private StreetsFragment contentFragment;
+//    private StreetsFragment contentFragment;
     private ViewAnimator viewAnimator;
     private LinearLayout linearLayout;
 
@@ -73,25 +75,41 @@ public class MenuLayout extends AppCompatActivity implements ViewAnimator.ViewAn
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_menu_layout);
         menuLayout = this;
-        contentFragment = StreetsFragment.newInstance(R.layout.map_layout);
+//        contentFragment = StreetsFragment.newInstance(R.layout.map_layout);
+
+        List<SlideMenuItem> menuItemList = new ArrayList<>();
+        menuItemList.add(new SlideMenuItem("Close", R.drawable.icn_close));
+
+        Log.i(TAG, "Initializing streets views and menus");
+
+        Set<Class<? extends StreetsAbstractView>> streetsFragments = getStreetsFragments().keySet();
+
+        Log.i(TAG, format("Found %d views ready to initialize", streetsFragments.size()));
+
+        for (Class<? extends StreetsAbstractView> streetsFragment : streetsFragments) {
+
+            Log.i(TAG, format("Instantiating view %s ", streetsFragment.getSimpleName()));
+            streetsViews.put(streetsFragment.getSimpleName(), getFragmentView(streetsFragment));
+
+            Log.i(TAG, format("Instantiating view %s ", streetsFragment.getSimpleName()));
+            menuItemList.add(streetsViews.get(streetsFragment.getSimpleName()).getSlideMenuItem());
+        }
+
+        Log.i(TAG, format("Setting initial view to %s ", streetsViews.get(DEFAULT_FRAGMENT_VIEW.getSimpleName())));
+
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_frame, MapLayout.getInstance())
+                .replace(R.id.content_frame, getStreetsFragments().get(DEFAULT_FRAGMENT_VIEW))
                 .setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit();
+
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerLayout.setScrimColor(Color.TRANSPARENT);
         linearLayout = (LinearLayout) findViewById(R.id.left_drawer);
         linearLayout.setOnClickListener(v -> drawerLayout.closeDrawers());
 
-        List<SlideMenuItem> menuItemList = new ArrayList<>();
-        menuItemList.add(new SlideMenuItem("Close", R.drawable.icn_close));
-        for (StreetsFragment fragment : streetsViews.values()) {
-            menuItemList.add(fragment.getSlideMenuItem());
-        }
-
         setActionBar();
         createMenuList();
-        viewAnimator = new ViewAnimator<>(this, menuItemList, contentFragment, drawerLayout, this);
+        viewAnimator = new ViewAnimator<>(this, menuItemList, getStreetsFragments().get(DEFAULT_FRAGMENT_VIEW), drawerLayout, this);
 
     }
 
@@ -168,26 +186,26 @@ public class MenuLayout extends AppCompatActivity implements ViewAnimator.ViewAn
         }
     }
 
-    private StreetsFragment getReplacementFragement(int position) {
+    private StreetsAbstractView getReplacementFragement(int position) {
         return streetsViews.get(position - 1);
     }
 
-    private StreetsFragment replaceFragment(StreetsFragment streetsFragment, int topPosition) {
+    private StreetsAbstractView replaceFragment(StreetsAbstractView streetsFragment, int topPosition) {
         View view = findViewById(R.id.content_frame);
         int finalRadius = Math.max(view.getWidth(), view.getHeight());
         SupportAnimator animator = ViewAnimationUtils.createCircularReveal(view, 0, topPosition, 0, finalRadius);
         animator.setInterpolator(new AccelerateInterpolator());
         animator.setDuration(ViewAnimator.CIRCULAR_REVEAL_ANIMATION_DURATION);
         animator.start();
-        StreetsFragment replacementFragment = getReplacementFragement(topPosition);
+        StreetsAbstractView replacementFragment = getReplacementFragement(topPosition);
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, replacementFragment).commit();
         return replacementFragment;
     }
 
     @Override
-    public StreetsFragment onSwitch(Resourceble slideMenuItem, StreetsFragment screenShotable, int position) {
+    public StreetsAbstractView onSwitch(Resourceble slideMenuItem, StreetsAbstractView screenShotable, int position) {
         switch (slideMenuItem.getName()) {
-            case StreetsFragment.CLOSE:
+            case AppContext.MNU_CLOSE:
                 return screenShotable;
             default:
                 return replaceFragment(screenShotable, position);

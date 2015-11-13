@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 
+import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.GoogleMapTask;
 import net.blaklizt.streets.android.activity.helpers.LocationUpdateTask;
 import net.blaklizt.streets.android.activity.helpers.PlacesTask;
@@ -25,12 +26,14 @@ import net.blaklizt.streets.android.common.utils.Optional;
 import net.blaklizt.streets.android.common.utils.SecurityContext;
 import net.blaklizt.streets.android.listener.PreferenceUpdateDialogueListener;
 import net.blaklizt.streets.android.persistence.StreetsDBHelper;
+import net.blaklizt.streets.android.sidemenu.model.SlideMenuItem;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
 
+import static java.lang.String.format;
 import static net.blaklizt.streets.android.common.TASK_TYPE.USER_PREF_READ;
 import static net.blaklizt.streets.android.common.utils.SecurityContext.handleApplicationError;
 
@@ -59,8 +62,8 @@ public class AppContext {
     private static final HashMap<Class<? extends TaskInfo>, TaskInfo> TASK_EXECUTION_INFO = new HashMap<>();
     /* List of fragment views created for this application. */
     private static final HashMap<Class<? extends StreetsAbstractView>, StreetsAbstractView> STREETS_FRAGMENTS = new HashMap<>();
-    /* List of configured user preference options and values */
-    private static HashMap<String, USER_PREFERENCE> userPreferenceValues = new HashMap<>();
+    /* List of menus, menu names and menu icons */
+    private static final HashMap<String, SlideMenuItem> FRAGMENT_MENU_REGISTRY = new HashMap<>();
 
     public static HashMap<Class<? extends TaskInfo>, TaskInfo> getTaskExecutionInfo() {
         return TASK_EXECUTION_INFO;
@@ -69,6 +72,13 @@ public class AppContext {
     public static HashMap<Class<? extends StreetsAbstractView>, StreetsAbstractView> getStreetsFragments() {
         return STREETS_FRAGMENTS;
     }
+
+    public static HashMap<String, SlideMenuItem> getFragmentMenuRegistry() {
+        return FRAGMENT_MENU_REGISTRY;
+    }
+
+    /* List of configured user preference options and values */
+    private static HashMap<String, USER_PREFERENCE> userPreferenceValues = new HashMap<>();
 
     public static HashMap<String, USER_PREFERENCE> getUserPreferenceValues() {
         if (AppContext.userPreferenceValues.size() == 0) { initUserPreferenceData(); }
@@ -119,6 +129,31 @@ public class AppContext {
             STREETS_FRAGMENTS.put(MapLayout.class, null);
             STREETS_FRAGMENTS.put(NavigationLayout.class, null);
             STREETS_FRAGMENTS.put(ProfileLayout.class, null);
+        }
+    }
+
+    public static final Class<? extends StreetsAbstractView> DEFAULT_FRAGMENT_VIEW = MapLayout.class;
+
+    public static final String MNU_CLOSE = "Close";
+    private static final String MNU_THA_STREETZ = "Tha Streetz";
+    private static final String MNU_NAVIGATION = "Discover & Connect";
+    private static final String MNU_PROFILE = "Profile";
+    private static final String MNU_CHAT = "Chat";
+    private static final String MNU_FRIENDS = "Friends";
+    private static final String MNU_INVITE_REFER = "Invite or Refer";
+    private static final String MNU_CONTACT_US = "Contact Us";
+
+    static {
+        Log.i(TAG, "Initializing fragment menu information.");
+        if (FRAGMENT_MENU_REGISTRY.isEmpty()) {
+            FRAGMENT_MENU_REGISTRY.put(MNU_CLOSE,                               new SlideMenuItem(MNU_CLOSE,        R.drawable.icn_close));
+            FRAGMENT_MENU_REGISTRY.put(MapLayout.class.getSimpleName(),         new SlideMenuItem(MNU_THA_STREETZ,  android.R.drawable.ic_dialog_map));
+            FRAGMENT_MENU_REGISTRY.put(NavigationLayout.class.getSimpleName(),  new SlideMenuItem(MNU_NAVIGATION,   R.drawable.world_search));
+            FRAGMENT_MENU_REGISTRY.put(ProfileLayout.class.getSimpleName(),     new SlideMenuItem(MNU_PROFILE,      R.drawable.icon_profile));
+            FRAGMENT_MENU_REGISTRY.put(MNU_CHAT,            new SlideMenuItem(MNU_CHAT,         R.drawable.chat));
+            FRAGMENT_MENU_REGISTRY.put(MNU_FRIENDS,         new SlideMenuItem(MNU_FRIENDS,      R.drawable.friends_group));
+            FRAGMENT_MENU_REGISTRY.put(MNU_INVITE_REFER,    new SlideMenuItem(MNU_INVITE_REFER, R.drawable.plus));
+            FRAGMENT_MENU_REGISTRY.put(MNU_CONTACT_US,      new SlideMenuItem(MNU_CONTACT_US,   R.drawable.mail));
         }
     }
 
@@ -197,10 +232,13 @@ public class AppContext {
     }
 
     public static StreetsAbstractView getFragmentView(Class<? extends StreetsAbstractView> view) {
-        if (STREETS_FRAGMENTS.get(view) == null) {
+        if (STREETS_FRAGMENTS.containsKey(view) && STREETS_FRAGMENTS.get(view) == null) {
             try {
                 Log.i(TAG, "Instantiating fragment view: " + view.getSimpleName());
                 STREETS_FRAGMENTS.put(view, view.newInstance());
+                Log.i(TAG, format("Setting menu %s for view %s ",
+                    FRAGMENT_MENU_REGISTRY.get(view.getSimpleName()).getName(), view.getSimpleName()));
+                STREETS_FRAGMENTS.get(view).prepareMenu(FRAGMENT_MENU_REGISTRY.get(view.getSimpleName()));
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);

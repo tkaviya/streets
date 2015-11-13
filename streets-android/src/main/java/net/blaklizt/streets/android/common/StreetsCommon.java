@@ -94,26 +94,26 @@ public class StreetsCommon
     }
 
     public String getUserPreferenceValue(USER_PREFERENCE preference) {
-        if (!getUserPreferenceValues().containsKey(preference.name())) {
+        if (!AppContext.getUserPreferenceValues().containsKey(preference.name())) {
             Log.i(TAG, "Preference " + preference.name() + " does not exist");
             writeEventLog(TASK_TYPE.USER_PREF_READ, STATUS_CODES.GENERAL_ERROR,
                 "Preference " + preference.name() + " does not exist in the database.\n\n" +
                 "Please update your application to avoid data corruption, crashes & unexpected behaviour");
         }
-		Log.i(TAG, preference.name() + " = " + getUserPreferenceValues().get(preference.name()).pref_value);
-        return getUserPreferenceValues().get(preference.name()).pref_value;
+		Log.i(TAG, preference.name() + " = " + AppContext.getUserPreferenceValues().get(preference.name()).pref_value);
+        return AppContext.getUserPreferenceValues().get(preference.name()).pref_value;
     }
 
 
 	public void setUserPreference(USER_PREFERENCE preference, String value) {
         try {
             Log.i(TAG, "Setting " + preference + " = " + value);
-            String description = getUserPreferenceValues().get(preference.name()).pref_description;
-            String data_type = getUserPreferenceValues().get(preference.name()).pref_data_type;
-            getUserPreferenceValues().remove(preference.name());
+            String description = AppContext.getUserPreferenceValues().get(preference.name()).pref_description;
+            String data_type = AppContext.getUserPreferenceValues().get(preference.name()).pref_data_type;
+            AppContext.getUserPreferenceValues().remove(preference.name());
             preference.pref_value = value;
-            getUserPreferenceValues().put(preference.name(), preference);
-            getStreetsDBHelper().setUserPreference(preference, value, description, data_type);
+            AppContext.getUserPreferenceValues().put(preference.name(), preference);
+            AppContext.getStreetsDBHelper().setUserPreference(preference, value, description, data_type);
 		} catch (Exception ex) {
             SecurityContext.handleApplicationError(SecurityContext.ERROR_SEVERITY.SEVERE,
                 "User preferences could not be updated.\n\n" +

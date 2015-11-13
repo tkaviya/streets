@@ -9,8 +9,8 @@ import android.view.animation.Animation;
 import android.widget.ImageView;
 
 import net.blaklizt.streets.android.R;
+import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.sidemenu.animation.FlipAnimation;
-import net.blaklizt.streets.android.sidemenu.fragment.StreetsFragment;
 import net.blaklizt.streets.android.sidemenu.interfaces.Resourceble;
 
 import java.util.ArrayList;
@@ -24,13 +24,13 @@ public class ViewAnimator<T extends Resourceble> {
     private List<T> list;
 
     private List<View> viewList = new ArrayList<>();
-    private StreetsFragment streetsFragment;
+    private StreetsAbstractView streetsFragment;
     private DrawerLayout drawerLayout;
     private ViewAnimatorListener animatorListener;
 
     public ViewAnimator(AppCompatActivity activity,
                         List<T> items,
-                        StreetsFragment streetsFragment,
+                        StreetsAbstractView streetsFragment,
                         final DrawerLayout drawerLayout,
                         ViewAnimatorListener animatorListener) {
         this.appCompatActivity = activity;
@@ -164,13 +164,13 @@ public class ViewAnimator<T extends Resourceble> {
 
     public interface ViewAnimatorListener {
 
-        public StreetsFragment onSwitch(Resourceble slideMenuItem, StreetsFragment streetsFragment, int position);
+        StreetsAbstractView onSwitch(Resourceble slideMenuItem, StreetsAbstractView streetsFragment, int position);
 
-        public void disableHomeButton();
+        void disableHomeButton();
 
-        public void enableHomeButton();
+        void enableHomeButton();
 
-        public void addViewToContainer(View view);
+        void addViewToContainer(View view);
 
     }
 }
