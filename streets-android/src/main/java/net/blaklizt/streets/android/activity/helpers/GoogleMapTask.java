@@ -10,13 +10,14 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import net.blaklizt.streets.android.R;
+import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.TASK_TYPE;
-import net.blaklizt.streets.android.common.TaskInfo;
 
 import java.util.ArrayList;
-import java.util.Collections;
+
+import static java.util.Collections.singletonList;
 
 /******************************************************************************
  * *
@@ -38,27 +39,31 @@ import java.util.Collections;
  * GNU General Public License for more details.                            *
  * *
  ******************************************************************************/
-public class GoogleMapTask extends TaskInfo implements StreetsProviderPattern {
+public class GoogleMapTask extends StreetsAbstractTask {
 
     private static final String TAG = StreetsCommon.getTag(GoogleMapTask.class);
 
-    private MapLayout mapLayout;
-
-    public GoogleMapTask() {
-        super(null, new ArrayList<>(Collections.singletonList(MapLayout.class)), true, false, TASK_TYPE.BG_GOOGLE_MAP_TASK);
-        mapLayout = MapLayout.getInstance();
+    static {
+        processDependencies = new ArrayList<>();
+        viewDependencies = new ArrayList<>(singletonList(MapLayout.class));
+        allowOnlyOnce = true;
+        allowMultiInstance = false;
+        taskType = TASK_TYPE.BG_GOOGLE_MAP_TASK;
     }
 
     @Override
     protected Object doInBackground(Object[] params) {
 
-        if (mapLayout.getGoogleMap().isPresent()) {
+        final MapLayout mapLayout = (MapLayout)AppContext.getFragmentView(MapLayout.class);
+
+        if (AppContext.getInstance().getGoogleMap().isPresent()) {
             Log.i(TAG, "Google map already initialized");
             return null;
         }
 
-        mapLayout.getActivity().runOnUiThread(new Runnable() {
-            @Override public void run() {
+        AppContext.getFragmentView(MapLayout.class).getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
                 Log.i(TAG, "Initializing Google Map");
 
                 //Create global configuration and initialize ImageLoader with this configuration
@@ -70,44 +75,42 @@ public class GoogleMapTask extends TaskInfo implements StreetsProviderPattern {
                 if (status != ConnectionResult.SUCCESS) // Google Play Services are not available
                 {
                     Log.i(TAG, "Google Play Services are not available");
-                }
-                else // Google Play Services are available
+                } else // Google Play Services are available
                 {
                     Log.i(TAG, "Google Play Services are available");
                     // Getting reference to the SupportMapFragment of activity_main.xml
                     MapFragment fm = (MapFragment) mapLayout.getActivity().getFragmentManager().findFragmentById(R.id.map_fragment);
 
                     // Getting GoogleMap object from the fragment
-                    mapLayout.setGoogleMap(fm.getMap());
+                    AppContext.getInstance().setGoogleMap(fm.getMap());
 
                     Log.i(TAG, "Got Google map");
 
-                    mapLayout.getGoogleMap().get().setMyLocationEnabled(true);
+                    AppContext.getInstance().getGoogleMap().get().setMyLocationEnabled(true);
 
-                    mapLayout.getGoogleMap().get().getUiSettings().setZoomGesturesEnabled(true);
+                    AppContext.getInstance().getGoogleMap().get().getUiSettings().setZoomGesturesEnabled(true);
 
-                    mapLayout.getGoogleMap().get().getUiSettings().setZoomControlsEnabled(true);
+                    AppContext.getInstance().getGoogleMap().get().getUiSettings().setZoomControlsEnabled(true);
 
-//                  mapLayout.getGoogleMap().get().setOnMarkerClickListener(mapLayout);
+//                  AppContext.getInstance().getGoogleMap().get().setOnMarkerClickListener(mapLayout);
 
-                    mapLayout.getGoogleMap().get().setInfoWindowAdapter(mapLayout);
+                    AppContext.getInstance().getGoogleMap().get().setInfoWindowAdapter(mapLayout);
 
-//                  mapLayout.getGoogleMap().get().setOnMapLoadedCallback(mapLayout);
+//                  AppContext.getInstance().getGoogleMap().get().setOnMapLoadedCallback(mapLayout);
                 }
             }
         });
 
         return null;
     }
-
     @Override
     public void onCancelledRelay() {
-        mapLayout.getGoogleMap().ifPresent(GoogleMap::stopAnimation);
+        AppContext.getInstance().getGoogleMap().ifPresent(GoogleMap::stopAnimation);
     }
 
     @Override
     public void onTerminationRelay() {
         Log.i(TAG, "Shutting down class " + getClassName());
-        mapLayout.getGoogleMap().ifPresent(GoogleMap::stopAnimation);
+        AppContext.getInstance().getGoogleMap().ifPresent(GoogleMap::stopAnimation);
     }
 }

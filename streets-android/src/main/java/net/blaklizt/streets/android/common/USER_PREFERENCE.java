@@ -20,7 +20,7 @@ public enum USER_PREFERENCE
     ENABLE_TTS("10", "enable_tts", "1", "Enable TextToSpeech", "boolean"),
     REQUEST_GPS_PERMS("11", "request_gps_perms", "1", "Ask GPS permissions", "boolean");
 
-    public final String pref_id;
+    public String pref_id;
     public final String pref_name;
     public String pref_value;
     public final String pref_description;

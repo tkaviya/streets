@@ -31,7 +31,7 @@ public enum TASK_TYPE
     public final String task_type_name;
     public final String description;
 
-    TASK_TYPE(String task_type_id, String task_type_name, String description) {
-        this.task_type_id = task_type_id; this.task_type_name = task_type_name; this.description = description;
+    TASK_TYPE(String tt_id, String task_type_name, String description) {
+        this.task_type_id = tt_id; this.task_type_name = task_type_name; this.description = description;
     }
 }

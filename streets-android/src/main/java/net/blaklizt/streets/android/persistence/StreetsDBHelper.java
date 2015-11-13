@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import net.blaklizt.streets.android.activity.Startup;
+import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.common.STATUS_CODES;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.SymbiosisUser;
@@ -182,8 +182,8 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
                 " (symbiosis_id,username,imei,imsi,password,last_location_id,home_place_id,type) VALUES" +
                 " (" + SecurityContext.getUserDefaultDataSet().get("symbiosis_id") + "," +
                 " (" + SecurityContext.getUserDefaultDataSet().get("username") + "," +
-                " (" + Startup.getStreetsCommon().getIMEI() + "," +
-                " (" + Startup.getStreetsCommon().getIMSI() + "," +
+                " (" + AppContext.getStreetsCommon().getIMEI() + "," +
+                " (" + AppContext.getStreetsCommon().getIMSI() + "," +
                 " (" + SecurityContext.getUserDefaultDataSet().get("password") + "," +
                 " (" + SecurityContext.getUserDefaultDataSet().get("last_location_id") + "," +
                 " (" + SecurityContext.getUserDefaultDataSet().get("home_place_id") + "," +
@@ -244,7 +244,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
     public void logApplicationEvent(TASK_TYPE task_type, STATUS_CODES status, String description) {
 
         String sql = "INSERT INTO " + EVENT_HISTORY_TABLE + " (event_type, event_time, final_status, description) VALUES " +
-                "('" + task_type.task_type_id + "', sysdate(), " +  status.status_code + ", '" + description + "'),";
+                "('" + task_type.task_type_id + "', CURRENT_TIMESTAMP, " +  status.status_code + ", '" + description + "'),";
 
         Log.i(TAG, "Inserting application event log for event type: " + task_type.task_type_name + " | Status: " + status.status_name);
         if (status.status_code != STATUS_CODES.GENERAL_ERROR.status_code) {

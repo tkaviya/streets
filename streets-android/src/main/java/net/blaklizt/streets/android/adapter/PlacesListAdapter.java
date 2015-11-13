@@ -16,7 +16,7 @@ import android.widget.CheckedTextView;
 import android.widget.TextView;
 
 import net.blaklizt.streets.android.R;
-import net.blaklizt.streets.android.activity.Startup;
+import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.common.Group;
 
 public class PlacesListAdapter extends BaseExpandableListAdapter
@@ -52,7 +52,7 @@ public class PlacesListAdapter extends BaseExpandableListAdapter
 		}
 		text = (TextView) convertView.findViewById(R.id.navigationItemText);
 		text.setText(children);
-		convertView.setOnClickListener(v -> Startup.getStreetsCommon().speak(children));
+		convertView.setOnClickListener(v -> AppContext.getStreetsCommon().speak(children));
 		return convertView;
 	}
 

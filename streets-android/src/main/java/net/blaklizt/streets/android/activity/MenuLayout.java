@@ -3,7 +3,6 @@ package net.blaklizt.streets.android.activity;
 import android.app.FragmentTransaction;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
@@ -18,7 +17,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.LinearLayout;
 
 import net.blaklizt.streets.android.R;
-import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.sidemenu.fragment.ContentFragment;
 import net.blaklizt.streets.android.sidemenu.interfaces.Resourceble;
 import net.blaklizt.streets.android.sidemenu.interfaces.ScreenShotable;

@@ -9,16 +9,13 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.utils.SecurityContext;
 import net.blaklizt.streets.android.common.utils.Validator;
-import net.blaklizt.streets.android.listener.PreferenceUpdateDialogueListener;
-import net.blaklizt.streets.android.persistence.StreetsDBHelper;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,10 +28,7 @@ public class StreetsCommon
 	//Tag all logs starting with the following tag
 	private static final String TAG = "Streets";
 
-	//Symbiosis channel
-	public static final String CHANNEL = "ANDROID";
-
-	//Application context
+    //Application context
 	private Context context = null;
 
 	//Application user
@@ -42,19 +36,10 @@ public class StreetsCommon
 	private String imei = null;
 	private String imsi = null;
 
-	//Streets DB classes
-	protected static StreetsDBHelper streetsDBHelper = null;
-
-	//Streets Text To Speech engine
-	protected static TextToSpeech ttsEngine = null;
-
-	//static class reference
+    //static class reference
 	private static StreetsCommon streetsCommon = null;
 
-	//user preferences
-	private static HashMap<String, USER_PREFERENCE> userPreferenceValues = new HashMap<>();
-
-	public static StreetsCommon getInstance(Context context)
+    public static StreetsCommon getInstance(Context context)
 	{
 		if (streetsCommon == null) {
 			streetsCommon = new StreetsCommon(context);
@@ -69,58 +54,9 @@ public class StreetsCommon
 
         streetsCommon = this;
 
-		//initialize DB
-		getStreetsDBHelper();
-
-		//initialize user preferences
-		getUserPreferenceValues();
 
 	}
-
-	public static String getTag(Class streetsClass) { return TAG + "_" + streetsClass.getSimpleName(); }
-
-	public StreetsDBHelper getStreetsDBHelper() {
-		if (streetsDBHelper == null)
-		{
-			Log.i(TAG, "Initializing Streets database");
-			streetsDBHelper = new StreetsDBHelper(context);
-		}
-		return streetsDBHelper;
-	}
-
-	public TextToSpeech getTextToSpeech()
-	{
-		try {
-			if (ttsEngine == null) {
-				Log.i(TAG, "Initializing text to speech engine");
-				ttsEngine = new TextToSpeech(context, status -> {
-                    Log.i(TAG, "Initialized text to speech engine");
-                    ttsEngine.setLanguage(Locale.US);
-                });
-			} return ttsEngine;
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			Log.e(TAG, "Failed to initialize ttsEngine", ex);
-			showToast(TAG, "Failed to initialize text to speech!" + ex.getMessage(), Toast.LENGTH_LONG);
-            new PreferenceUpdateDialogueListener(context,
-                "Speech failed to start. Would you like to turn off Text To Speech permanently?",
-                USER_PREFERENCE.ENABLE_TTS, "Disable", "Cancel").show();
-            return null;
-		}
-	}
-
-    public void speak(final String speechText)
-    {
-        Log.i(TAG, "Speaking text: " + speechText);
-        String ttsEnabled = getUserPreferenceValue(USER_PREFERENCE.ENABLE_TTS);
-        if (Validator.isNullOrEmpty(ttsEnabled) && ttsEnabled.equals("1")) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                getTextToSpeech().speak(speechText, TextToSpeech.QUEUE_FLUSH, null, String.valueOf(new Date().getTime()));
-            } else {
-                getTextToSpeech().speak(speechText, TextToSpeech.QUEUE_FLUSH, null);
-            }
-        }
-    }
+    public static String getTag(Class streetsClass) { return StreetsCommon.TAG + "_" + streetsClass.getSimpleName(); }
 
     public static void showSnackBar(final String TAG, final String text, final int duration) {
 
@@ -144,69 +80,40 @@ public class StreetsCommon
         }
     }
 
-    public void endApplication()
-	{
-		try { //shutdown common classes
-			Log.i(TAG, "Terminating common classes.");
-			if (streetsDBHelper != null) {
-				streetsDBHelper.close();
-			}
-			if (ttsEngine != null) {
-				ttsEngine.shutdown();
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			Log.e(TAG, "Failed to shutdown common classes cleanly: " + ex.getMessage(), ex);
-		} finally {
-            streetsDBHelper = null;
-            ttsEngine = null;
+    public void speak(final String speechText)
+    {
+        Log.i(TAG, "Speaking text: " + speechText);
+        String ttsEnabled = getUserPreferenceValue(USER_PREFERENCE.ENABLE_TTS);
+        if (Validator.isNullOrEmpty(ttsEnabled) && ttsEnabled.equals("1")) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                AppContext.getInstance().getTextToSpeech().speak(speechText, TextToSpeech.QUEUE_FLUSH, null, String.valueOf(new Date().getTime()));
+            } else {
+                AppContext.getInstance().getTextToSpeech().speak(speechText, TextToSpeech.QUEUE_FLUSH, null);
+            }
         }
     }
 
     public String getUserPreferenceValue(USER_PREFERENCE preference) {
-        if (!getUserPreferenceValues().containsKey(preference.pref_name)) {
+        if (!AppContext.getUserPreferenceValues().containsKey(preference.pref_name)) {
             Log.i(TAG, "Preference " + preference.pref_name + " does not exist");
             writeEventLog(TASK_TYPE.USER_PREF_READ, STATUS_CODES.GENERAL_ERROR,
                 "Preference " + preference.pref_name + " does not exist in the database.\n\n" +
                 "Please update your application to avoid data corruption, crashes & unexpected behaviour");
         }
-		Log.i(TAG, preference.pref_name + " = " + getUserPreferenceValues().get(preference.pref_name).pref_value);
-        return getUserPreferenceValues().get(preference.pref_name).pref_value;
+		Log.i(TAG, preference.pref_name + " = " + AppContext.getUserPreferenceValues().get(preference.pref_name).pref_value);
+        return AppContext.getUserPreferenceValues().get(preference.pref_name).pref_value;
     }
 
-	public void initUserPreferenceData() {
-		Log.i(TAG, "Loading user preferences from DB");
-        try { userPreferenceValues = getStreetsDBHelper().getUserPreferences(); }
-        catch (Exception ex) {
-            ex.printStackTrace();
-            SecurityContext.handleApplicationError(SecurityContext.ERROR_SEVERITY.SEVERE,
-                "User preferences could not be read from the database.\n\n" +
-                "Please update your application to the latest version to avoid potential data corruption.",
-                ex.getStackTrace(), TASK_TYPE.USER_PREF_READ);
-        }
-
-        if (userPreferenceValues == null || userPreferenceValues.isEmpty()) {
-            SecurityContext.handleApplicationError(SecurityContext.ERROR_SEVERITY.SEVERE,
-                "User preferences could not be read from the database.\n\n" +
-                "Please update your application to the latest version to avoid potential data corruption.",
-                "getUserPreferences returned no results", TASK_TYPE.USER_PREF_READ);
-        }
-	}
-
-    public HashMap<String, USER_PREFERENCE> getUserPreferenceValues() {
-        if (userPreferenceValues.size() == 0) { initUserPreferenceData(); }
-        return userPreferenceValues;
-    }
 
 	public void setUserPreference(USER_PREFERENCE preference, String value) {
         try {
             Log.i(TAG, "Setting " + preference + " = " + value);
-            String description = getUserPreferenceValues().get(preference.pref_name).pref_description;
-            String data_type = getUserPreferenceValues().get(preference.pref_name).pref_data_type;
-            getUserPreferenceValues().remove(preference.pref_name);
+            String description = AppContext.getUserPreferenceValues().get(preference.pref_name).pref_description;
+            String data_type = AppContext.getUserPreferenceValues().get(preference.pref_name).pref_data_type;
+            AppContext.getUserPreferenceValues().remove(preference.pref_name);
             preference.pref_value = value;
-            getUserPreferenceValues().put(preference.pref_name, preference);
-            getStreetsDBHelper().setUserPreference(preference, value, description, data_type);
+            AppContext.getUserPreferenceValues().put(preference.pref_name, preference);
+            AppContext.getStreetsDBHelper().setUserPreference(preference, value, description, data_type);
 		} catch (Exception ex) {
             SecurityContext.handleApplicationError(SecurityContext.ERROR_SEVERITY.SEVERE,
                 "User preferences could not be updated.\n\n" +
@@ -216,20 +123,20 @@ public class StreetsCommon
 	}
 
 	public ArrayList<String> getOutstandingPermissions() {
-		return getStreetsDBHelper().getOutstandingPermissions();
+		return AppContext.getStreetsDBHelper().getOutstandingPermissions();
 	}
 
 	public void addOutstandingPermission(String permission) {
-		getStreetsDBHelper().addOutstandingPermission(permission);
+		AppContext.getStreetsDBHelper().addOutstandingPermission(permission);
 	}
 
 	public void removeOutstandingPermission(String permission) {
-		getStreetsDBHelper().removeOutstandingPermission(permission);
+		AppContext.getStreetsDBHelper().removeOutstandingPermission(permission);
 	}
 
     public SymbiosisUser getSymbiosisUser() {
         if (symbiosisUser == null) {
-            symbiosisUser = getStreetsDBHelper().getCurrentUser();
+            symbiosisUser = AppContext.getStreetsDBHelper().getCurrentUser();
             Log.i(TAG, "Got current symbiosis user details for user id: " + symbiosisUser.symbiosisUserID);
             Log.i(TAG, "username -> " + symbiosisUser.username);
             Log.i(TAG, "imei     -> " + symbiosisUser.imei);
@@ -239,7 +146,7 @@ public class StreetsCommon
     }
 
     public void saveUserDetails() {
-        getStreetsDBHelper().saveCurrentUser(symbiosisUser);
+        AppContext.getStreetsDBHelper().saveCurrentUser(symbiosisUser);
     }
 
     public String getIMEI() {
@@ -271,10 +178,10 @@ public class StreetsCommon
     }
 
     public void writeEventLog(TASK_TYPE task_type, STATUS_CODES status, String description) {
-        getStreetsDBHelper().logApplicationEvent(task_type, status, description);
+        AppContext.getStreetsDBHelper().logApplicationEvent(task_type, status, description);
     }
 
     public void logTaskEvent(TaskInfo taskInfo, STATUS_CODES status) {
-        getStreetsDBHelper().logTaskEvent(taskInfo, status);
+        AppContext.getStreetsDBHelper().logTaskEvent(taskInfo, status);
     }
 }

@@ -6,17 +6,16 @@ import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.widget.Toast;
 
+import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.MenuLayout;
 import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.TASK_TYPE;
-import net.blaklizt.streets.android.common.TaskInfo;
 import net.blaklizt.streets.android.common.USER_PREFERENCE;
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import static net.blaklizt.streets.android.common.StreetsCommon.showSnackBar;
 import static net.blaklizt.streets.android.common.StreetsCommon.showToast;
@@ -41,7 +40,15 @@ import static net.blaklizt.streets.android.common.StreetsCommon.showToast;
  * GNU General Public License for more details.                            *
  * *
  ******************************************************************************/
-public class LoginTask extends TaskInfo {
+public class LoginTask extends StreetsAbstractTask {
+
+    static {
+        processDependencies = new ArrayList<>();
+        viewDependencies = new ArrayList<>();
+        allowOnlyOnce = false;
+        allowMultiInstance = false;
+        taskType = TASK_TYPE.FG_LOGIN_TASK;
+    }
 
     private final String TAG = StreetsCommon.getTag(LoginTask.class);
     private int counter = 5;
@@ -49,7 +56,6 @@ public class LoginTask extends TaskInfo {
     private Startup startup;
 
     public LoginTask(Startup startup) {
-        super(null, new ArrayList<>(Collections.singletonList(Startup.class)), false, false, TASK_TYPE.FG_LOGIN_TASK);
         this.startup = startup;
     }
 
@@ -75,7 +81,7 @@ public class LoginTask extends TaskInfo {
             if (responseJSON.getInt("response_code") == 1)//ResponseCode.SUCCESS.getValue())
             {
                 Long symbiosisUserID = responseJSON.getLong("symbiosis_user_id");
-                Startup.getStreetsCommon().setUserID(symbiosisUserID);
+                AppContext.getStreetsCommon().setUserID(symbiosisUserID);
 
                 Log.i(TAG, "Login successful");
                 showSnackBar(TAG, "Login successful", Snackbar.LENGTH_SHORT);
@@ -88,7 +94,7 @@ public class LoginTask extends TaskInfo {
             } else {
                 final String loginResponseStr = responseJSON.getString("response_message");
                 Log.i(TAG, "Login failed: " + responseJSON.getString("response_message"));
-                Startup.getStreetsCommon().setUserPreference(USER_PREFERENCE.AUTO_LOGIN, "0"); //disable auto login to prevent running out of attempts
+                AppContext.getStreetsCommon().setUserPreference(USER_PREFERENCE.AUTO_LOGIN, "0"); //disable auto login to prevent running out of attempts
                 showToast(TAG, loginResponseStr, Toast.LENGTH_SHORT);
 
                 if (--counter <= 0) {

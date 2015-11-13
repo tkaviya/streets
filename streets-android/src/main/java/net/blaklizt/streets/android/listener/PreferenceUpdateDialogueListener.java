@@ -5,8 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
 
-import net.blaklizt.streets.android.activity.Startup;
-import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.common.USER_PREFERENCE;
 
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ public class PreferenceUpdateDialogueListener implements DialogInterface.OnClick
             Log.i(TAG, "MultipleChoiceResponseListener onClick invoked.");
             Log.i(TAG, "Question: " + multipleChoiceQuestions.get(option));
             Log.i(TAG, "Setting preference: " + preferenceIndexes.get(option) + " = " + isChecked);
-            Startup.getStreetsCommon().setUserPreference(preferenceIndexes.get(option), isChecked ? "1" : "0");
+            AppContext.getStreetsCommon().setUserPreference(preferenceIndexes.get(option), isChecked ? "1" : "0");
         }
     }
 
@@ -99,7 +98,7 @@ public class PreferenceUpdateDialogueListener implements DialogInterface.OnClick
 		if (mainPreference != null) {
 			String newValue = (selection == 0 || selection == DialogInterface.BUTTON_POSITIVE) ? "1" : "0";
 			Log.i(TAG, "Updating " + mainPreference + " to " + newValue);
-			Startup.getStreetsCommon().setUserPreference(mainPreference, newValue);
+			AppContext.getStreetsCommon().setUserPreference(mainPreference, newValue);
 		}
 
         /* call any additional callbacks setup by the user */

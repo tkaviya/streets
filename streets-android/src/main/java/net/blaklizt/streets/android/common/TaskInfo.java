@@ -2,13 +2,13 @@ package net.blaklizt.streets.android.common;
 
 import android.os.AsyncTask;
 
-import net.blaklizt.streets.android.activity.Startup;
+import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
-import net.blaklizt.streets.android.activity.helpers.StreetsProviderPattern;
+import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
+import net.blaklizt.streets.android.activity.helpers.StreetsInterfaceTask;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
 import static net.blaklizt.streets.android.activity.helpers.SequentialTaskManager.onTaskUpdate;
 
@@ -32,36 +32,35 @@ import static net.blaklizt.streets.android.activity.helpers.SequentialTaskManage
  * GNU General Public License for more details.                            *
  * *
  ******************************************************************************/
-public abstract class TaskInfo extends AsyncTask implements StreetsProviderPattern {
+public abstract class TaskInfo extends AsyncTask implements StreetsInterfaceTask {
 
     protected final String TAG = StreetsCommon.getTag(this.getClass());
-    protected final boolean allowOnlyOnce;
-    protected final boolean allowMultiInstance;
-    protected ArrayList<String> processDependencies = new ArrayList<>();
-    protected HashMap<String, Class> viewDependencies = new HashMap<>();
-    protected Date requestedTime = null, startTime = null, endTime = null;
+    protected static boolean initialized = false;
 
-    protected TASK_TYPE taskType;
+    protected static Boolean allowOnlyOnce = null;
+
+
+    protected static Boolean allowMultiInstance = null;
+    protected static ArrayList<String> processDependencies = null;
+    protected static ArrayList<Class<? extends StreetsAbstractView>> viewDependencies = null;
+    protected static TASK_TYPE taskType = null;
+
+    protected Date requestedTime = null, startTime = null, endTime = null;
     protected STATUS_CODES finalStatus;
 
-    protected TaskInfo(ArrayList<String> processDependencies, ArrayList<Class> viewDependencies,
-           boolean allowOnlyOnce, boolean allowConcurrent, TASK_TYPE taskType)
-    {
-        if (processDependencies != null) {
-            this.processDependencies = processDependencies;
-        }
-
-        if (viewDependencies != null) {
-            for (Class dependency : viewDependencies) {
-                this.viewDependencies.put(dependency.getSimpleName(), dependency);
+    public TaskInfo validateInitialized() {
+        if (!initialized) {
+            if (processDependencies == null || viewDependencies == null ||
+                allowMultiInstance == null || allowOnlyOnce == null ||
+                taskType == null) {
+                throw new RuntimeException("Task cannot be used until it has been initialized. You must call setExecutionRestrictions()");
+            }
+            else {
+                AppContext.registerOnDestroyHandler(this);
+                initialized = true;
             }
         }
-
-        this.allowOnlyOnce = allowOnlyOnce;
-        this.allowMultiInstance = allowConcurrent;
-        this.taskType = taskType;
-
-        Startup.getInstance().registerOnDestroyHandler(this);
+        return this;
     }
 
     public Date getRequestedTime() { return requestedTime; }
@@ -70,13 +69,11 @@ public abstract class TaskInfo extends AsyncTask implements StreetsProviderPatte
 
     public Date getEndTime() { return endTime; }
 
-    public boolean allowsMultiInstance() { return allowMultiInstance; }
+    public boolean allowsMultiInstance() { return validateInitialized().allowMultiInstance; }
 
-    public boolean allowsOnlyOnce() { return allowOnlyOnce; }
+    public boolean allowsOnlyOnce() { return validateInitialized().allowOnlyOnce; }
 
-    public TASK_TYPE getTaskType() {
-        return taskType;
-    }
+    public TASK_TYPE getTaskType() { return validateInitialized().taskType; }
 
     public STATUS_CODES getFinalStatus() {
         return finalStatus;
@@ -95,7 +92,11 @@ public abstract class TaskInfo extends AsyncTask implements StreetsProviderPatte
     }
 
     public ArrayList<String> getProcessDependencies() {
-        return processDependencies;
+        return validateInitialized().processDependencies;
+    }
+
+    public ArrayList<Class<? extends StreetsAbstractView>> getViewDependencies() {
+        return validateInitialized().viewDependencies;
     }
 
     @SuppressWarnings("unchecked")
@@ -103,7 +104,7 @@ public abstract class TaskInfo extends AsyncTask implements StreetsProviderPatte
     protected final void onPostExecute(Object result) {
         super.onPostExecute(result);
         endTime = new Date();
-        Startup.getStreetsCommon().logTaskEvent(this, STATUS_CODES.SUCCESS);
+        AppContext.getStreetsCommon().logTaskEvent(this, STATUS_CODES.SUCCESS);
         onTaskUpdate(this, SequentialTaskManager.TaskStatus.COMPLETED);
         onPostExecuteRelay(result);
     }
@@ -112,12 +113,13 @@ public abstract class TaskInfo extends AsyncTask implements StreetsProviderPatte
     protected final void onCancelled() {
         super.onCancelled();
         endTime = new Date();
-        Startup.getStreetsCommon().logTaskEvent(this, STATUS_CODES.CANCELLED);
+        AppContext.getStreetsCommon().logTaskEvent(this, STATUS_CODES.CANCELLED);
         onTaskUpdate(this, SequentialTaskManager.TaskStatus.CANCELLED);
         onCancelledRelay();
     }
 
     @Override
+    /* only called if you call registerOnDestroyHandler on Startup class */
     public final void onTermination() {
         if (!getStatus().equals(Status.FINISHED)) { cancel(true); }
         onTerminationRelay();
@@ -130,9 +132,4 @@ public abstract class TaskInfo extends AsyncTask implements StreetsProviderPatte
     protected void onCancelledRelay() {}
 
     /* this method is only here to allow you to still catch onTerminationRelay */
-    protected void onTerminationRelay() {}
-
-    public HashMap<String, Class> getViewDependencies() {
-        return viewDependencies;
-    }
-}
+    protected void onTerminationRelay() {}}
