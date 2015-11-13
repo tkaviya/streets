@@ -22,9 +22,11 @@ package net.blaklizt.streets.android.activity.helpers;
  ******************************************************************************/
 
 
-public interface StreetsProviderPattern {
+public interface StreetsInterfaceView {
 
-    void onTermination();// { /* only called if you call registerOnDestroyHandler on Startup class */ }
+    /* only called if you call registerOnDestroyHandler on Startup class */
+    void onTermination();
 
-    String getClassName();// { return this.getClass().getSimpleName() + "InterfaceName"; }
+    String getClassName();
 }
+

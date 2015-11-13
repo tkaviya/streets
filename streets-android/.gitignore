@@ -1,5 +1,4 @@
 .idea/
-*.class
 *.iml
 gen-external-apklibs/
 target/

@@ -10,8 +10,7 @@ package net.blaklizt.streets.android.location.places;
 
 import android.util.Log;
 
-import net.blaklizt.streets.android.activity.Startup;
-import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.common.utils.Optional;
 
 import org.json.JSONArray;
@@ -205,7 +204,7 @@ public class PlacesService {
             Log.i(TAG, "Response Array: " + jsonObj.toString());
 
             // Extract the Place descriptions from the results
-            resultList = Startup.getStreetsCommon().getStreetsDBHelper().getNearbyFriendLocations();
+            resultList = AppContext.getStreetsCommon().getStreetsDBHelper().getNearbyFriendLocations();
 
             for (int i = 0; i < predsJsonArray.length(); i++) {
                 JSONArray typeArray = predsJsonArray.getJSONObject(i).getJSONArray("types");

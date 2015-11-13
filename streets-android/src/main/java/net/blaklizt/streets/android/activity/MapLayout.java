@@ -1,10 +1,7 @@
 package net.blaklizt.streets.android.activity;
 
 import android.content.Context;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,58 +14,30 @@ import com.google.android.gms.maps.model.Marker;
 
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.GoogleMapTask;
-import net.blaklizt.streets.android.activity.helpers.LocationUpdateTask;
 import net.blaklizt.streets.android.activity.helpers.PlacesTask;
 import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
+import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.common.StreetsCommon;
-import net.blaklizt.streets.android.common.TaskInfo;
-import net.blaklizt.streets.android.common.utils.Optional;
 import net.blaklizt.streets.android.location.navigation.Directions;
 import net.blaklizt.streets.android.location.navigation.Navigator;
-import net.blaklizt.streets.android.navigation.Places;
-import net.blaklizt.streets.android.sidemenu.fragment.StreetsFragment;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 
 /**
  * User: tkaviya
  * Date: 6/21/14
  * Time: 5:58 PM
  */
-public class MapLayout extends StreetsFragment implements Navigator.OnPathSetListener, GoogleMap.InfoWindowAdapter
+public class MapLayout extends StreetsAbstractView implements Navigator.OnPathSetListener, GoogleMap.InfoWindowAdapter
 
         //OnMarkerClickListener,
 {
-
-    public final HashMap<String, TaskInfo> TASK_EXECUTION_INFO = new HashMap<>();
-
     private static final String TAG = StreetsCommon.getTag(MapLayout.class);
-
-	private static MapLayout mapLayout = null;
-
-    private static LocationUpdateTask locationUpdateTask = null;
-
 	private View mapView;
-
-	private GoogleMap googleMap;
-    private Location currentLocation = null;
-
-    private LocationManager locationManager = null;
-
 	private Navigator navigator;
 	private ImageView location_image;
 	private TextView location_info;
 	private LayoutInflater inflater;
-
-    public MapLayout() {
-        mapLayout = this;
-        registerStreetsFragment("Tha Streetz", R.drawable.icn_close);
-    }
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -86,9 +55,6 @@ public class MapLayout extends StreetsFragment implements Navigator.OnPathSetLis
             location_image = (ImageView) mapView.findViewById(R.id.location_image_view);
             location_info = (TextView) mapView.findViewById(R.id.location_categories_text_view);
             setRetainInstance(true);
-
-
-            setLocationManager((LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE));
         }
 
         startTasks();
@@ -104,19 +70,9 @@ public class MapLayout extends StreetsFragment implements Navigator.OnPathSetLis
             return;
         }
 
-        String gMapTask = GoogleMapTask.class.getSimpleName();
-        String locationTask = LocationUpdateTask.class.getSimpleName();
-        String placesTask = Places.class.getSimpleName();
-
-        if (TASK_EXECUTION_INFO.isEmpty()) {
-            Log.i(TAG, "Initializing task execution information.");
-
-            TASK_EXECUTION_INFO.put(gMapTask,     new GoogleMapTask());
-            TASK_EXECUTION_INFO.put(locationTask, new LocationUpdateTask());
-            TASK_EXECUTION_INFO.put(placesTask,   new PlacesTask());
-        }
-
         Log.i(TAG, "Queuing tasks for dependency managed execution.");
+        SequentialTaskManager.runImmediately(AppContext.getBackgroundExecutionTask(GoogleMapTask.class));
+        SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(PlacesTask.class));
         SequentialTaskManager.runImmediately(TASK_EXECUTION_INFO.get(gMapTask));
         SequentialTaskManager.runImmediately(TASK_EXECUTION_INFO.get(locationTask));
         SequentialTaskManager.runWhenAvailable(TASK_EXECUTION_INFO.get(placesTask));
@@ -126,7 +82,6 @@ public class MapLayout extends StreetsFragment implements Navigator.OnPathSetLis
 	public void onPause() {
         Log.i(TAG, "+++ ON PAUSE +++");
 		super.onPause();
-        SequentialTaskManager.cancelRunningTasks();
 	}
 
 	@Override
@@ -162,45 +117,12 @@ public class MapLayout extends StreetsFragment implements Navigator.OnPathSetLis
 		super.onDestroy();
 		onDetach();
 		mapView = null;
-		googleMap = null;
 	}
 
 	@Override
 	public void onStart() {
 		Log.i(TAG, "+++ ON START +++");
 		super.onStart();
-	}
-
-    public void setGoogleMap(GoogleMap googleMap) {
-        this.googleMap = googleMap;
-    }
-
-    public Optional<GoogleMap> getGoogleMap() {
-        return Optional.ofNullable(googleMap);
-    }
-
-    public void setCurrentLocation(Location currentLocation) {
-        this.currentLocation = currentLocation;
-    }
-
-    public Optional<Location> getCurrentLocation() {
-        return Optional.ofNullable(currentLocation);
-    }
-
-	public Optional<LocationManager> getLocationManager() {
-		return Optional.ofNullable(locationManager);
-	}
-
-    public void setLocationManager(LocationManager locationManager) {
-        this.locationManager = locationManager;
-        this.locationManager.addGpsStatusListener(locationUpdateTask);
-    }
-
-    public static MapLayout getInstance() {
-		if (mapLayout == null) {
-			mapLayout = new MapLayout();
-		}
-		return mapLayout;
 	}
 
     @Override

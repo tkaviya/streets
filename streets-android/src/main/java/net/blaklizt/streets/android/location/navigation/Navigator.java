@@ -9,11 +9,17 @@ package net.blaklizt.streets.android.location.navigation;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
+
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import net.blaklizt.streets.android.common.StreetsCommon;
+
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+
 //import org.apache.http.HttpResponse;
 //import org.apache.http.HttpStatus;
 //import org.apache.http.client.HttpClient;
@@ -22,11 +28,6 @@ import net.blaklizt.streets.android.common.StreetsCommon;
 //import org.apache.http.protocol.BasicHttpContext;
 //import org.apache.http.protocol.HttpContext;
 //import org.apache.http.util.EntityUtils;
-
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
 
 public class Navigator {
 

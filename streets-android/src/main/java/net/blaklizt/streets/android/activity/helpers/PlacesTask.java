@@ -7,11 +7,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.MapLayout;
-import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.TASK_TYPE;
-import net.blaklizt.streets.android.common.TaskInfo;
 import net.blaklizt.streets.android.common.utils.Optional;
 import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.location.places.PlacesService;
@@ -43,28 +42,28 @@ import static net.blaklizt.streets.android.common.StreetsCommon.showSnackBar;
  * GNU General Public License for more details.                            *
  * *
  ******************************************************************************/
-public class PlacesTask extends TaskInfo {
+public class PlacesTask extends StreetsAbstractTask {
 
     private final String TAG = StreetsCommon.getTag(PlacesTask.class);
     private Optional<ArrayList<Place>> nearbyPlaces = Optional.empty();
     private HashMap<Integer, Place> map = new HashMap<>();
-    private MapLayout mapLayout;
 
-    public PlacesTask() {
-        super(new ArrayList<>(asList(GoogleMapTask.class.getSimpleName(), LocationUpdateTask.class.getSimpleName())),
-              new ArrayList<>(Collections.singletonList(MapLayout.class)), false, false, TASK_TYPE.BG_PLACES_TASK);
-        this.mapLayout = MapLayout.getInstance();
+    static {
+        processDependencies = new ArrayList<>(asList(GoogleMapTask.class.getSimpleName(), LocationUpdateTask.class.getSimpleName()));
+        viewDependencies = new ArrayList<>(Collections.singletonList(MapLayout.class));
+        allowOnlyOnce = false;
+        allowMultiInstance = false;
+        taskType = TASK_TYPE.BG_PLACES_TASK;
     }
 
     @Override
     protected Object doInBackground(Object[] params) {
         Log.i(TAG, "+++ doInBackground +++");
 
-        if (mapLayout.getCurrentLocation().isPresent()) {
+        if (AppContext.getInstance().getCurrentLocation().isPresent()) {
             nearbyPlaces = PlacesService.nearby_search(
-                mapLayout.getCurrentLocation().get().getLatitude(), mapLayout.getCurrentLocation().get().getLongitude(),
-                5000, Startup.getStreetsCommon().getStreetsDBHelper().getPlacesOfInterest()
-            );
+                    AppContext.getInstance().getCurrentLocation().get().getLatitude(), AppContext.getInstance().getCurrentLocation().get().getLongitude(),
+                5000, AppContext.getStreetsDBHelper().getPlacesOfInterest());
         }
         else {
             showSnackBar(TAG, "Current location unknown. Check location settings.", Snackbar.LENGTH_SHORT);
@@ -96,8 +95,8 @@ public class PlacesTask extends TaskInfo {
 
         if (nearbyPlaces != null && nearbyPlaces.isPresent()) {
             ArrayList<Place> places = nearbyPlaces.get();
-            if (mapLayout.getGoogleMap().isPresent()) {
-                mapLayout.getGoogleMap().get().clear();
+            if (AppContext.getInstance().getGoogleMap().isPresent()) {
+                AppContext.getInstance().getGoogleMap().get().clear();
                 for (Place place : places) {
                     drawPlaceMarker(place);
                 }
@@ -107,7 +106,7 @@ public class PlacesTask extends TaskInfo {
 
     private void drawPlaceMarker(Place place){
         Log.i(TAG, "Drawing place marker for " + place.name + " at location " + place.latitude + " : " + place.longitude);
-        if (mapLayout.getGoogleMap().isPresent()) {
+        if (AppContext.getInstance().getGoogleMap().isPresent()) {
             LatLng currentPosition = new LatLng(place.latitude, place.longitude);
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(currentPosition);
@@ -115,7 +114,7 @@ public class PlacesTask extends TaskInfo {
             markerOptions.icon(place.icon);
             markerOptions.alpha(0.7f);
             markerOptions.title(place.name);
-            Marker placeMarker = mapLayout.getGoogleMap().get().addMarker(markerOptions);
+            Marker placeMarker = AppContext.getInstance().getGoogleMap().get().addMarker(markerOptions);
 
             //link marker to a place to display info later
             map.put(placeMarker.hashCode(), place);

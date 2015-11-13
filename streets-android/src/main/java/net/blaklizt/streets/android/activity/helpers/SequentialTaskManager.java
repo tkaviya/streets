@@ -3,10 +3,7 @@ package net.blaklizt.streets.android.activity.helpers;
 import android.os.AsyncTask;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
-import android.widget.Toast;
 
-import net.blaklizt.streets.android.activity.Startup;
-import net.blaklizt.streets.android.common.STATUS_CODES;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.TASK_TYPE;
 import net.blaklizt.streets.android.common.TaskInfo;
@@ -70,8 +67,8 @@ public class SequentialTaskManager {
         catch (CancellationException ex) {}
         catch (Exception ex) {
             ex.printStackTrace();
-            SecurityContext.getInstance().handleApplicationError(SecurityContext.ERROR_SEVERITY.GENERAL,
-                "Background task " + newTaskInfo.getClassName() + "failed to execute! ", ex.getStackTrace(), TASK_TYPE.SYS_TASK);
+            SecurityContext.handleApplicationError(SecurityContext.ERROR_SEVERITY.GENERAL,
+                    "Background task " + newTaskInfo.getClassName() + "failed to execute! ", ex.getStackTrace(), TASK_TYPE.SYS_TASK);
         }
 
 
@@ -123,8 +120,6 @@ public class SequentialTaskManager {
         }
         Log.i(TAG, "Task isNotBlockedInstance " + newTaskInfo.getClassName());
         return Try.success(newTaskInfo);
-
-
     }
 
     public static Try<TaskInfo, String> hasNoProcessDependencies(TaskInfo newTaskInfo) {
@@ -132,9 +127,9 @@ public class SequentialTaskManager {
 
         if (newTaskInfo.getProcessDependencies().size() > 0) {
             if (!completedTasks.keySet().containsAll(newTaskInfo.getProcessDependencies())) {
-                Log.i(TAG, format("Added %s to list of tasks awaiting processDependencies...", newTaskInfo.getClassName()));
+                Log.i(TAG, format("Added %s to list of tasks awaiting process dependencies...", newTaskInfo.getClassName()));
                 processDependencyList.put(newTaskInfo.getClassName(), newTaskInfo);
-                return Try.fail(format("Task is %s cannot execute. Some processDependencies are still outstanding: ", newTaskInfo.getClassName()));
+                return Try.fail(format("Task is %s cannot execute. Some process dependencies are still outstanding: ", newTaskInfo.getClassName()));
             }
         }
         Log.i(TAG, "Task hasNoOutstandingDependencies " + newTaskInfo.getClassName());

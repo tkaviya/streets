@@ -1,8 +1,8 @@
 package net.blaklizt.streets.android.common.utils;
 
 import android.util.Log;
-import android.widget.Toast;
 
+import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.STATUS_CODES;
 import net.blaklizt.streets.android.common.StreetsCommon;
@@ -13,7 +13,6 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 
 import static java.lang.String.format;
-import static net.blaklizt.streets.android.common.StreetsCommon.showToast;
 
 /******************************************************************************
  * *
@@ -43,8 +42,6 @@ public class SecurityContext {
 
     private static final HashMap<String, Object> userDefaultDataSet = new HashMap<>();
 
-    private static SecurityContext securityContext = null;
-
     public enum ERROR_SEVERITY { GENERAL, SEVERE }
 
     static {
@@ -62,18 +59,6 @@ public class SecurityContext {
         return userDefaultDataSet;
     }
 
-    public SecurityContext() {
-        securityContext = this;
-    }
-
-    public static SecurityContext getInstance() {
-        if (securityContext == null) {
-            securityContext = new SecurityContext();
-            Log.i(TAG, "Created new instance of StreetsCommon");
-        }
-        return securityContext;
-    }
-
     public static void handleApplicationError(ERROR_SEVERITY errorSeverity, String displayMsg, StackTraceElement[] stackTrace, TASK_TYPE taskType) {
         StringBuilder stacktraceMessage = new StringBuilder();
         for (StackTraceElement stackTraceElement : stackTrace) {
@@ -84,10 +69,10 @@ public class SecurityContext {
 
     public static void handleApplicationError(ERROR_SEVERITY errorSeverity, String displayMsg, String error, TASK_TYPE taskType) {
 
-        Startup.getStreetsCommon().writeEventLog(taskType, STATUS_CODES.GENERAL_ERROR, error);
+        AppContext.getStreetsCommon().writeEventLog(taskType, STATUS_CODES.GENERAL_ERROR, error);
         if (errorSeverity == ERROR_SEVERITY.GENERAL) {
             Log.w(TAG, "A general error occurred: " + displayMsg + "\n" + error);
-        } else if (errorSeverity == ERROR_SEVERITY.GENERAL) {
+        } else if (errorSeverity == ERROR_SEVERITY.SEVERE) {
             Log.e(TAG, "A severe system error occurred: " + displayMsg + "\n" + error + "\nApplication will terminate.");
             Startup.getInstance().onDestroy();
         }
@@ -101,9 +86,10 @@ public class SecurityContext {
             Log.e(TAG, "SymbiosisUser cannot be null!");
             handleApplicationError(ERROR_SEVERITY.SEVERE, "User session is invalid! Please login again.",
                 "SymbiosisUser was null", TASK_TYPE.SYS_SECURITY);
+            return false; /* app should have terminated */
         }
 
-        SymbiosisUser dbUser = Startup.getStreetsCommon().getSymbiosisUser();
+        SymbiosisUser dbUser = AppContext.getStreetsCommon().getSymbiosisUser();
 
         for (Field field : symbiosisUser.getClass().getFields()) {
             String fieldName = field.getName();

@@ -2,19 +2,18 @@ package net.blaklizt.streets.android.activity;
 
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import net.blaklizt.streets.android.R;
-import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 
 /**
  * Created by tsungai.kaviya on 2015-09-23.
  */
-public class ProfileLayout extends StreetsFragment
+public class ProfileLayout extends StreetsAbstractView<ProfileLayout>
 {
 	private static final String TAG = StreetsCommon.getTag(ProfileLayout.class);
 	private static ProfileLayout profileLayout;

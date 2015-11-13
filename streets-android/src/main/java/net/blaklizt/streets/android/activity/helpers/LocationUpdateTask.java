@@ -12,7 +12,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
-import android.os.Looper;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -24,16 +23,14 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.MapLayout;
-import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.TASK_TYPE;
-import net.blaklizt.streets.android.common.TaskInfo;
 import net.blaklizt.streets.android.common.USER_PREFERENCE;
 import net.blaklizt.streets.android.listener.EnableGPSDialogueListener;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -60,9 +57,17 @@ import static java.util.Collections.singletonList;
  * GNU General Public License for more details.                            *
  * *
  ******************************************************************************/
-public class LocationUpdateTask extends TaskInfo
+public class LocationUpdateTask extends StreetsAbstractTask
         implements GpsStatus.Listener, LocationListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
+
+    static {
+        processDependencies = new ArrayList<>(singletonList(GoogleMapTask.class.getSimpleName()));
+        viewDependencies = new ArrayList<>(singletonList(MapLayout.class));
+        allowOnlyOnce = false;
+        allowMultiInstance = false;
+        taskType = TASK_TYPE.BG_LOCATION_TASK;
+    }
 
     private static final String TAG = StreetsCommon.getTag(LocationUpdateTask.class);
     private static boolean arePermissionsGranted = false;
@@ -71,45 +76,36 @@ public class LocationUpdateTask extends TaskInfo
     //location provider data
     private final static String PROVIDER_CHEAPEST = "passive";
     private final static Integer MINIMUM_REFRESH_TIME = 600000;
-    private static LocationManager locationManager = null;
     private String defaultProvider = PROVIDER_CHEAPEST;        //default working provider
     private boolean firstLocationUpdate = true;
 
-    private MapLayout mapLayout;
     private LocationProvider currentProvider = null;
-
-    public LocationUpdateTask() {
-        super(new ArrayList<>(singletonList(GoogleMapTask.class.getSimpleName())),
-              new ArrayList<>(Collections.singletonList(MapLayout.class)), true, false, TASK_TYPE.BG_PLACES_TASK);
-        this.mapLayout = MapLayout.getInstance();
-    }
 
     @Override
     protected Object doInBackground(Object[] params) {
 
-        Looper.prepare();
-
-        if (mapLayout.getLocationManager().isPresent()) {
-            locationManager = mapLayout.getLocationManager().get();
+        if (!AppContext.getInstance().getLocationManager().isPresent()) {
             Log.i(TAG, "Initializing location manager");
             //at activity start, if user has not disabled location stuff, request permissions.
             if (!arePermissionsGranted &&
-                    (Startup.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.SUGGEST_GPS).equals("1") ||
-                            Startup.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.AUTO_ENABLE_GPS).equals("1"))) {
-                Startup.getStreetsCommon().setUserPreference(USER_PREFERENCE.REQUEST_GPS_PERMS, "1"); //reset preferences if permissions were updated
+                    (AppContext.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.SUGGEST_GPS).equals("1") ||
+                            AppContext.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.AUTO_ENABLE_GPS).equals("1"))) {
+                AppContext.getStreetsCommon().setUserPreference(USER_PREFERENCE.REQUEST_GPS_PERMS, "1"); //reset preferences if permissions were updated
             }
         }
 
         Log.i(TAG, "Getting system location service");
         // Getting LocationManager object from System Service LOCATION_SERVICE
-        mapLayout.setLocationManager((LocationManager) mapLayout.getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE));
+        AppContext.getInstance().setLocationManager((LocationManager) AppContext.getInstance().getApplicationContext().getSystemService(Context.LOCATION_SERVICE));
 
-        Looper.loop();
         try {
+            final MapLayout mapLayout = (MapLayout)AppContext.getFragmentView(MapLayout.class);
+            LocationManager locationManager = AppContext.getInstance().getLocationManager().get();
+
             locationManager.addGpsStatusListener(this);
 
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                if (Startup.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.SUGGEST_GPS).equals("1")) {
+                if (AppContext.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.SUGGEST_GPS).equals("1")) {
 
                     EnableGPSDialogueListener enableGpsListener = new EnableGPSDialogueListener(mapLayout.getActivity());
 
@@ -121,7 +117,7 @@ public class LocationUpdateTask extends TaskInfo
                                     EnableGPSDialogueListener.EnableGPSOptionListener.getInstance())
                             .setPositiveButton("Yes", enableGpsListener)
                             .setNegativeButton("No", enableGpsListener).create().show();
-                } else if (Startup.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.AUTO_ENABLE_GPS).equals("1")) {
+                } else if (AppContext.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.AUTO_ENABLE_GPS).equals("1")) {
                     Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                     mapLayout.startActivity(myIntent);
                 }
@@ -133,13 +129,13 @@ public class LocationUpdateTask extends TaskInfo
             se.printStackTrace();
             Log.e(TAG, "Failed to do location updates. " + se.getMessage(), se);
         }
-
-        Looper.getMainLooper().quit();
         return null;
     }
 
     public void updateLocationProvider(boolean checkGPS) {
         try {
+            LocationManager locationManager = AppContext.getInstance().getLocationManager().get();
+
             if (!arePermissionsGranted && !checkAndRequestPermissions()) {
                 Log.i(TAG, "Cannot run location updates. Insufficient permissions.");
                 return;
@@ -237,33 +233,35 @@ public class LocationUpdateTask extends TaskInfo
     }
 
     private boolean checkAndRequestPermissions() {
-
+        Context context = AppContext.getApplicationContext().getApplicationContext();
         //check course location
-        if (ContextCompat.checkSelfPermission(mapLayout.getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.i(TAG, "Permission " + Manifest.permission.ACCESS_COARSE_LOCATION + " is not allowed.");
-            Startup.getStreetsCommon().addOutstandingPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+            AppContext.getStreetsCommon().addOutstandingPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
             arePermissionsGranted = false;
         } else {
             Log.i(TAG, "Permission " + Manifest.permission.ACCESS_COARSE_LOCATION + " is allowed.");
-            Startup.getStreetsCommon().removeOutstandingPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+            AppContext.getStreetsCommon().removeOutstandingPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
             arePermissionsGranted = false;
         }
 
         //check fine location
-        if (ContextCompat.checkSelfPermission(mapLayout.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.i(TAG, "Permission " + Manifest.permission.ACCESS_FINE_LOCATION + " is not allowed.");
-            Startup.getStreetsCommon().addOutstandingPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+            AppContext.getStreetsCommon().addOutstandingPermission(Manifest.permission.ACCESS_FINE_LOCATION);
             arePermissionsGranted = false;
         } else {
             Log.i(TAG, "Permission " + Manifest.permission.ACCESS_FINE_LOCATION + " is allowed.");
-            Startup.getStreetsCommon().removeOutstandingPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+            AppContext.getStreetsCommon().removeOutstandingPermission(Manifest.permission.ACCESS_FINE_LOCATION);
             arePermissionsGranted = false;
         }
 
-        ArrayList<String> outstandingPermissions = Startup.getStreetsCommon().getOutstandingPermissions();
+        ArrayList<String> outstandingPermissions = AppContext.getStreetsCommon().getOutstandingPermissions();
+
+        final MapLayout mapLayout = (MapLayout)AppContext.getFragmentView(MapLayout.class);
 
         Log.i(TAG, "Outstanding permissions: " + outstandingPermissions.size());
-        if (outstandingPermissions.size() > 0 && Startup.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.REQUEST_GPS_PERMS).equals("1")) {
+        if (outstandingPermissions.size() > 0 && AppContext.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.REQUEST_GPS_PERMS).equals("1")) {
             Log.i(TAG, "Not enough permissions to do location updates. Requesting from user.");
             mapLayout.requestPermissions(outstandingPermissions.toArray(new String[outstandingPermissions.size()]), PERMISSION_LOCATION_INFO);
             arePermissionsGranted = false;
@@ -294,19 +292,19 @@ public class LocationUpdateTask extends TaskInfo
         for (int c = 0; c < grantResults.length; c++) {
             if (grantResults[c] != PERMISSION_GRANTED) {
                 Log.i(TAG, "Permission was denied for " + permissions[c] + ". Aborting location updates.");
-                Startup.getStreetsCommon().addOutstandingPermission(permissions[c]);
-                Startup.getStreetsCommon().setUserPreference(USER_PREFERENCE.REQUEST_GPS_PERMS, "0"); //if user rejects, he probably does not want to be bothered
+                AppContext.getStreetsCommon().addOutstandingPermission(permissions[c]);
+                AppContext.getStreetsCommon().setUserPreference(USER_PREFERENCE.REQUEST_GPS_PERMS, "0"); //if user rejects, he probably does not want to be bothered
             } else {
                 Log.i(TAG, "Permission granted for " + permissions[c]);
-                Startup.getStreetsCommon().removeOutstandingPermission(permissions[c]);
-                Startup.getStreetsCommon().setUserPreference(USER_PREFERENCE.REQUEST_GPS_PERMS, "1"); //reset preferences if permissions were updated
+                AppContext.getStreetsCommon().removeOutstandingPermission(permissions[c]);
+                AppContext.getStreetsCommon().setUserPreference(USER_PREFERENCE.REQUEST_GPS_PERMS, "1"); //reset preferences if permissions were updated
                 arePermissionsGranted = false;
             }
         }
 
-        if (Startup.getStreetsCommon().getOutstandingPermissions().size() == 0) { //we have everything we need! Great. Start location updates.
+        if (AppContext.getStreetsCommon().getOutstandingPermissions().size() == 0) { //we have everything we need! Great. Start location updates.
             Log.i(TAG, "All required permissions granted. Performing location updates");
-            SequentialTaskManager.runWhenAvailable(mapLayout.TASK_EXECUTION_INFO.get(LocationUpdateTask.class.getSimpleName()));
+            SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(LocationUpdateTask.class));
             arePermissionsGranted = true;
         }
     }
@@ -350,7 +348,7 @@ public class LocationUpdateTask extends TaskInfo
 
         try
         {
-            mapLayout.setCurrentLocation(location);
+            AppContext.getInstance().setCurrentLocation(location);
 
             // Getting latitude of the current location
             double latitude = location.getLatitude();
@@ -369,17 +367,17 @@ public class LocationUpdateTask extends TaskInfo
             if (firstLocationUpdate)
             {
                 // Showing the current location in Google Map
-                if (mapLayout.getGoogleMap().isPresent()) {
+                if (AppContext.getInstance().getGoogleMap().isPresent()) {
 
                     //prevent all other processes from updating
                     firstLocationUpdate = false;
 
-                    mapLayout.getGoogleMap().get().moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+                    AppContext.getInstance().getGoogleMap().get().moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
                     Log.i(TAG, "Camera moved to new location");
 
 
                     // Zoom in the Google Map
-                    mapLayout.getGoogleMap().get().animateCamera(CameraUpdateFactory.zoomTo(14), 3000, null);
+                    AppContext.getInstance().getGoogleMap().get().animateCamera(CameraUpdateFactory.zoomTo(14), 3000, null);
                     Log.i(TAG, "Camera zoomed to view");
 
 //                location_image.setImageDrawable(ContextCompat.getDrawable(mapLayout.getContext(), R.drawable.default_icon));
@@ -400,16 +398,15 @@ public class LocationUpdateTask extends TaskInfo
 
     public void drawMarker(Location location){
         Log.i(TAG, "Found current location at " + location.getLatitude() + " : " + location.getLongitude());
-        mapLayout.getGoogleMap().get().clear();
-        mapLayout.getGoogleMap().get().addMarker(new MarkerOptions()
+        AppContext.getInstance().getGoogleMap().get().clear();
+        AppContext.getInstance().getGoogleMap().get().addMarker(new MarkerOptions()
                 .position(new LatLng(location.getLatitude(), location.getLongitude()))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
                 .title("Your current location"));
     }
 
     public void refreshLocation() {
-        //runningTasks.add(new LocationTask(this).execute());
-        SequentialTaskManager.runWhenAvailable(mapLayout.TASK_EXECUTION_INFO.get(PlacesTask.class.getSimpleName()));
+        SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(PlacesTask.class));
     }
 
 

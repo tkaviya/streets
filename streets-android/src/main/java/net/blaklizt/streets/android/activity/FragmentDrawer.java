@@ -11,13 +11,14 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
-//import net.blaklizt.streets.android.adapter.NavigationDrawerAdapter;
+
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.model.NavDrawerItem;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+
+//import net.blaklizt.streets.android.adapter.NavigationDrawerAdapter;
 
 
 		
@@ -56,7 +57,7 @@ public class FragmentDrawer extends Fragment {
 			// drawer labels
 
 			Log.i(TAG, "Loading places of interest");
-			ArrayList placesOfInterest = Startup.getStreetsCommon().getStreetsDBHelper().getPlacesOfInterest();
+			ArrayList placesOfInterest = AppContext.getInstance().getStreetsDBHelper().getPlacesOfInterest();
 			String[] places = new String[placesOfInterest.size()];
 
 			for (int c = 0; c < placesOfInterest.size(); c++) {

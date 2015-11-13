@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import net.blaklizt.streets.android.activity.Startup;
+import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.common.STATUS_CODES;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.SymbiosisUser;
@@ -224,6 +224,18 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
         }
         writeToFile(tableInfo.toString());
     }
+    public void initUserData() {
+        Log.i(TAG, "Populating data for current user " + REQUIRED_PERMS);
+        getStreetsWritableDatabase().execSQL("INSERT INTO " + USER_TABLE +
+                " (symbiosis_id,username,imei,imsi,password,last_location_id,home_place_id,type) VALUES" +
+                " (" + SecurityContext.getUserDefaultDataSet().get("symbiosis_id") + "," +
+                " (" + SecurityContext.getUserDefaultDataSet().get("username") + "," +
+                " (" + AppContext.getStreetsCommon().getIMEI() + "," +
+                " (" + AppContext.getStreetsCommon().getIMSI() + "," +
+                " (" + SecurityContext.getUserDefaultDataSet().get("password") + "," +
+                " (" + SecurityContext.getUserDefaultDataSet().get("last_location_id") + "," +
+                " (" + SecurityContext.getUserDefaultDataSet().get("home_place_id") + "," +
+                " (" + SecurityContext.getUserDefaultDataSet().get("type") + ")");
 
     private void writeToFile(String data) {
         try {

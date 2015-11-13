@@ -16,6 +16,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.LinearLayout;
 
 import net.blaklizt.streets.android.R;
+import net.blaklizt.streets.android.sidemenu.fragment.ContentFragment;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.TaskInfo;
 import net.blaklizt.streets.android.sidemenu.fragment.StreetsFragment;
