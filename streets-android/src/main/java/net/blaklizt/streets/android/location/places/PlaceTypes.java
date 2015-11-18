@@ -133,7 +133,7 @@ public class PlaceTypes {
 
 		Log.i(TAG, "Getting list of default places");
         ArrayList<String> defaultPlaces = new ArrayList<>();
-        defaultPlaces.add(airport);
+//        defaultPlaces.add(airport);
         defaultPlaces.add(atm);
         defaultPlaces.add(bank);
         defaultPlaces.add(bar);

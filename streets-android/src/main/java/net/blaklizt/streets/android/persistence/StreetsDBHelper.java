@@ -382,26 +382,26 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 	{
         Log.i(TAG, "Searching for nearby friends.");
         ArrayList<Place> resultList = new ArrayList<>();
-        Cursor friends = getStreetsWritableDatabase().rawQuery(
-            "SELECT 'username', pt.reference, pt.latitude, pt.longitude, pt.place_id " +
-            "FROM " + FRIEND_TABLE + " ft, " + PLACE_TABLE + " pt " +
-            "WHERE ft.last_place_id = pt.place_id", null);
-
-        Log.i(TAG, "Found " + friends.getCount() + " friends.");
-        friends.moveToFirst();
-        while (!friends.isAfterLast())
-        {
-            Log.i(TAG, "Adding friend: " + friends.getString(0));
-            resultList.add(new Place(
-                friends.getString(0),
-                friends.getString(1),
-                friends.getDouble(2),
-                friends.getDouble(3),
-                friends.getString(4),
-                null));
-            friends.moveToNext();
-        }
-        friends.close();
+//        Cursor friends = getStreetsWritableDatabase().rawQuery(
+//            "SELECT 'username', pt.reference, pt.latitude, pt.longitude, pt.place_id " +
+//            "FROM " + FRIEND_TABLE + " ft, " + PLACE_TABLE + " pt " +
+//            "WHERE ft.last_place_id = pt.place_id", null);
+//
+//        Log.i(TAG, "Found " + friends.getCount() + " friends.");
+//        friends.moveToFirst();
+//        while (!friends.isAfterLast())
+//        {
+//            Log.i(TAG, "Adding friend: " + friends.getString(0));
+//            resultList.add(new Place(
+//                friends.getString(0),
+//                friends.getString(1),
+//                friends.getDouble(2),
+//                friends.getDouble(3),
+//                friends.getString(4),
+//                null));
+//            friends.moveToNext();
+//        }
+//        friends.close();
 
         return resultList;
 	}

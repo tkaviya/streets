@@ -13,6 +13,7 @@ import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.TASK_TYPE;
 import net.blaklizt.streets.android.common.utils.Optional;
 import net.blaklizt.streets.android.location.places.Place;
+import net.blaklizt.streets.android.location.places.PlaceTypes;
 import net.blaklizt.streets.android.location.places.PlacesService;
 
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class PlacesTask extends StreetsAbstractTask {
         if (AppContext.getInstance().getCurrentLocation().isPresent()) {
             nearbyPlaces = PlacesService.nearby_search(
                     AppContext.getInstance().getCurrentLocation().get().getLatitude(), AppContext.getInstance().getCurrentLocation().get().getLongitude(),
-                5000, AppContext.getStreetsDBHelper().getPlacesOfInterest());
+                5000, PlaceTypes.getDefaultPlaces());
         }
         else {
             showSnackBar(TAG, "Current location unknown. Check location settings.", Snackbar.LENGTH_SHORT);
@@ -110,6 +111,15 @@ public class PlacesTask extends StreetsAbstractTask {
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(currentPosition);
             markerOptions.snippet(place.formatted_address);
+
+//            Ion.with(imageView)
+//                    .placeholder(R.drawable.placeholder_image)
+//                    .error(R.drawable.error_image)
+//                    .animateLoad(spinAnimation)
+//                    .animateIn(fadeInAnimation)
+//                    .load("http://example.com/image.png");
+
+
             markerOptions.icon(place.icon);
             markerOptions.alpha(0.7f);
             markerOptions.title(place.name);

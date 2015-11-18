@@ -208,17 +208,20 @@ public class PlacesService {
             resultList = AppContext.getStreetsDBHelper().getNearbyFriendLocations();
 
             for (int i = 0; i < predsJsonArray.length(); i++) {
-                JSONArray typeArray = predsJsonArray.getJSONObject(i).getJSONArray("types");
+                JSONObject placeData = predsJsonArray.getJSONObject(i);
+                JSONArray typeArray = placeData.getJSONArray("types");
+
                 Place place = new Place(
-                        predsJsonArray.getJSONObject(i).getString("name"),
-                        predsJsonArray.getJSONObject(i).getString("reference"),
-                        predsJsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
-                        predsJsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getDouble("lng"),
+                        placeData.getString("name"),
+                        placeData.getString("reference"),
+                        placeData.getJSONObject("geometry").getJSONObject("location").getDouble("lat"),
+                        placeData.getJSONObject("geometry").getJSONObject("location").getDouble("lng"),
                         typeArray.getString(0).replaceAll("_", " "),
-//					CommonUtilities.toCamelCase(typeArray.getString(0).replaceAll("_", " ")),
-                        predsJsonArray.getJSONObject(i).getString("icon")
+                        placeData.getString("icon"),
+                        placeData.optString("vicinity"),
+                        placeData.optString("formatted_phone_number"),
+                        placeData.optString("rating").equals("") ? 0.0 : Double.parseDouble(placeData.getString("rating"))
                 );
-                place.formatted_address = predsJsonArray.getJSONObject(i).getString("vicinity");
                 Log.i(TAG, "Adding place to response: " + place.name + " : " + place.type);
                 resultList.add(place);
             }

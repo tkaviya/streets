@@ -2,6 +2,7 @@ package net.blaklizt.streets.android.common;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.Snackbar;
@@ -14,6 +15,7 @@ import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.utils.SecurityContext;
 import net.blaklizt.streets.android.common.utils.Validator;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -27,6 +29,7 @@ import static net.blaklizt.streets.android.activity.AppContext.getUserPreference
  */
 public class StreetsCommon
 {
+    public enum FILE_DATA_TYPE { ICON };
 	//Tag all logs starting with the following tag
 	private static final String TAG = "Streets";
 
@@ -100,13 +103,12 @@ public class StreetsCommon
         if (!getUserPreferenceValues().containsKey(preference.name())) {
             Log.i(TAG, "Preference " + preference.name() + " does not exist");
             writeEventLog(TASK_TYPE.USER_PREF_READ, STATUS_CODES.GENERAL_ERROR,
-                "Preference " + preference.name() + " does not exist in the database.\n\n" +
-                "Please update your application to avoid data corruption, crashes & unexpected behaviour");
+                    "Preference " + preference.name() + " does not exist in the database.\n\n" +
+                            "Please update your application to avoid data corruption, crashes & unexpected behaviour");
         }
 		Log.i(TAG, preference.name() + " = " + getUserPreferenceValues().get(preference.name()).pref_value);
         return getUserPreferenceValues().get(preference.name()).pref_value;
     }
-
 
 	public void setUserPreference(USER_PREFERENCE preference, String value) {
         try {
@@ -124,6 +126,31 @@ public class StreetsCommon
                 ex.getStackTrace(), TASK_TYPE.USER_PREF_UPDATE);
         }
 	}
+
+    public static String getCacheDir(FILE_DATA_TYPE fileDataType) {
+        String cacheFolder = null;
+        switch (fileDataType) {
+            case ICON: cacheFolder = "icon_cache";
+        }
+
+        cacheFolder = Environment.getExternalStorageDirectory()
+                + File.separator + "blaklizt"
+                + File.separator + "streets"
+                + File.separator + cacheFolder
+                + File.separator;
+
+        Log.i(TAG, "Checking if cache directory exists: " + cacheFolder);
+
+        if (!new File(cacheFolder).exists()) {
+            if (new File(cacheFolder).mkdirs()) {
+                Log.i(TAG, "Created streets cache folder: " + cacheFolder);
+            } else {
+                Log.e(TAG, "Failed to create streets cache folder: " + cacheFolder);
+            }
+        }
+
+        return cacheFolder;
+    }
 
 	public ArrayList<String> getOutstandingPermissions() {
 		return AppContext.getStreetsDBHelper().getOutstandingPermissions();

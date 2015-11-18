@@ -3,6 +3,7 @@
           package="net.blaklizt.streets.android"
           android:versionCode="1"
           android:versionName="1.0.0"
+          android:installLocation="preferExternal"
           android:debuggable="true"
           android:icon="@drawable/default_icon">
     <uses-sdk
