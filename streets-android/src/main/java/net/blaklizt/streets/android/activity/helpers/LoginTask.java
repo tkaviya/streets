@@ -42,14 +42,6 @@ import static net.blaklizt.streets.android.common.StreetsCommon.showToast;
  ******************************************************************************/
 public class LoginTask extends StreetsAbstractTask {
 
-    static {
-        processDependencies = new ArrayList<>();
-        viewDependencies = new ArrayList<>();
-        allowOnlyOnce = false;
-        allowMultiInstance = false;
-        taskType = TASK_TYPE.FG_LOGIN_TASK;
-    }
-
     private final String TAG = StreetsCommon.getTag(LoginTask.class);
     private int counter = 5;
     private ProgressDialog progressDialog;
@@ -57,6 +49,11 @@ public class LoginTask extends StreetsAbstractTask {
 
     public LoginTask(Startup startup) {
         this.startup = startup;
+        processDependencies = new ArrayList<>();
+        viewDependencies = new ArrayList<>();
+        allowOnlyOnce = false;
+        allowMultiInstance = false;
+        taskType = TASK_TYPE.FG_LOGIN_TASK;
     }
 
     @Override
@@ -117,7 +114,7 @@ public class LoginTask extends StreetsAbstractTask {
     }
 
     @Override
-    protected void onPreExecuteRelay() {
+    protected void onPreExecuteRelay(Object[] additionalParams) {
         progressDialog = ProgressDialog.show(Startup.getInstance(), "Authenticating", "Authenticating...", true, false);
         progressDialog.show();
     }

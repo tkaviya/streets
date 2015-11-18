@@ -48,7 +48,7 @@ public class PlacesTask extends StreetsAbstractTask {
     private Optional<ArrayList<Place>> nearbyPlaces = Optional.empty();
     private HashMap<Integer, Place> map = new HashMap<>();
 
-    static {
+    public PlacesTask() {
         processDependencies = new ArrayList<>(asList(GoogleMapTask.class.getSimpleName(), LocationUpdateTask.class.getSimpleName()));
         viewDependencies = new ArrayList<>(Collections.singletonList(MapLayout.class));
         allowOnlyOnce = false;
@@ -72,7 +72,7 @@ public class PlacesTask extends StreetsAbstractTask {
     }
 
     @Override
-    protected void onPreExecuteRelay() {
+    protected void onPreExecuteRelay(Object[] additionalParams) {
         Log.i(TAG, "+++ onPreExecuteRelay +++");
         showSnackBar(TAG, "Updating location", Snackbar.LENGTH_LONG);
     }

@@ -3,57 +3,71 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+        <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+                <android.support.design.widget.AppBarLayout
+                    android:id="@+id/appbar"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-    <io.codetail.widget.RevealFrameLayout
-        android:id="@+id/container_frame"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+                    <android.support.v7.widget.Toolbar
+                        android:id="@+id/toolbar"
+                        android:layout_width="fill_parent"
+                        android:layout_height="?attr/actionBarSize"
+                        android:background="?attr/colorPrimary"
+                        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+                        app:layout_scrollFlags="scroll|enterAlways"
+                        android:textAlignment="center"
+                        android:foregroundGravity="center" />
 
-        <android.support.design.widget.AppBarLayout
-            android:id="@+id/appbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+                    <TextView
+                        android:id="@+id/default_options"
+                        android:layout_width="fill_parent"
+                        android:layout_height="?attr/actionBarSize"
+                        android:background="#FFFB00"/>
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                android:theme="@style/ThemeOverlay.AppCompat.Light"
-                app:layout_scrollFlags="scroll|enterAlways" />
+                    <TextView
+                        android:id="@+id/status_text_view"
+                        android:layout_height="?attr/actionBarSize"
+                        android:layout_width="fill_parent"
+                        android:padding="10dp"
+                        android:textSize="15sp"
+                        android:background="#000"
+                        android:textColor="#fff"
+                        android:textStyle="bold"
+                        android:textAlignment="center"
+                        android:gravity="center|center_vertical|center_horizontal"
+                        android:textIsSelectable="true" />
 
-            <android.support.design.widget.TabLayout
-                android:id="@+id/tabs"
-                android:layout_width="match_parent"
+                </android.support.design.widget.AppBarLayout>
+            </TableRow>
+            <TableRow
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:background="#FFFB00"/>
+                android:background="#999">
 
-            <TextView
-                android:id="@+id/status_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:textSize="15sp"
-                android:textColor="#fff"
-                android:textStyle="bold"
-                android:textAlignment="center"
-                android:gravity="center|center_vertical|center_horizontal"
-                android:background="#000"
-                android:autoText="false"/>
+                <io.codetail.widget.RevealFrameLayout
+                    android:id="@+id/container_frame"
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent">
 
+                    <LinearLayout
+                        android:id="@+id/content_frame"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"/>
 
-        </android.support.design.widget.AppBarLayout>
+                </io.codetail.widget.RevealFrameLayout>
 
-        <LinearLayout
-            android:id="@+id/content_frame"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"/>
-
-
-    </io.codetail.widget.RevealFrameLayout>
+            </TableRow>
+        </TableLayout>
 
     <ScrollView
         android:id="@+id/scrollView"

@@ -1,14 +1,24 @@
 package net.blaklizt.streets.android.activity;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.location.LocationProvider;
+import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.GoogleMapTask;
@@ -24,16 +34,19 @@ import net.blaklizt.streets.android.common.TaskInfo;
 import net.blaklizt.streets.android.common.USER_PREFERENCE;
 import net.blaklizt.streets.android.common.utils.Optional;
 import net.blaklizt.streets.android.common.utils.SecurityContext;
+import net.blaklizt.streets.android.listener.EnableGPSDialogueListener;
 import net.blaklizt.streets.android.listener.PreferenceUpdateDialogueListener;
 import net.blaklizt.streets.android.persistence.StreetsDBHelper;
 import net.blaklizt.streets.android.sidemenu.model.SlideMenuItem;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
 
 import static java.lang.String.format;
+import static net.blaklizt.streets.android.activity.helpers.SequentialTaskManager.TaskStatus.COMPLETED;
 import static net.blaklizt.streets.android.common.TASK_TYPE.USER_PREF_READ;
 import static net.blaklizt.streets.android.common.utils.SecurityContext.handleApplicationError;
 
@@ -66,6 +79,7 @@ public class AppContext {
     private static final HashMap<Class<? extends StreetsAbstractView>, SlideMenuItem> FRAGMENT_MENU_REGISTRY = new HashMap<>();
     /* Mapping of menus to their fragments */
     private static final HashMap<String, Class<? extends StreetsAbstractView>> MENU_FRAGMENT_REGISTRY = new HashMap<>();
+    private static boolean isFirstLocationUpdate;
 
     public static HashMap<Class<? extends TaskInfo>, TaskInfo> getTaskExecutionInfo() {
         return TASK_EXECUTION_INFO;
@@ -116,8 +130,30 @@ public class AppContext {
     private GoogleMap googleMap;
     private Location currentLocation = null;
     private TextToSpeech ttsEngine = null;
-
     private LocationManager locationManager = null;
+
+    //location provider data
+    public final static String PROVIDER_CHEAPEST = "passive";
+    public final static Integer MINIMUM_REFRESH_TIME = 600000;
+    public final static Integer MINIMUM_REFRESH_DISTACE = 10;
+    public String defaultProvider = PROVIDER_CHEAPEST;        //default working provider
+
+    public static boolean firstLocationUpdate = true;
+    public LocationProvider currentProvider = null;
+
+    public static boolean isLocationPermissionsGranted() {
+        if (!locationPermissionsGranted) {
+            locationPermissionsGranted = checkAndRequestPermissions();
+        }
+        return locationPermissionsGranted;
+    }
+
+    public static void setLocationPermissionsGranted(boolean locationPermissionsGranted) {
+        AppContext.locationPermissionsGranted = locationPermissionsGranted;
+    }
+
+    private static boolean locationPermissionsGranted = false;
+    public static final int PERMISSION_LOCATION_INFO = 6767;
 
     /* Initialize Streets Items */
     static {
@@ -153,10 +189,15 @@ public class AppContext {
     static {
         Log.i(TAG, "Initializing fragment menu information.");
         if (FRAGMENT_MENU_REGISTRY.isEmpty()) {
-            FRAGMENT_MENU_REGISTRY.put(MENU_FRAGMENT_REGISTRY.put(MNU_CLOSE, null),                         new SlideMenuItem(MNU_CLOSE,        R.drawable.icn_close));
-            FRAGMENT_MENU_REGISTRY.put(MENU_FRAGMENT_REGISTRY.put(MNU_THA_STREETZ, MapLayout.class),        new SlideMenuItem(MNU_THA_STREETZ,  android.R.drawable.ic_dialog_map));
-            FRAGMENT_MENU_REGISTRY.put(MENU_FRAGMENT_REGISTRY.put(MNU_NAVIGATION, NavigationLayout.class),  new SlideMenuItem(MNU_NAVIGATION,   R.drawable.world_search));
-            FRAGMENT_MENU_REGISTRY.put(MENU_FRAGMENT_REGISTRY.put(MNU_PROFILE, ProfileLayout.class),        new SlideMenuItem(MNU_PROFILE,      R.drawable.icon_profile));
+            MENU_FRAGMENT_REGISTRY.put(MNU_CLOSE, null);
+            MENU_FRAGMENT_REGISTRY.put(MNU_THA_STREETZ, MapLayout.class);
+            MENU_FRAGMENT_REGISTRY.put(MNU_NAVIGATION, NavigationLayout.class);
+            MENU_FRAGMENT_REGISTRY.put(MNU_PROFILE, ProfileLayout.class);
+
+            FRAGMENT_MENU_REGISTRY.put(null,                    new SlideMenuItem(MNU_CLOSE,        R.drawable.icn_close));
+            FRAGMENT_MENU_REGISTRY.put(MapLayout.class,         new SlideMenuItem(MNU_THA_STREETZ,  android.R.drawable.ic_dialog_map));
+            FRAGMENT_MENU_REGISTRY.put(NavigationLayout.class,  new SlideMenuItem(MNU_NAVIGATION,   R.drawable.world_search));
+            FRAGMENT_MENU_REGISTRY.put(ProfileLayout.class,     new SlideMenuItem(MNU_PROFILE,      R.drawable.icon_profile));
 //            MENU_VIEW_ITEMS.put(MNU_CHAT,            new SlideMenuItem(MNU_CHAT,         R.drawable.chat));
 //            MENU_VIEW_ITEMS.put(MNU_FRIENDS,         new SlideMenuItem(MNU_FRIENDS,      R.drawable.friends_group));
 //            MENU_VIEW_ITEMS.put(MNU_INVITE_REFER,    new SlideMenuItem(MNU_INVITE_REFER, R.drawable.plus));
@@ -202,6 +243,10 @@ public class AppContext {
         return AppContext.streetsDBHelper;
     }
 
+    public static void setIsFirstLocationUpdate(boolean isFirstLocationUpdate) {
+        AppContext.isFirstLocationUpdate = isFirstLocationUpdate;
+    }
+
     public TextToSpeech getTextToSpeech()
     {
         try {
@@ -223,9 +268,35 @@ public class AppContext {
         }
     }
 
+    public String getDefaultProvider() {
+        return defaultProvider;
+    }
+
+    public void setDefaultProvider(String defaultProvider) {
+        this.defaultProvider = defaultProvider;
+    }
+
+    public static boolean isFirstLocationUpdate() {
+        return firstLocationUpdate;
+    }
+
+    public LocationProvider getCurrentProvider() {
+        return currentProvider;
+    }
+
+
+    public void setCurrentProvider(LocationProvider currentProvider) {
+        this.currentProvider = currentProvider;
+    }
     /* ============== GLOBALLY ACCESSIBLE CONTEXT FUNCTIONS ============== */
 
     public static TaskInfo getBackgroundExecutionTask(Class<? extends TaskInfo> task) {
+
+        if (TASK_EXECUTION_INFO.get(task) != null && TASK_EXECUTION_INFO.get(task).getEndTime() != null) {
+            Log.i(TAG, "Task has executed and completed. New task will be created.");
+            TASK_EXECUTION_INFO.put(task, null);
+        }
+
         if (TASK_EXECUTION_INFO.get(task) == null) {
             try {
                 Log.i(TAG, "Instantiating background task: " + task.getSimpleName());
@@ -243,9 +314,9 @@ public class AppContext {
             try {
                 Log.i(TAG, "Instantiating fragment view: " + view.getSimpleName());
                 STREETS_FRAGMENTS.put(view, view.newInstance());
-                Log.i(TAG, format("Setting menu %s for view %s ",
-                    FRAGMENT_MENU_REGISTRY.get(view.getSimpleName()).getName(), view.getSimpleName()));
-                STREETS_FRAGMENTS.get(view).prepareMenu(FRAGMENT_MENU_REGISTRY.get(view.getSimpleName()));
+                Log.i(TAG, format("Setting menu %s for view %s ", STREETS_FRAGMENTS.get(view).getClass().getSimpleName(), view.getSimpleName()));
+                STREETS_FRAGMENTS.get(view).prepareMenu(FRAGMENT_MENU_REGISTRY.get(view));
+                SequentialTaskManager.onViewInitialization(STREETS_FRAGMENTS.get(view), COMPLETED);
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);
@@ -258,6 +329,96 @@ public class AppContext {
         if (!SHUTDOWN_CALLBACK_QUEUE.contains(onDestroyHandler)) {
             SHUTDOWN_CALLBACK_QUEUE.add(onDestroyHandler);
         }
+    }
+
+    private static boolean checkAndRequestPermissions() {
+
+        Context context = AppContext.getApplicationContext().getApplicationContext();
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.i(TAG, "Permission " + Manifest.permission.ACCESS_COARSE_LOCATION + " is not allowed.");
+            AppContext.getStreetsCommon().addOutstandingPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+            locationPermissionsGranted = false;
+        } else {
+            Log.i(TAG, "Permission " + Manifest.permission.ACCESS_COARSE_LOCATION + " is allowed.");
+            AppContext.getStreetsCommon().removeOutstandingPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+            locationPermissionsGranted = false;
+        }
+
+        //check fine location
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.i(TAG, "Permission " + Manifest.permission.ACCESS_FINE_LOCATION + " is not allowed.");
+            AppContext.getStreetsCommon().addOutstandingPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+            locationPermissionsGranted = false;
+        } else {
+            Log.i(TAG, "Permission " + Manifest.permission.ACCESS_FINE_LOCATION + " is allowed.");
+            AppContext.getStreetsCommon().removeOutstandingPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+            locationPermissionsGranted = false;
+        }
+
+        ArrayList<String> outstandingPermissions = AppContext.getStreetsCommon().getOutstandingPermissions();
+
+        final MapLayout mapLayout = (MapLayout)AppContext.getFragmentView(MapLayout.class);
+
+        Log.i(TAG, "Outstanding permissions: " + outstandingPermissions.size());
+        String logMessage = "";
+
+        for (String permission : outstandingPermissions) {
+            logMessage += " | " + permission;
+        }
+
+        if (outstandingPermissions.size() > 0 && AppContext.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.REQUEST_GPS_PERMS).equals("1")) {
+            Log.i(TAG, "Not enough permissions to do location updates. Requesting from user.");
+            mapLayout.requestPermissions(outstandingPermissions.toArray(new String[outstandingPermissions.size()]), PERMISSION_LOCATION_INFO);
+            locationPermissionsGranted = false;
+            getStreetsCommon().writeEventLog(TASK_TYPE.BG_PERMISSIONS_TASK, STATUS_CODES.GENERAL_ERROR,
+                "User did not accept all permissions. %d outstanding permissions: " + logMessage);
+        }
+        else {
+            locationPermissionsGranted = true;
+            getStreetsCommon().writeEventLog(TASK_TYPE.BG_PERMISSIONS_TASK, STATUS_CODES.SUCCESS, "All required location permissions available.");
+        }
+
+        checkEnableGPS();
+
+        return locationPermissionsGranted;
+    }
+
+    public static void checkEnableGPS() {
+        Log.i(TAG, "Checking GPS availability");
+        LocationManager locationManager = AppContext.getInstance().getLocationManager();
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            Log.i(TAG, "GPS not enabled");
+            if (AppContext.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.AUTO_ENABLE_GPS).equals("1")) {
+                Log.i(TAG, "User has granted auto enable privilege");
+                Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                Startup.getInstance().startActivity(myIntent);
+            } else if (AppContext.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.SUGGEST_GPS).equals("1")) {
+                Log.i(TAG, "Must request perms from use");
+                EnableGPSDialogueListener enableGpsListener = new EnableGPSDialogueListener(Startup.getInstance());
+                AlertDialog.Builder builder = new AlertDialog.Builder(Startup.getInstance());
+                builder.setMessage("Turn on GPS?")
+                        .setMultiChoiceItems(
+                                EnableGPSDialogueListener.getQuestionItems(),
+                                EnableGPSDialogueListener.getCheckedItems(),
+                                EnableGPSDialogueListener.EnableGPSOptionListener.getInstance())
+                        .setPositiveButton("Yes", enableGpsListener)
+                        .setNegativeButton("No", enableGpsListener).create().show();
+            }
+        }
+    }
+
+    public static void drawMarker(Location location){
+        Startup.getInstance().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "Found current location at " + location.getLatitude() + " : " + location.getLongitude());
+                getInstance().getGoogleMap().get().clear();
+                getInstance().getGoogleMap().get().addMarker(new MarkerOptions()
+                        .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
+                        .title("Your current location"));
+            }
+        });
     }
 
     public static void shutdown() {
@@ -290,6 +451,8 @@ public class AppContext {
             ex.printStackTrace();
             Log.e(TAG, "Failed to shutdown common classes cleanly: " + ex.getMessage(), ex);
         }
+
+        Startup.getInstance().finish();
     }
 
     /* =========== GLOBALLY ACCESSIBLE CONTEXT DATA FUNCTIONS =========== */
@@ -310,12 +473,30 @@ public class AppContext {
         this.currentLocation = currentLocation;
     }
 
-    public Optional<LocationManager> getLocationManager() {
-        return Optional.ofNullable(locationManager);
+    public LocationManager getLocationManager() {
+
+        if (locationManager == null) {
+            Log.i(TAG, "Initializing location manager");
+            //at activity start, if user has not disabled location stuff, request permissions.
+            if (!locationPermissionsGranted &&
+                (AppContext.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.SUGGEST_GPS).equals("1") ||
+                 AppContext.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.AUTO_ENABLE_GPS).equals("1"))) {
+                 AppContext.getStreetsCommon().setUserPreference(USER_PREFERENCE.REQUEST_GPS_PERMS, "1"); //reset preferences if permissions were updated
+            }
+
+            Log.i(TAG, "Getting system location service");
+            // Getting LocationManager object from System Service LOCATION_SERVICE
+            locationManager = (LocationManager) AppContext.getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+
+            if (isLocationPermissionsGranted()) {
+                locationManager.addGpsStatusListener(Startup.getInstance());
+            }
+
+        }
+        return locationManager;
     }
 
     public void setLocationManager(LocationManager locationManager) {
         this.locationManager = locationManager;
     }
-
 }

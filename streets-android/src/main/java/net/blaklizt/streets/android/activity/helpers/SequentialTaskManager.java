@@ -9,12 +9,14 @@ import net.blaklizt.streets.android.common.TaskInfo;
 import net.blaklizt.streets.android.common.utils.SecurityContext.ERROR_SEVERITY;
 import net.blaklizt.streets.android.common.utils.Try;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CancellationException;
 
 import static java.lang.String.format;
+import static net.blaklizt.streets.android.activity.AppContext.getBackgroundExecutionTask;
 import static net.blaklizt.streets.android.activity.AppContext.getStreetsFragments;
 import static net.blaklizt.streets.android.common.TASK_TYPE.SYS_TASK;
 import static net.blaklizt.streets.android.common.utils.SecurityContext.handleApplicationError;
@@ -45,7 +47,7 @@ import static net.blaklizt.streets.android.common.utils.Try.success;
 
 public class SequentialTaskManager {
 
-    private static final String TAG = StreetsCommon.getTag(LocationUpdateTask.class);
+    private static final String TAG = StreetsCommon.getTag(SequentialTaskManager.class);
 
     public enum TaskStatus { COMPLETED, STARTED, CANCELLED }
 
@@ -68,7 +70,7 @@ public class SequentialTaskManager {
             Log.i(TAG, format("Executing task %s", bgTask.getClassName()));
             runningTasks.put(bgTask.getClassName(), bgTask);
             try {
-                bgTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                bgTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, bgTask.getAdditionalParams());
                 outstandingTasks.remove(bgTask.getClassName());
             } catch (CancellationException ex) {
                 Log.w(TAG, format("Task %s was cancelled before completion!", bgTask.getClassName()));
@@ -81,19 +83,7 @@ public class SequentialTaskManager {
         return success(bgTask);
     }
 
-    public static Try<TaskInfo, String> runImmediately(TaskInfo bgTask) {
-        Log.i(TAG, format("Scheduling task %s for immediate execution", bgTask.getClassName()));
-        if (outstandingTasks.containsKey(bgTask.getClassName())) {
-            Log.i(TAG, format("Task %s already has a pending execution! Will not schedule another instance.", bgTask.getClassName()));
-        } else {
-            outstandingTasks.put(bgTask.getClassName(), bgTask);
-            bgTask.setRequestedTimeIfNotSet(new Date());
-        }
-        bgTask.setRequestedTimeIfNotSet(new Date());
-        return execute(bgTask);
-    }
-
-    public static Try<TaskInfo, String> schedule(TaskInfo bgTask) {
+    private static Try<TaskInfo, String> schedule(TaskInfo bgTask) {
         Log.i(TAG, format("Scheduling task %s to run when prerequisites are met", bgTask.getClassName()));
         if (outstandingTasks.containsKey(bgTask.getClassName())) {
             Log.i(TAG, format("Task %s already has a pending execution! Will not schedule another instance.", bgTask.getClassName()));
@@ -104,13 +94,13 @@ public class SequentialTaskManager {
         return success(bgTask);
     }
 
-    public static Try<TaskInfo, String> isAllowedAtLeastOnce(TaskInfo bgTask) {
+    private static Try<TaskInfo, String> isAllowedAtLeastOnce(TaskInfo bgTask) {
         Log.i(TAG, format("Checking if we can run %s", bgTask.getClassName()));
 
         if (bgTask.allowsOnlyOnce()) {
-            if (!(completedTasks.containsKey(bgTask.getClassName()) ||
-                outstandingTasks.containsKey(bgTask.getClassName()) ||
-                    runningTasks.containsKey(bgTask.getClassName()))) {
+            if (completedTasks.containsKey(bgTask.getClassName()) ||
+              outstandingTasks.containsKey(bgTask.getClassName()) ||
+                  runningTasks.containsKey(bgTask.getClassName())) {
                 return fail("Task is not allowed. It can only execute once: " + bgTask.getClassName());
             }
         }
@@ -118,7 +108,7 @@ public class SequentialTaskManager {
         return success(bgTask);
     }
 
-    public static Try<TaskInfo, String> isNotBlockedInstance(TaskInfo bgTask) {
+    private static Try<TaskInfo, String> isNotBlockedInstance(TaskInfo bgTask) {
         Log.i(TAG, format("Checking if %s isNotBlockedInstance", bgTask.getClassName()));
 
         if (!bgTask.allowsMultiInstance() && runningTasks.containsKey(bgTask.getClassName())) {
@@ -128,13 +118,30 @@ public class SequentialTaskManager {
         return success(bgTask);
     }
 
-    public static Try<TaskInfo, String> hasNoProcessDependencies(TaskInfo bgTask) {
+    private static Try<TaskInfo, String> hasNoProcessDependencies(TaskInfo bgTask) {
         Log.i(TAG, format("Checking processDependencies for %s", bgTask.getClassName()));
 
         if (bgTask.getProcessDependencies().size() > 0) {
+
             if (!completedTasks.keySet().containsAll(bgTask.getProcessDependencies())) {
+
+                String processDependencies = "";
+                for (String dependency : bgTask.getProcessDependencies()) {
+                    processDependencies += "|" + dependency;
+                }
+                Log.i(TAG, format("ProcessDependencies %s", processDependencies));
+
+                String completedTaskList = "";
+                for (String completedTask : completedTasks.keySet()) {
+                    completedTaskList += "|" + completedTask;
+                }
+                Log.i(TAG, format("CompletedTasks %s", completedTaskList));
+
+
                 Log.i(TAG, format("Adding %s to list of tasks awaiting process dependencies...", bgTask.getClassName()));
-                processDependencyList.put(bgTask.getClassName(), bgTask);
+                if (!processDependencyList.containsKey(bgTask.getClassName())) {
+                    processDependencyList.put(bgTask.getClassName(), bgTask);
+                }
                 return fail(format("Task is %s cannot execute. Some process dependencies are still outstanding: ", bgTask.getClassName()));
             }
         }
@@ -142,7 +149,7 @@ public class SequentialTaskManager {
         return success(bgTask);
     }
 
-    public static Try<TaskInfo, String> hasNoViewDependencies(TaskInfo bgTask) {
+    private static Try<TaskInfo, String> hasNoViewDependencies(TaskInfo bgTask) {
         Log.i(TAG, format("Checking viewDependencies for %s", bgTask.getClassName()));
 
         if (bgTask.getViewDependencies().size() > 0) {
@@ -150,12 +157,23 @@ public class SequentialTaskManager {
                 if (getStreetsFragments().get(viewDependency) == null) {
                     Log.i(TAG, format("Adding %s to list of tasks awaiting view dependencies on view: %s",
                             bgTask.getClassName(), viewDependency.getSimpleName()));
-                    viewDependencyList.put(bgTask.getClassName(), bgTask);
+                    if (!viewDependencyList.containsKey(bgTask.getClassName())) {
+                        viewDependencyList.put(bgTask.getClassName(), bgTask);
+                    }
                     return fail(format("Task is %s cannot execute. Some view dependencies are still outstanding: ", bgTask.getClassName()));
                 }
             }
         }
         Log.i(TAG, "Task hasNoViewDependencies: " + bgTask.getClassName());
+        return success(bgTask);
+    }
+
+    private static Try<TaskInfo, String> checkReadyToExecute(TaskInfo bgTask) {
+
+        Try<TaskInfo, String> result = isNotBlockedInstance(bgTask);
+        if (result.isFailure()) { return result; }
+        result = hasNoProcessDependencies(bgTask);  if (result.isFailure()) { return result; }
+        result = hasNoViewDependencies(bgTask);     if (result.isFailure()) { return result; }
         return success(bgTask);
     }
 
@@ -168,21 +186,35 @@ public class SequentialTaskManager {
 
         bgTask.setRequestedTimeIfNotSet(new Date());
 
-        Try<TaskInfo, String> result = isAllowedAtLeastOnce(bgTask); if (result.isFailure()) { return result; }
-        result = isNotBlockedInstance(bgTask);      if (result.isFailure()) { return result; }
-        result = hasNoProcessDependencies(bgTask);  if (result.isFailure()) { return result; }
-        result = hasNoViewDependencies(bgTask);     if (result.isFailure()) { return result; }
-        return schedule(bgTask);
+        Try<TaskInfo, String> result = isAllowedAtLeastOnce(bgTask);
+        if (result.isFailure()) {
+            return result;
+        } else if (checkReadyToExecute(bgTask).isFailure()) {
+            return schedule(bgTask);
+        } else {
+            return schedule(bgTask).map((t) -> execute(bgTask).map(Try::success, Try::fail), Try::fail);
+        }
     }
 
     public static void cancelRunningTasks() {
 
+        Log.i(TAG, "Terminating running tasks...");
         //prevent all waiting tasks from starting
+        holdPendingQueue = true;
         outstandingTasks.clear();
 
-        for (String runningTaskName : runningTasks.keySet()) {
-            Log.i(TAG, format("Terminating task %s", runningTaskName));
-            runningTasks.get(runningTaskName).cancel(true);
+        if (runningTasks != null) {
+            for (String runningTaskName : runningTasks.keySet()) {
+                Log.i(TAG, format("Terminating task %s", runningTaskName));
+                runningTasks.get(runningTaskName).cancel(true);
+            }
+
+            //TODO find a way to reinitialize these variables correctly
+            completedTasks.clear();
+            processDependencyList.clear();
+            viewDependencyList.clear();
+
+            runningTasks.clear();
         }
     }
 
@@ -217,6 +249,7 @@ public class SequentialTaskManager {
                 String cancelledTask = asyncTask.getClassName();
                 runningTasks.remove(cancelledTask);
                 if (!asyncTask.allowsOnlyOnce()) {
+                    getBackgroundExecutionTask(asyncTask.getClass());
                     return;
                 }
 
@@ -238,17 +271,34 @@ public class SequentialTaskManager {
                 runningTasks.remove(completedTask);
 
                 Set<String> tasksWithDependencies = processDependencyList.keySet();
-
+                ArrayList<String> resolvedDependencies = new ArrayList<>();
                 for (String awaitingTask : tasksWithDependencies) {
                     TaskInfo awaitingTaskInfo = processDependencyList.get(awaitingTask);
                     if (awaitingTaskInfo.getProcessDependencies().contains(completedTask)) {
                         awaitingTaskInfo.getProcessDependencies().remove(completedTask);
                         Log.i(TAG, format("Dependency %s resolved for awaiting task %s. Attempting to schedule.", completedTask, awaitingTask));
-                        if (runWhenAvailable(processDependencyList.get(awaitingTask)).isSuccess()) {
-                            StreetsCommon.showSnackBar(TAG, "Starting task " + awaitingTask, Snackbar.LENGTH_SHORT);
-                            Log.i(TAG, format("Scheduled previously awaiting job %s.", awaitingTask));
-                            processDependencyList.remove(awaitingTask);
+                        if (checkReadyToExecute(outstandingTasks.get(awaitingTask)).isSuccess()) {
+                            Log.i(TAG, format("Ready to start %s.", awaitingTask));
+                            resolvedDependencies.add(awaitingTask);
                         }
+                    }
+                }
+
+                for (String resolvedDependency : resolvedDependencies) {
+                    Log.i(TAG, format("Removing resolved dependency %s.", resolvedDependency));
+                    processDependencyList.remove(resolvedDependency);
+                    StreetsCommon.showSnackBar(TAG, "Starting task " + resolvedDependency, Snackbar.LENGTH_SHORT);
+                    execute(outstandingTasks.get(resolvedDependency));
+                }
+
+                if (resolvedDependencies.size() > 0) {
+                    return;
+                }
+
+                for (String outstandingTask : outstandingTasks.keySet()) {
+                    if (checkReadyToExecute(outstandingTasks.get(outstandingTask)).isSuccess()) {
+                        Log.i(TAG, format("Scheduled previously awaiting job %s.", outstandingTasks.get(outstandingTask)));
+                        execute(outstandingTasks.get(outstandingTask));
                     }
                 }
                 break;

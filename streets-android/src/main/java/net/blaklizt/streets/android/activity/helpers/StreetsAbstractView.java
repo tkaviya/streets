@@ -3,15 +3,20 @@ package net.blaklizt.streets.android.activity.helpers;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 
 import net.blaklizt.streets.android.R;
+import net.blaklizt.streets.android.activity.MenuLayout;
+import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.sidemenu.model.SlideMenuItem;
+
+import static java.lang.String.format;
 
 public abstract class StreetsAbstractView extends Fragment implements StreetsInterfaceView {
 
+    private static final String TAG = StreetsCommon.getTag(MenuLayout.class);
+    private static StreetsInterfaceView instance;
     protected String TAB_HEADER;
     protected int menuIconResourceId;
     protected SlideMenuItem slideMenuItem;
@@ -40,8 +45,11 @@ public abstract class StreetsAbstractView extends Fragment implements StreetsInt
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        instance = this;
+        Log.i(TAG, "+++ ON VIEW CREATED +++");
+        Log.i(TAG, format("--- savedInstanceState: %s", savedInstanceState != null ? savedInstanceState.toString() : null));
         super.onViewCreated(view, savedInstanceState);
-        this.containerView = view.findViewById(R.id.container);
+        this.containerView = view.findViewById(R.id.content_frame);
     }
 
     @Override
@@ -49,13 +57,13 @@ public abstract class StreetsAbstractView extends Fragment implements StreetsInt
         super.onCreate(savedInstanceState);
 //        res = getArguments().getInt(Integer.class.getName());
     }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        return rootView;
-    }
+//
+//    @Override
+//    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+//                             Bundle savedInstanceState) {
+//        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+//        return rootView;
+//    }
 
 
 
@@ -73,19 +81,6 @@ public abstract class StreetsAbstractView extends Fragment implements StreetsInt
 ////        contentFragment.setArguments(bundle);
 //        return contentFragment;
 //    }
-
-    protected void registerStreetsFragment(
-            final String tabHeader,
-            final int menuIconResourceId) {
-
-        this.TAB_HEADER = tabHeader;
-        this.menuIconResourceId = menuIconResourceId;
-        this.slideMenuItem.setName(tabHeader);
-        this.slideMenuItem.setImageRes(menuIconResourceId);
-
-        MenuLayout.streetsViews.put(getViewName(), this);
-        MenuLayout.menuItems.put(getViewName(), new SlideMenuItem(tabHeader, menuIconResourceId));
-    }
 
      */
 }

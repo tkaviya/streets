@@ -1,6 +1,5 @@
 package net.blaklizt.streets.android.activity;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +13,7 @@ import com.google.android.gms.maps.model.Marker;
 
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.GoogleMapTask;
+import net.blaklizt.streets.android.activity.helpers.LocationUpdateTask;
 import net.blaklizt.streets.android.activity.helpers.PlacesTask;
 import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
@@ -45,7 +45,8 @@ public class MapLayout extends StreetsAbstractView implements Navigator.OnPathSe
         Log.i(TAG, "+++ ON CREATE VIEW +++");
         super.onCreateView(inflater, container, savedInstanceState);
 
-        Log.i(TAG, format("LayoutInflater: %s", inflater != null ? inflater.toString() : null));
+        Log.i(TAG, format("LayoutInflater: %s", this.inflater != null ? this.inflater.toString() : null));
+        Log.i(TAG, format("MapView: %s", mapView != null ? mapView.toString() : null));
         Log.i(TAG, format("ViewGroup: %s", container != null ? container.getTag() : null));
 		Log.i(TAG, format("SavedInstanceState: %s", savedInstanceState != null ? savedInstanceState.toString() : null));
 
@@ -55,7 +56,6 @@ public class MapLayout extends StreetsAbstractView implements Navigator.OnPathSe
             mapView = inflater.inflate(R.layout.map_layout, container, false);
             location_image = (ImageView) mapView.findViewById(R.id.location_image_view);
             location_info = (TextView) mapView.findViewById(R.id.location_categories_text_view);
-            setRetainInstance(true);
         }
 
         startTasks();
@@ -72,57 +72,10 @@ public class MapLayout extends StreetsAbstractView implements Navigator.OnPathSe
         }
 
         Log.i(TAG, "Queuing tasks for dependency managed execution.");
-        SequentialTaskManager.runImmediately(AppContext.getBackgroundExecutionTask(GoogleMapTask.class));
-//        SequentialTaskManager.runImmediately(AppContext.getBackgroundExecutionTask(LocationUpdateTask.class));
+        SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(GoogleMapTask.class));
+        SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(LocationUpdateTask.class));
         SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(PlacesTask.class));
     }
-
-	@Override
-	public void onPause() {
-        Log.i(TAG, "+++ ON PAUSE +++");
-		super.onPause();
-	}
-
-	@Override
-	public void onResume() {
-		Log.i(TAG, "+++ ON RESUME +++");
-		super.onResume();
-//		startTasks();
-	}
-
-	@Override
-	public void onAttach(Context context) {
-		Log.i(TAG, "+++ ON ATTACH +++");
-		super.onAttach(context);
-        onResume();
-	}
-
-	@Override
-	public void onDetach() {
-		Log.i(TAG, "+++ ON DETACH +++");
-		super.onDetach();
-		onPause();
-	}
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		Log.i(TAG, "+++ ON CREATE +++");
-		super.onCreate(savedInstanceState);
-	}
-
-	@Override
-	public void onDestroy() {
-		Log.i(TAG, "+++ ON DESTROY +++");
-		super.onDestroy();
-		onDetach();
-		mapView = null;
-	}
-
-	@Override
-	public void onStart() {
-		Log.i(TAG, "+++ ON START +++");
-		super.onStart();
-	}
 
     @Override
     public void onPathSetListener(String placeName, String address, String type, Directions directions) {

@@ -24,7 +24,7 @@
 
         <ImageView
             android:id="@+id/m_swipe_menu_share"
-            android:src="@android:drawable/btn_star_big_off"
+            android:src="@android:drawable/ic_menu_share"
             android:layout_width="70dp"
             android:background="#4cd964"
             android:paddingLeft="25dp"

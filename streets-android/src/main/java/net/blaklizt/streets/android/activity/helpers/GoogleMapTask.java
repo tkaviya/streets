@@ -43,7 +43,7 @@ public class GoogleMapTask extends StreetsAbstractTask {
 
     private static final String TAG = StreetsCommon.getTag(GoogleMapTask.class);
 
-    static {
+    public GoogleMapTask() {
         processDependencies = new ArrayList<>();
         viewDependencies = new ArrayList<>(singletonList(MapLayout.class));
         allowOnlyOnce = true;
@@ -53,6 +53,7 @@ public class GoogleMapTask extends StreetsAbstractTask {
 
     @Override
     protected Object doInBackground(Object[] params) {
+        Log.i(TAG, "Initializing Google Map");
 
         final MapLayout mapLayout = (MapLayout)AppContext.getFragmentView(MapLayout.class);
 

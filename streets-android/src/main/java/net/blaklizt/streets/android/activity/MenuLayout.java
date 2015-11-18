@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
@@ -67,12 +68,13 @@ public class MenuLayout extends AppCompatActivity implements
         DialogInterface.OnMultiChoiceClickListener {
 
     private static final String TAG = StreetsCommon.getTag(MenuLayout.class);
+    private final List<SlideMenuItem> menuItemList = new ArrayList<>();
     public static final HashMap<String, StreetsAbstractView> streetsViews = new HashMap<>();
-    private static MenuLayout menuLayout;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
     private ViewAnimator viewAnimator;
     private LinearLayout linearLayout;
+    private static TextView status_text_view;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,9 +82,11 @@ public class MenuLayout extends AppCompatActivity implements
         Log.i(TAG, format("--- savedInstanceState: %s", savedInstanceState != null ? savedInstanceState.toString() : null));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_menu_layout);
-        menuLayout = this;
 
-        List<SlideMenuItem> menuItemList = new ArrayList<>();
+        Log.i(TAG, "Creating toolbar");
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         menuItemList.add(new SlideMenuItem("Close", R.drawable.icn_close));
 
         Log.i(TAG, "Initializing streets views and menus");
@@ -95,15 +99,16 @@ public class MenuLayout extends AppCompatActivity implements
 
             Log.i(TAG, format("Instantiating view %s ", streetsFragment.getSimpleName()));
             streetsViews.put(streetsFragment.getSimpleName(), getFragmentView(streetsFragment));
-
-            Log.i(TAG, format("Instantiating view %s ", streetsFragment.getSimpleName()));
             menuItemList.add(streetsViews.get(streetsFragment.getSimpleName()).getSlideMenuItem());
         }
 
-        Log.i(TAG, format("Setting initial view to %s ", streetsViews.get(DEFAULT_FRAGMENT_VIEW.getSimpleName())));
+        StreetsAbstractView initialView = getStreetsFragments().get(DEFAULT_FRAGMENT_VIEW);
+        initialView.setRetainInstance(true);
+
+        Log.i(TAG, format("Setting initial view to %s ", initialView));
 
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_frame, getStreetsFragments().get(DEFAULT_FRAGMENT_VIEW))
+                .replace(R.id.content_frame, initialView, initialView.getViewName())
                 .setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit();
 
@@ -112,17 +117,18 @@ public class MenuLayout extends AppCompatActivity implements
         linearLayout = (LinearLayout) findViewById(R.id.left_drawer);
         linearLayout.setOnClickListener(v -> drawerLayout.closeDrawers());
 
+        Log.i(TAG, "Status text view");
+        status_text_view = (TextView) findViewById(R.id.status_text_view);
+        setAppInfo("I'm the streets, look both ways before you cross me!");
+
         setActionBar();
-        createMenuList();
-        viewAnimator = new ViewAnimator<>(this, menuItemList, getStreetsFragments().get(DEFAULT_FRAGMENT_VIEW), drawerLayout, this);
+        viewAnimator = new ViewAnimator<>(this, menuItemList, initialView, drawerLayout, this);
 
     }
 
-    public static MenuLayout getInstance() { return menuLayout; }
-
-    private void createMenuList() {
+    public static void setAppInfo(String appInfo) {
+        status_text_view.setText(appInfo);
     }
-
 
     @Override
     public void onClick(DialogInterface dialogInterface, int index, boolean isChecked) {
@@ -137,14 +143,13 @@ public class MenuLayout extends AppCompatActivity implements
         }
     }
 
-
     @Override
     public void onClick(DialogInterface dialogInterface, int index) {
         Log.i(TAG, dialogInterface.toString() + ": +++ ON CLICK +++");
         Log.i(TAG, format("--- dialogInterface: %s", dialogInterface != null ? dialogInterface.toString() : null));
         Log.i(TAG, format("--- index: %d", index));
         boolean exit = (index == DialogInterface.BUTTON_POSITIVE);
-        if (exit) { Startup.getInstance().finish(); finish(); }
+        if (exit) { AppContext.shutdown(); onDestroy(); finish(); }
     }
 
     @Override
@@ -219,12 +224,13 @@ public class MenuLayout extends AppCompatActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_main_left, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.i(TAG, format("Performing onOptionsItemSelected on MenuItem %s", item.getTitle()));
         if (drawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
@@ -249,10 +255,14 @@ public class MenuLayout extends AppCompatActivity implements
 
     @Override
     public StreetsAbstractView onSwitch(Resourceble slideMenuItem, StreetsAbstractView streetsAbstractView, int position) {
+
+        Log.i(TAG, format("Performing onSwitch on slideMenuItem %s, streetsAbstractView %s, position %d", slideMenuItem.getName(), streetsAbstractView.getClassName(), position));
+
         switch (slideMenuItem.getName()) {
             case AppContext.MNU_CLOSE:
                 return streetsAbstractView;
             default:
+                Log.i(TAG, format("Replacing fragment with %s", slideMenuItem.getName()));
                 return replaceFragment(getStreetsFragments().get(getMenuFragmentRegistry().get(slideMenuItem.getName())), position);
         }
     }
@@ -272,7 +282,7 @@ public class MenuLayout extends AppCompatActivity implements
 
     @Override
     public void addViewToContainer(View view) {
+        Log.i(TAG, format("Adding view %s", view.getTag()));
         linearLayout.addView(view);
     }
-
 }

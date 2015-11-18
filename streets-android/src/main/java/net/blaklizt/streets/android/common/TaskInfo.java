@@ -36,16 +36,13 @@ import static net.blaklizt.streets.android.activity.helpers.SequentialTaskManage
 public abstract class TaskInfo extends AsyncTask implements StreetsInterfaceTask {
 
     protected final String TAG = StreetsCommon.getTag(this.getClass());
-    protected static boolean initialized = false;
-
-    protected static Boolean allowOnlyOnce = null;
-
-
-    protected static Boolean allowMultiInstance = null;
-    protected static ArrayList<String> processDependencies = null;
-    protected static ArrayList<Class<? extends StreetsAbstractView>> viewDependencies = null;
-    protected static TASK_TYPE taskType = null;
-
+    protected boolean initialized = false;
+    protected Boolean allowOnlyOnce = null;
+    protected Boolean allowMultiInstance = null;
+    protected ArrayList<String> processDependencies = null;
+    protected ArrayList<Class<? extends StreetsAbstractView>> viewDependencies = null;
+    protected TASK_TYPE taskType = null;
+    protected Object[] additionalParams = null;
     protected Date requestedTime = null, startTime = null, endTime = null;
     protected STATUS_CODES finalStatus;
 
@@ -88,6 +85,15 @@ public abstract class TaskInfo extends AsyncTask implements StreetsInterfaceTask
         return false;
     }
 
+    public TaskInfo setAdditionalParams(Object... additionalParams) {
+        this.additionalParams = additionalParams;
+        return this;
+    }
+
+    public Object[] getAdditionalParams() {
+        return additionalParams;
+    }
+
     public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
@@ -125,7 +131,7 @@ public abstract class TaskInfo extends AsyncTask implements StreetsInterfaceTask
         super.onPreExecute();
         setRequestedTimeIfNotSet(new Date());
         onTaskUpdate(this, SequentialTaskManager.TaskStatus.STARTED);
-        onPreExecuteRelay();
+        onPreExecuteRelay(additionalParams);
     }
 
     /* this class needs to catch onPreExecute, onPostExecute, onCancelled, onTermination events for internal processing.
@@ -165,7 +171,7 @@ public abstract class TaskInfo extends AsyncTask implements StreetsInterfaceTask
      * to catch any of these events, the class forwards the events to onXxxRelay methods which can be overridden if required.
      * the relay classes operate identically and have identical data to the original classes. There is merely a slight processing time delay
      * they all save event time (startTime/endTime). when onTermination is called, it means thread was active, therefore onCancelled will be called) */
-    protected void onPreExecuteRelay() {}
+    protected void onPreExecuteRelay(Object[] additionalParams) {}
 
     /* this class needs to catch onPreExecute, onPostExecute, onCancelled, onTermination events for internal processing.
      * onPreExecute, onPostExecute, onCancelled, onTermination have been made final to restrict overriding to ensure correct class functionality.

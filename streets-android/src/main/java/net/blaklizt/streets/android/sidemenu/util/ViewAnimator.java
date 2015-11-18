@@ -3,6 +3,7 @@ package net.blaklizt.streets.android.sidemenu.util;
 import android.os.Handler;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
@@ -10,16 +11,20 @@ import android.widget.ImageView;
 
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
+import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.sidemenu.animation.FlipAnimation;
 import net.blaklizt.streets.android.sidemenu.interfaces.Resourceble;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.String.format;
+
 public class ViewAnimator<T extends Resourceble> {
     private final int ANIMATION_DURATION = 175;
     public static final int CIRCULAR_REVEAL_ANIMATION_DURATION = 500;
 
+    private static final String TAG = StreetsCommon.getTag(ViewAnimator.class);
     private AppCompatActivity appCompatActivity;
     private List<T> list;
 
@@ -41,19 +46,19 @@ public class ViewAnimator<T extends Resourceble> {
     }
 
     public void showMenuContent() {
+        Log.i(TAG, "Showing menu content");
         setViewsClickable(false);
         viewList.clear();
         double size = list.size();
         for (int i = 0; i < size; i++) {
             View viewMenu = appCompatActivity.getLayoutInflater().inflate(R.layout.menu_list_item, null);
+            Log.i(TAG, format("Processing menu item %s/%s. Name: %s", i, size, viewMenu.getTag()));
             final int finalI = i;
-            viewMenu.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int[] location = {0, 0};
-                    v.getLocationOnScreen(location);
-                    switchItem(list.get(finalI), location[1] + v.getHeight() / 2);
-                }
+            viewMenu.setOnClickListener(v -> {
+                Log.i(TAG, format("Executing onClick for viewMenu %s", v.getTag()));
+                int[] location = {0, 0};
+                v.getLocationOnScreen(location);
+                switchItem(list.get(finalI), location[1] + v.getHeight() / 2);
             });
             ((ImageView) viewMenu.findViewById(R.id.menu_item_image)).setImageResource(list.get(i).getImageRes());
             viewMenu.setVisibility(View.GONE);
@@ -62,11 +67,13 @@ public class ViewAnimator<T extends Resourceble> {
             animatorListener.addViewToContainer(viewMenu);
             final double position = i;
             final double delay = 3 * ANIMATION_DURATION * (position / size);
-            new Handler().postDelayed(new Runnable() {
-                public void run() {
-                    if (position < viewList.size()) {
-                        animateView((int) position);
-                    }
+            new Handler().postDelayed(() -> {
+                if (position < viewList.size()) {
+                    animateView((int) position);
+                }
+                if (position == viewList.size() - 1) {
+                    Log.i(TAG, format("Executing postDelayed for streetsFragment %s", streetsFragment.getClassName()));
+                    setViewsClickable(true);
                 }
             }, (long) delay);
         }
@@ -74,6 +81,8 @@ public class ViewAnimator<T extends Resourceble> {
     }
 
     private void hideMenuContent() {
+
+        Log.i(TAG, "Hide menu content0");
         setViewsClickable(false);
         double size = list.size();
         for (int i = list.size(); i >= 0; i--) {
@@ -158,6 +167,8 @@ public class ViewAnimator<T extends Resourceble> {
     }
 
     private void switchItem(Resourceble slideMenuItem, int topPosition) {
+
+        Log.i(TAG, "Switch Item");
         this.streetsFragment = animatorListener.onSwitch(slideMenuItem, streetsFragment, topPosition);
         hideMenuContent();
     }

@@ -17,7 +17,6 @@ import net.blaklizt.streets.android.common.StreetsCommon;
 public class ProfileLayout extends StreetsAbstractView
 {
 	private static final String TAG = StreetsCommon.getTag(ProfileLayout.class);
-	private static ProfileLayout profileLayout;
 	protected LayoutInflater inflater;
 
 	@Override
@@ -25,27 +24,6 @@ public class ProfileLayout extends StreetsAbstractView
 		Log.i(TAG, "+++ ON CREATE VIEW +++");
 		super.onCreateView(inflater, container, savedInstanceState);
 		this.inflater = inflater;
-		View view = inflater.inflate(R.layout.profile_layout, container, false);
-		profileLayout = this;
-        return view;
-	}
-
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, "+++ ON CREATE +++");
-        super.onCreate(savedInstanceState);
-    }
-
-	@Override
-	public void onStart() {
-		Log.i(TAG, "+++ ON START +++");
-		super.onStart();
-	}
-
-	@Override
-	public void onResume() {
-		Log.i(TAG, "+++ ON RESUME +++");
-		super.onResume();
+		return inflater.inflate(R.layout.profile_layout, container, false);
 	}
 }
