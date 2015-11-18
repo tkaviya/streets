@@ -42,7 +42,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
     private static final String TAG = StreetsCommon.getTag(StreetsDBHelper.class);
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 1;
 
 	private static final String DATABASE_NAME = "Neighbourhood.db";
 

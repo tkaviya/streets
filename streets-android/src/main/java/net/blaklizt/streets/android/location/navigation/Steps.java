@@ -5,7 +5,9 @@ package net.blaklizt.streets.android.location.navigation;
  * Date: 7/1/14
  * Time: 7:53 PM
  */
+
 import com.google.android.gms.maps.model.LatLng;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,7 +25,7 @@ public class Steps {
     private ArrayList<LatLng> stepLine;
 
     public Steps(JSONObject obj){
-        stepLine = new ArrayList<LatLng>();
+        stepLine = new ArrayList<>();
         parseStep(obj);
     }
 
@@ -82,7 +84,6 @@ public class Steps {
             if(!step.isNull("polyline")){
                 JSONObject pos = step.getJSONObject("polyline");
                 decodePoly(pos.getString("points"));
-//				Log.d("Step count", String.valueOf(stepLine.size()));
             }
 
             instructions = step.getString("html_instructions");
@@ -115,8 +116,6 @@ public class Steps {
             lng += dlng;
 
             LatLng position = new LatLng((double) lat / 1E5, (double) lng / 1E5);
-//            Log.d("Lat", String.valueOf(position.latitude));
-//            Log.d("Lng", String.valueOf(position.longitude));
             stepLine.add(position);
         }
     }

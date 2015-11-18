@@ -43,7 +43,7 @@ public class NavigationListAdapter extends BaseExpandableListAdapter
 		final String children = (String) getChild(groupPosition, childPosition);
 		TextView text;
 		if (convertView == null) {
-			convertView = inflater.inflate(R.layout.listrow_details, parent);
+			convertView = inflater.inflate(R.layout.listrow_details, null);
 		}
 		text = (TextView) convertView.findViewById(R.id.navigationChildItemText);
 		text.setText(children);
@@ -83,13 +83,12 @@ public class NavigationListAdapter extends BaseExpandableListAdapter
 
 	@Override
 	public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-//		if (convertView == null) {
-//			convertView = inflater.inflate(R.layout.drawer_list_item, parent);
-//		}
-//		Group group = (Group) getGroup(groupPosition);
-//		((TextView) convertView).setText(group.string);
-//		((TextView) convertView).setChecked(isExpanded);
-		return parent;
+		if (convertView == null) {
+			convertView = inflater.inflate(R.layout.drawer_list_item, null);
+		}
+		Group group = (Group) getGroup(groupPosition);
+		((TextView) convertView).setText(group.string);
+		return convertView;
 	}
 
 	@Override

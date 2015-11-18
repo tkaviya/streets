@@ -38,7 +38,6 @@ import net.blaklizt.streets.android.sidemenu.model.SlideMenuItem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
 
@@ -419,30 +418,25 @@ public class AppContext {
     }
 
     public static void shutdown() {
-        Log.i(TAG, "+++ ON DESTROY +++");
-
-        Log.i(TAG, "Terminating background tasks...");
-        SequentialTaskManager.cancelRunningTasks();
+        Log.i(TAG, "+++ SHUTDOWN +++");
 
         StreetsCommon.showSnackBar(TAG, "[- Now leaving Tha Streetz -]\n ...Goodbye...", Snackbar.LENGTH_SHORT);
 
-        Iterator<StreetsInterfaceView> streetsInterfaceViewIterator = SHUTDOWN_CALLBACK_QUEUE.descendingIterator();
-
-        while (streetsInterfaceViewIterator.hasNext()) {
-            streetsInterfaceViewIterator.next().onTermination();
+        Log.i(TAG, "Terminating running tasks...");
+        for (StreetsInterfaceView view : SHUTDOWN_CALLBACK_QUEUE) {
+            view.onTermination();
         }
 
         SHUTDOWN_CALLBACK_QUEUE.clear();
 
-        AppContext.getStreetsCommon().writeEventLog(TASK_TYPE.SYS_TASK, STATUS_CODES.SUCCESS, "Shutdown completed cleanly");
 
         try { //shutdown common classes
             Log.i(TAG, "Terminating common classes.");
-            if (getStreetsDBHelper() != null) {
-                getStreetsDBHelper().close();
+            if (getInstance().ttsEngine != null) {
+                getInstance().ttsEngine.shutdown();
             }
-            if (AppContext.getInstance().getTextToSpeech() != null) {
-                AppContext.getInstance().getTextToSpeech().shutdown();
+            if (streetsDBHelper != null) {
+                streetsDBHelper.close();
             }
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -34,7 +34,6 @@ import java.util.ArrayList;
  */
 public class NavigationLayout extends StreetsAbstractView implements Navigator.OnPathSetListener, GoogleMap.OnMarkerClickListener {
     private static final String TAG = StreetsCommon.getTag(NavigationLayout.class);
-    private Navigator navigator;
     ExpandableListView navigation_steps;
     TextView nav_location_name;
     TextView nav_location_address;
@@ -58,23 +57,27 @@ public class NavigationLayout extends StreetsAbstractView implements Navigator.O
         nav_location_address = (TextView) view.findViewById(R.id.nav_location_address);
         nav_location_categories = (TextView) view.findViewById(R.id.nav_location_categories);
 
-        nav_location_name.setText("This page will show\n" +
-                "you directions to any\n" +
-                "location/person you\n" +
-                "select on the MAP page.");
+        nav_location_name.setText("This page will show\nyou directions to any\nlocation/person you\nselect on the MAP page.");
 
-        showNavigationSteps();
+        if (currentPlaceName != null) {
+            showNavigationSteps();
+            MenuLayout.setAppInfo("[click on list item to get audio announcement]");
+        }
         return view;
     }
 
     public void showNavigationSteps() {
         if (currentPlaceName != null) {
+
+            /* Prepare TTS before first use */
+            AppContext.getInstance().getTextToSpeech();
+
             SparseArray<Group> directionsList = new SparseArray<>();
 
             nav_location_name.setText(currentPlaceName);
             nav_location_address.setText(currentAddress);
             nav_location_categories.setText(currentPlaceType);
-            String header = "NAVIGATION [Click on item for speech]";
+            String header = directions.get(0).getStepTravelMode() + " directions to " + currentPlaceName;
 
             directionsList.put(0, new Group(header));
 
@@ -83,11 +86,8 @@ public class NavigationLayout extends StreetsAbstractView implements Navigator.O
             }
 
             navStepsAdapter = new NavigationListAdapter(this.inflater, directionsList);
-
             navigation_steps.setAdapter(navStepsAdapter);
-
             navigation_steps.expandGroup(0);
-
         }
     }
 
@@ -112,7 +112,7 @@ public class NavigationLayout extends StreetsAbstractView implements Navigator.O
     @Override
     public boolean onMarkerClick(Marker marker) {
         Location currentLocation = AppContext.getInstance().getCurrentLocation().get();
-        navigator = new Navigator(AppContext.getInstance().getGoogleMap().get(), marker.getTitle(), marker.getSnippet(), null,
+        Navigator navigator = new Navigator(AppContext.getInstance().getGoogleMap().get(), marker.getTitle(), marker.getSnippet(), null,
                 new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), marker.getPosition());
         navigator.setOnPathSetListener(this);
         navigator.findDirections(false);

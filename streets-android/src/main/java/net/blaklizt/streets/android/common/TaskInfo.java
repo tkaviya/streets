@@ -11,6 +11,7 @@ import net.blaklizt.streets.android.activity.helpers.StreetsInterfaceTask;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static java.lang.String.format;
 import static net.blaklizt.streets.android.activity.helpers.SequentialTaskManager.onTaskUpdate;
 
 /******************************************************************************
@@ -115,7 +116,11 @@ public abstract class TaskInfo extends AsyncTask implements StreetsInterfaceTask
     /* only called if you call registerOnDestroyHandler on Startup class */
     public final void onTermination() {
         Log.i(TAG, "+++ onTermination +++");
-        if (!getStatus().equals(Status.FINISHED)) { cancel(true); }
+        if (getStatus().equals(Status.RUNNING))
+        {
+            Log.i(TAG, format("Cancelling task %s which is in status %s", getClassName(), getStatus().name()));
+            cancel(true);
+        }
         onTerminationRelay();
     }
 

@@ -109,10 +109,10 @@ public class Startup extends AppCompatActivity implements OnClickListener, OnCom
         videoView.setSoundEffectsEnabled(false);
         videoView.requestFocus();
         videoView.setOnPreparedListener(mp -> {
-			mp.setVolume(0, 0);
-			mp.setLooping(false);
-			videoView.start();
-		});
+            mp.setVolume(0, 0);
+            mp.setLooping(false);
+            videoView.start();
+        });
         videoView.setOnCompletionListener(this);
     }
 
@@ -125,21 +125,12 @@ public class Startup extends AppCompatActivity implements OnClickListener, OnCom
 	}
 
     @Override
-    public void onResume() {
-        Log.i(TAG, "+++ ON RESUME +++");
-        super.onResume();
-    }
-
-    @Override
     public void onDestroy() {
 
         Log.i(TAG, "+++ ON DESTROY +++");
         super.onDestroy();
 
-        Log.i(TAG, "Terminating video...");
-        if (videoView != null) { videoView.stopPlayback(); videoView = null; }
-
-        finish();
+        AppContext.shutdown();
     }
 
 	@Override
@@ -274,12 +265,12 @@ public class Startup extends AppCompatActivity implements OnClickListener, OnCom
 					//prevent all other processes from updating
 					AppContext.setIsFirstLocationUpdate(false);
 
-					AppContext.getInstance().getGoogleMap().get().moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
+					AppContext.getInstance().getGoogleMap().get().moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
 					Log.i(TAG, "Camera moved to new location");
 
 
 					// Zoom in the Google Map
-					AppContext.getInstance().getGoogleMap().get().animateCamera(CameraUpdateFactory.zoomTo(12), 3000, null);
+					AppContext.getInstance().getGoogleMap().get().animateCamera(CameraUpdateFactory.zoomTo(13), 3000, null);
 					Log.i(TAG, "Camera zoomed to view");
 
 //                location_image.setImageDrawable(ContextCompat.getDrawable(mapLayout.getContext(), R.drawable.default_icon));

@@ -8,7 +8,7 @@ package net.blaklizt.streets.android.common;
  */
 public enum USER_PREFERENCE
 {
-    SHOW_INTRO("1", "1", "Enable intro video", "boolean"),
+    SHOW_INTRO("1", "0", "Enable intro video", "boolean"),
     AUTO_LOGIN("2", "1", "Login automatically", "boolean"),
     SUGGEST_GPS("3", "1", "Ask to enable GPS", "boolean"),
     AUTO_ENABLE_GPS("4", "1", "Auto enable GPS", "boolean"),

@@ -67,14 +67,15 @@ public class MenuLayout extends AppCompatActivity implements
         ViewAnimator.ViewAnimatorListener, DialogInterface.OnClickListener,
         DialogInterface.OnMultiChoiceClickListener {
 
-    private static final String TAG = StreetsCommon.getTag(MenuLayout.class);
+    private final String TAG = StreetsCommon.getTag(MenuLayout.class);
     private final List<SlideMenuItem> menuItemList = new ArrayList<>();
-    public static final HashMap<String, StreetsAbstractView> streetsViews = new HashMap<>();
+    private final HashMap<String, StreetsAbstractView> streetsViews = new HashMap<>();
+    private static MenuLayout menuLayout = null;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
     private ViewAnimator viewAnimator;
     private LinearLayout linearLayout;
-    private static TextView status_text_view;
+    private TextView statusTextView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,6 +83,7 @@ public class MenuLayout extends AppCompatActivity implements
         Log.i(TAG, format("--- savedInstanceState: %s", savedInstanceState != null ? savedInstanceState.toString() : null));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_menu_layout);
+        menuLayout = this;
 
         Log.i(TAG, "Creating toolbar");
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -118,7 +120,7 @@ public class MenuLayout extends AppCompatActivity implements
         linearLayout.setOnClickListener(v -> drawerLayout.closeDrawers());
 
         Log.i(TAG, "Status text view");
-        status_text_view = (TextView) findViewById(R.id.status_text_view);
+        statusTextView = (TextView) findViewById(R.id.status_text_view);
         setAppInfo("I'm the streets, look both ways before you cross me!");
 
         setActionBar();
@@ -126,8 +128,12 @@ public class MenuLayout extends AppCompatActivity implements
 
     }
 
+    public static MenuLayout getInstance() {
+        return menuLayout;
+    }
+
     public static void setAppInfo(String appInfo) {
-        status_text_view.setText(appInfo);
+        getInstance().statusTextView.setText(appInfo);
     }
 
     @Override
