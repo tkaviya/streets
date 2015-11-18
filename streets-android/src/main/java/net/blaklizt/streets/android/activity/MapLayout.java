@@ -18,24 +18,20 @@ import net.blaklizt.streets.android.activity.helpers.PlacesTask;
 import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.common.StreetsCommon;
-import net.blaklizt.streets.android.location.navigation.Directions;
-import net.blaklizt.streets.android.location.navigation.Navigator;
 
 import static java.lang.String.format;
-import static net.blaklizt.streets.android.activity.AppContext.getFragmentView;
 
 /**
  * User: tkaviya
  * Date: 6/21/14
  * Time: 5:58 PM
  */
-public class MapLayout extends StreetsAbstractView implements Navigator.OnPathSetListener, GoogleMap.InfoWindowAdapter
+public class MapLayout extends StreetsAbstractView implements GoogleMap.InfoWindowAdapter
 
         //OnMarkerClickListener,
 {
     private static final String TAG = StreetsCommon.getTag(MapLayout.class);
 	private View mapView;
-	private Navigator navigator;
 	private ImageView location_image;
 	private TextView location_info;
 	private LayoutInflater inflater;
@@ -75,14 +71,6 @@ public class MapLayout extends StreetsAbstractView implements Navigator.OnPathSe
         SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(GoogleMapTask.class));
         SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(LocationUpdateTask.class));
         SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(PlacesTask.class));
-    }
-
-    @Override
-    public void onPathSetListener(String placeName, String address, String type, Directions directions) {
-        //displace route paths
-	    Log.d(TAG, "New path set");
-        ((NavigationLayout)getFragmentView(NavigationLayout.class))
-                .setDirections(placeName, address, type, directions.getRoutes().get(0).getLegs().get(0).getSteps());
     }
 
 	@Override

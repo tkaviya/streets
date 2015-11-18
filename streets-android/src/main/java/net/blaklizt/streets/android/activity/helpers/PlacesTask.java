@@ -90,8 +90,9 @@ public class PlacesTask extends StreetsAbstractTask {
 
     @Override
     protected void onPostExecuteRelay(Object result) {
-
+        Log.i(TAG, "Places task completed with nearbyPlaces = " + (nearbyPlaces != null && nearbyPlaces.isPresent() ? nearbyPlaces.get().size() : 0));
         if (nearbyPlaces != null && nearbyPlaces.isPresent()) {
+            Log.i(TAG, "Processing nearby places");
             ArrayList<Place> places = nearbyPlaces.get();
             if (AppContext.getInstance().getGoogleMap().isPresent()) {
                 AppContext.getInstance().getGoogleMap().get().clear();

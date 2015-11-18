@@ -12,6 +12,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.MapLayout;
+import net.blaklizt.streets.android.activity.NavigationLayout;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.TASK_TYPE;
 
@@ -49,6 +50,14 @@ public class GoogleMapTask extends StreetsAbstractTask {
         allowOnlyOnce = true;
         allowMultiInstance = false;
         taskType = TASK_TYPE.BG_GOOGLE_MAP_TASK;
+    }
+
+    protected void onPostExecuteRelay(Object result) {
+        final NavigationLayout navigationLayout= (NavigationLayout)AppContext.getFragmentView(NavigationLayout.class);
+
+        if (AppContext.getInstance().getGoogleMap().isPresent()) {
+            AppContext.getInstance().getGoogleMap().get().setOnMarkerClickListener(navigationLayout);
+        }
     }
 
     @Override
@@ -93,11 +102,7 @@ public class GoogleMapTask extends StreetsAbstractTask {
 
                     AppContext.getInstance().getGoogleMap().get().getUiSettings().setZoomControlsEnabled(true);
 
-//                  AppContext.getInstance().getGoogleMap().get().setOnMarkerClickListener(mapLayout);
-
                     AppContext.getInstance().getGoogleMap().get().setInfoWindowAdapter(mapLayout);
-
-//                  AppContext.getInstance().getGoogleMap().get().setOnMapLoadedCallback(mapLayout);
                 }
             }
         });

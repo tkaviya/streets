@@ -16,9 +16,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.GoogleMapTask;
@@ -79,7 +76,6 @@ public class AppContext {
     private static final HashMap<Class<? extends StreetsAbstractView>, SlideMenuItem> FRAGMENT_MENU_REGISTRY = new HashMap<>();
     /* Mapping of menus to their fragments */
     private static final HashMap<String, Class<? extends StreetsAbstractView>> MENU_FRAGMENT_REGISTRY = new HashMap<>();
-    private static boolean isFirstLocationUpdate;
 
     public static HashMap<Class<? extends TaskInfo>, TaskInfo> getTaskExecutionInfo() {
         return TASK_EXECUTION_INFO;
@@ -244,7 +240,7 @@ public class AppContext {
     }
 
     public static void setIsFirstLocationUpdate(boolean isFirstLocationUpdate) {
-        AppContext.isFirstLocationUpdate = isFirstLocationUpdate;
+        AppContext.firstLocationUpdate = isFirstLocationUpdate;
     }
 
     public TextToSpeech getTextToSpeech()
@@ -316,6 +312,7 @@ public class AppContext {
                 STREETS_FRAGMENTS.put(view, view.newInstance());
                 Log.i(TAG, format("Setting menu %s for view %s ", STREETS_FRAGMENTS.get(view).getClass().getSimpleName(), view.getSimpleName()));
                 STREETS_FRAGMENTS.get(view).prepareMenu(FRAGMENT_MENU_REGISTRY.get(view));
+                STREETS_FRAGMENTS.get(view).setRetainInstance(true);
                 SequentialTaskManager.onViewInitialization(STREETS_FRAGMENTS.get(view), COMPLETED);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -408,17 +405,17 @@ public class AppContext {
     }
 
     public static void drawMarker(Location location){
-        Startup.getInstance().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.i(TAG, "Found current location at " + location.getLatitude() + " : " + location.getLongitude());
-                getInstance().getGoogleMap().get().clear();
-                getInstance().getGoogleMap().get().addMarker(new MarkerOptions()
-                        .position(new LatLng(location.getLatitude(), location.getLongitude()))
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
-                        .title("Your current location"));
-            }
-        });
+//        Startup.getInstance().runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Log.i(TAG, "Found current location at " + location.getLatitude() + " : " + location.getLongitude());
+//                getInstance().getGoogleMap().get().clear();
+//                getInstance().getGoogleMap().get().addMarker(new MarkerOptions()
+//                        .position(new LatLng(location.getLatitude(), location.getLongitude()))
+//                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
+//                        .title("Your current location"));
+//            }
+//        });
     }
 
     public static void shutdown() {

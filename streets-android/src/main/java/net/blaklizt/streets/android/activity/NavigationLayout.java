@@ -1,5 +1,6 @@
 package net.blaklizt.streets.android.activity;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
@@ -10,11 +11,17 @@ import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.adapter.NavigationListAdapter;
 import net.blaklizt.streets.android.common.Group;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.location.navigation.Directions;
+import net.blaklizt.streets.android.location.navigation.Navigator;
 import net.blaklizt.streets.android.location.navigation.Steps;
 
 import java.util.ArrayList;
@@ -25,13 +32,13 @@ import java.util.ArrayList;
  * Date: 6/22/14
  * Time: 12:05 AM
  */
-public class NavigationLayout extends StreetsAbstractView {
+public class NavigationLayout extends StreetsAbstractView implements Navigator.OnPathSetListener, GoogleMap.OnMarkerClickListener {
     private static final String TAG = StreetsCommon.getTag(NavigationLayout.class);
-    private static NavigationLayout navigationLayout;
-    ExpandableListView navigation_steps;
-    TextView nav_location_name;
-    TextView nav_location_address;
-    TextView nav_location_categories;
+    private Navigator navigator;
+    static ExpandableListView navigation_steps;
+    static TextView nav_location_name;
+    static TextView nav_location_address;
+    static TextView nav_location_categories;
     NavigationListAdapter navStepsAdapter;
     ArrayList directions;
     LayoutInflater inflater;
@@ -40,9 +47,7 @@ public class NavigationLayout extends StreetsAbstractView {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.i(TAG, "+++ ON CREATE VIEW +++");
         super.onCreateView(inflater, container, savedInstanceState);
-        setRetainInstance(true);
         this.inflater = inflater;
-        navigationLayout = this;
         View view = inflater.inflate(R.layout.navigation_layout, container, false);
 
         // Inflate the layout for this fragment
@@ -58,14 +63,8 @@ public class NavigationLayout extends StreetsAbstractView {
         return view;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, "+++ ON CREATE +++");
-        super.onCreate(savedInstanceState);
-    }
-
     public void setDirections(String placeName, String address, String type, ArrayList<Steps> directions) {
-        Log.d(TAG, "Setting directions");
+        Log.i(TAG, "Setting directions to " + placeName);
         this.directions = directions;
 
         SparseArray<Group> directionsList = new SparseArray<>();
@@ -86,5 +85,22 @@ public class NavigationLayout extends StreetsAbstractView {
         navigation_steps.setAdapter(navStepsAdapter);
 
         navigation_steps.expandGroup(0);
+    }
+
+    @Override
+    public void onPathSetListener(String placeName, String address, String type, Directions directions) {
+        //displace route paths
+        Log.d(TAG, "New path set");
+        setDirections(placeName, address, type, directions.getRoutes().get(0).getLegs().get(0).getSteps());
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        Location currentLocation = AppContext.getInstance().getCurrentLocation().get();
+        navigator = new Navigator(AppContext.getInstance().getGoogleMap().get(), marker.getTitle(), marker.getSnippet(), null,
+                new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), marker.getPosition());
+        navigator.setOnPathSetListener(this);
+        navigator.findDirections(false);
+        return false;
     }
 }

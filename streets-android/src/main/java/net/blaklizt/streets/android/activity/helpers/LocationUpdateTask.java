@@ -90,11 +90,13 @@ public class LocationUpdateTask extends StreetsAbstractTask {
             if ((boolean)params[0]) {
                 // Creating a criteria object to retrieve provider
                 Log.i(TAG, "Checking for preferred location provider 'GPS' for best accuracy.");
-                Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                final Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
                 if (location != null) {
 
-                    AppContext.getInstance().setCurrentLocation(location);
+//                    AppContext.getInstance().setCurrentLocation(location);
+                    Startup.getInstance().runOnUiThread(() -> Startup.getInstance().onLocationChanged(location));
+
                     //PLACE THE INITIAL MARKER
                     Log.i(TAG, "Found location using GPS.");
                     AppContext.getInstance().setCurrentProvider(locationManager.getProvider(LocationManager.GPS_PROVIDER));
@@ -146,7 +148,9 @@ public class LocationUpdateTask extends StreetsAbstractTask {
             }
 
             if (location != null) {
-                AppContext.getInstance().setCurrentLocation(location);
+//                AppContext.getInstance().setCurrentLocation(location);
+                final Location finalLocation = location;
+                Startup.getInstance().runOnUiThread(() -> Startup.getInstance().onLocationChanged(finalLocation));
                 //PLACE THE INITIAL MARKER
                 Log.i(TAG, "Found location using provider '" + AppContext.getInstance().getDefaultProvider() + "'. Placing initial marker.");
                 AppContext.drawMarker(location);

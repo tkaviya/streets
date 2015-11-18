@@ -274,12 +274,12 @@ public class Startup extends AppCompatActivity implements OnClickListener, OnCom
 					//prevent all other processes from updating
 					AppContext.setIsFirstLocationUpdate(false);
 
-					AppContext.getInstance().getGoogleMap().get().moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+					AppContext.getInstance().getGoogleMap().get().moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
 					Log.i(TAG, "Camera moved to new location");
 
 
 					// Zoom in the Google Map
-					AppContext.getInstance().getGoogleMap().get().animateCamera(CameraUpdateFactory.zoomTo(14), 3000, null);
+					AppContext.getInstance().getGoogleMap().get().animateCamera(CameraUpdateFactory.zoomTo(12), 3000, null);
 					Log.i(TAG, "Camera zoomed to view");
 
 //                location_image.setImageDrawable(ContextCompat.getDrawable(mapLayout.getContext(), R.drawable.default_icon));
