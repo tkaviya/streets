@@ -11,14 +11,12 @@ import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.TASK_TYPE;
-import net.blaklizt.streets.android.common.utils.Optional;
 import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.location.places.PlaceTypes;
 import net.blaklizt.streets.android.location.places.PlacesService;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 
 import static java.util.Arrays.asList;
 import static net.blaklizt.streets.android.common.StreetsCommon.showSnackBar;
@@ -45,9 +43,7 @@ import static net.blaklizt.streets.android.common.StreetsCommon.showSnackBar;
  ******************************************************************************/
 public class PlacesTask extends StreetsAbstractTask {
 
-    private final String TAG = StreetsCommon.getTag(PlacesTask.class);
-    private Optional<ArrayList<Place>> nearbyPlaces = Optional.empty();
-    private HashMap<Integer, Place> map = new HashMap<>();
+    private static final String TAG = StreetsCommon.getTag(PlacesTask.class);
 
     public PlacesTask() {
         processDependencies = new ArrayList<>(asList(GoogleMapTask.class.getSimpleName(), LocationUpdateTask.class.getSimpleName()));
@@ -57,14 +53,29 @@ public class PlacesTask extends StreetsAbstractTask {
         taskType = TASK_TYPE.BG_PLACES_TASK;
     }
 
+    public static void displayPlaces() {
+        Log.i(TAG, "Places task completed with nearbyPlaces = " +
+                (AppContext.getInstance().getNearbyPlaces() != null ? AppContext.getInstance().getNearbyPlaces().size() : 0));
+        if (AppContext.getInstance().getNearbyPlaces() != null) {
+            Log.i(TAG, "Processing nearby places");
+            if (AppContext.getInstance().getGoogleMap().isPresent()) {
+                AppContext.getInstance().getGoogleMap().get().clear();
+                for (Place place : AppContext.getInstance().getNearbyPlaces()) {
+                    drawPlaceMarker(place);
+                }
+            }
+        }
+    }
+
     @Override
     protected Object doInBackground(Object[] params) {
         Log.i(TAG, "+++ doInBackground +++");
 
         if (AppContext.getInstance().getCurrentLocation().isPresent()) {
-            nearbyPlaces = PlacesService.nearby_search(
+            AppContext.getInstance().getMarkerPlaces().clear();
+            AppContext.getInstance().setNearbyPlaces(PlacesService.nearby_search(
                     AppContext.getInstance().getCurrentLocation().get().getLatitude(), AppContext.getInstance().getCurrentLocation().get().getLongitude(),
-                5000, PlaceTypes.getDefaultPlaces());
+                    5000, PlaceTypes.getDefaultPlaces()));
         }
         else {
             showSnackBar(TAG, "Current location unknown. Check location settings.", Snackbar.LENGTH_SHORT);
@@ -73,60 +84,22 @@ public class PlacesTask extends StreetsAbstractTask {
     }
 
     @Override
-    protected void onPreExecuteRelay(Object[] additionalParams) {
-        Log.i(TAG, "+++ onPreExecuteRelay +++");
-        showSnackBar(TAG, "Updating location", Snackbar.LENGTH_LONG);
-    }
-
-    @Override
-    protected void onCancelledRelay() {
-        Log.i(TAG, "+++ onCancelledRelay +++");
-    }
-
-    @Override
-    protected void onProgressUpdate(Object [] args) {
-        Log.i(TAG, "+++ onProgressUpdate +++");
-        super.onProgressUpdate();
-    }
-
-    @Override
     protected void onPostExecuteRelay(Object result) {
-        Log.i(TAG, "Places task completed with nearbyPlaces = " + (nearbyPlaces != null && nearbyPlaces.isPresent() ? nearbyPlaces.get().size() : 0));
-        if (nearbyPlaces != null && nearbyPlaces.isPresent()) {
-            Log.i(TAG, "Processing nearby places");
-            ArrayList<Place> places = nearbyPlaces.get();
-            if (AppContext.getInstance().getGoogleMap().isPresent()) {
-                AppContext.getInstance().getGoogleMap().get().clear();
-                for (Place place : places) {
-                    drawPlaceMarker(place);
-                }
-            }
-        }
+        displayPlaces();
     }
 
-    private void drawPlaceMarker(Place place){
+    protected static void drawPlaceMarker(Place place){
         Log.i(TAG, "Drawing place marker for " + place.name + " at location " + place.latitude + " : " + place.longitude);
         if (AppContext.getInstance().getGoogleMap().isPresent()) {
             LatLng currentPosition = new LatLng(place.latitude, place.longitude);
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(currentPosition);
             markerOptions.snippet(place.formatted_address);
-
-//            Ion.with(imageView)
-//                    .placeholder(R.drawable.placeholder_image)
-//                    .error(R.drawable.error_image)
-//                    .animateLoad(spinAnimation)
-//                    .animateIn(fadeInAnimation)
-//                    .load("http://example.com/image.png");
-
-
             markerOptions.icon(place.icon);
             markerOptions.alpha(0.7f);
             markerOptions.title(place.name);
             Marker placeMarker = AppContext.getInstance().getGoogleMap().get().addMarker(markerOptions);
-
-            //link marker to a place to display info later
-            map.put(placeMarker.hashCode(), place);
+            AppContext.getInstance().getMarkerPlaces().put(placeMarker.getId(), place);
         } else {
             Log.i(TAG, "Map not ready for ");
         }

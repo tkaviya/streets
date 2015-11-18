@@ -12,7 +12,6 @@ import android.util.Log;
 
 import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.common.StreetsCommon;
-import net.blaklizt.streets.android.common.utils.Optional;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -164,7 +163,7 @@ public class PlacesService {
 //        return resultList;
 //    }
 
-    public static Optional<ArrayList<Place>> nearby_search(double lat, double lng, int radius, ArrayList<String> types) {
+    public static ArrayList<Place> nearby_search(double lat, double lng, int radius, ArrayList<String> types) {
         Log.i(TAG, "Searching for places near current location");
         ArrayList<Place> resultList = null;
         HttpURLConnection conn = null;
@@ -233,7 +232,7 @@ public class PlacesService {
             Log.e(TAG, "Error processing nearby search JSON results", e);
         } finally { if (conn != null) { conn.disconnect(); } }
 
-        return Optional.ofNullable(resultList);
+        return resultList;
     }
 
 //    public static Place details(String reference) {

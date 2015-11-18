@@ -23,6 +23,7 @@ import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.location.navigation.Directions;
 import net.blaklizt.streets.android.location.navigation.Navigator;
 import net.blaklizt.streets.android.location.navigation.Steps;
+import net.blaklizt.streets.android.location.places.Place;
 
 import java.util.ArrayList;
 
@@ -103,16 +104,18 @@ public class NavigationLayout extends StreetsAbstractView implements Navigator.O
     }
 
     @Override
-    public void onPathSetListener(String placeName, String address, String type, Directions directions) {
+    public void onPathSetListener(Place clickedPlace, Marker placeMarker, Directions directions) {
         //displace route paths
         Log.d(TAG, "New path set");
-        setDirections(placeName, address, type, directions.getRoutes().get(0).getLegs().get(0).getSteps());
+        setDirections(clickedPlace.name, clickedPlace.formatted_address, clickedPlace.type, directions.getRoutes().get(0).getLegs().get(0).getSteps());
+        Log.i(TAG, "Set directions to place " + clickedPlace.name);
+        placeMarker.showInfoWindow();
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
         Location currentLocation = AppContext.getInstance().getCurrentLocation().get();
-        Navigator navigator = new Navigator(AppContext.getInstance().getGoogleMap().get(), marker.getTitle(), marker.getSnippet(), null,
+        Navigator navigator = new Navigator(AppContext.getInstance().getGoogleMap().get(), AppContext.getInstance().getMarkerPlaces().get(marker.getId()), marker,
                 new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), marker.getPosition());
         navigator.setOnPathSetListener(this);
         navigator.findDirections(false);

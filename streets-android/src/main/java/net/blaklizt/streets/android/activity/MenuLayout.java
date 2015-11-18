@@ -5,6 +5,7 @@ import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -16,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -71,6 +73,8 @@ public class MenuLayout extends AppCompatActivity implements
     private final List<SlideMenuItem> menuItemList = new ArrayList<>();
     private final HashMap<String, StreetsAbstractView> streetsViews = new HashMap<>();
     private static MenuLayout menuLayout = null;
+    private View mainContentTable;
+    private float lastTranslate = 0.0f;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
     private ViewAnimator viewAnimator;
@@ -84,6 +88,8 @@ public class MenuLayout extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_menu_layout);
         menuLayout = this;
+
+        mainContentTable = findViewById(R.id.main_content_table);
 
         Log.i(TAG, "Creating toolbar");
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -203,8 +209,24 @@ public class MenuLayout extends AppCompatActivity implements
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
                 super.onDrawerSlide(drawerView, slideOffset);
-                if (slideOffset > 0.6 && linearLayout.getChildCount() == 0)
+                if (slideOffset > 0.6 && linearLayout.getChildCount() == 0) {
                     viewAnimator.showMenuContent();
+                }
+
+                float moveFactor = (linearLayout.getWidth() * slideOffset);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+                {
+                    mainContentTable.setTranslationX(moveFactor);
+                }
+                else
+                {
+                    TranslateAnimation anim = new TranslateAnimation(lastTranslate, moveFactor, 0.0f, 0.0f);
+                    anim.setDuration(0);
+                    anim.setFillAfter(true);
+                    mainContentTable.startAnimation(anim);
+
+                    lastTranslate = moveFactor;
+                }
             }
 
             /** Called when a drawer has settled in a completely open state. */

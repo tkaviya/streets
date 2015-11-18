@@ -33,6 +33,7 @@ import net.blaklizt.streets.android.common.utils.Optional;
 import net.blaklizt.streets.android.common.utils.SecurityContext;
 import net.blaklizt.streets.android.listener.EnableGPSDialogueListener;
 import net.blaklizt.streets.android.listener.PreferenceUpdateDialogueListener;
+import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.persistence.StreetsDBHelper;
 import net.blaklizt.streets.android.sidemenu.model.SlideMenuItem;
 
@@ -126,6 +127,8 @@ public class AppContext {
     private Location currentLocation = null;
     private TextToSpeech ttsEngine = null;
     private LocationManager locationManager = null;
+    private ArrayList<Place> nearbyPlaces = null;
+    private HashMap<String, Place> markerPlaces = new HashMap<>();
 
     //location provider data
     public final static String PROVIDER_CHEAPEST = "passive";
@@ -489,5 +492,21 @@ public class AppContext {
 
     public void setLocationManager(LocationManager locationManager) {
         this.locationManager = locationManager;
+    }
+
+    public ArrayList<Place> getNearbyPlaces() {
+        return nearbyPlaces;
+    }
+
+    public void setNearbyPlaces(ArrayList<Place> nearbyPlaces) {
+        this.nearbyPlaces = nearbyPlaces;
+    }
+
+    public HashMap<String, Place> getMarkerPlaces() {
+        return markerPlaces;
+    }
+
+    public void setMarkerPlaces(HashMap<String, Place> markerPlaces) {
+        this.markerPlaces = markerPlaces;
     }
 }

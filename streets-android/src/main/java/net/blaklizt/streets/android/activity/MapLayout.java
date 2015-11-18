@@ -1,6 +1,5 @@
 package net.blaklizt.streets.android.activity;
 
-import android.app.FragmentTransaction;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -23,7 +22,6 @@ import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.common.StreetsCommon;
 
 import static java.lang.String.format;
-import static net.blaklizt.streets.android.activity.AppContext.getFragmentView;
 
 /**
  * User: tkaviya
@@ -95,15 +93,15 @@ public class MapLayout extends StreetsAbstractView implements GoogleMap.InfoWind
 		TextView note = (TextView) v.findViewById(R.id.note);
 
 		note.setText(marker.getTitle());
-        note.setCompoundDrawables(null, null, ContextCompat.getDrawable(getContext(), R.drawable.compass), null);
-        note.setClickable(true);
-        note.setOnClickListener(v1 -> {
-            Log.i(TAG, "+++ ON INFO CONTENTS CLICK +++");
-            MenuLayout.getInstance().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.content_frame, getFragmentView(NavigationLayout.class), getFragmentView(NavigationLayout.class).getViewName())
-                    .setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                    .commit();
-        });
+//        note.setCompoundDrawables(null, null, ContextCompat.getDrawable(getContext(), R.drawable.compass), null);
+//        note.setClickable(true);
+//        note.setOnClickListener(v1 -> {
+//            Log.i(TAG, "+++ ON INFO CONTENTS CLICK +++");
+//            MenuLayout.getInstance().getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.content_frame, getFragmentView(NavigationLayout.class), getFragmentView(NavigationLayout.class).getViewName())
+//                    .setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+//                    .commit();
+//        });
 
 		// Returning the view containing InfoWindow contents
 		return v;

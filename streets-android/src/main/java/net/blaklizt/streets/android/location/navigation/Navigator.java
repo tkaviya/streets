@@ -12,10 +12,13 @@ import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import net.blaklizt.streets.android.activity.helpers.PlacesTask;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.location.places.Place;
 
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -38,30 +41,28 @@ public class Navigator {
     private String mode;
     private GoogleMap map;
     private Directions directions;
-	private String placeName;
-	private String address;
-	private String type;
+    private Place navPlace;
+    private Marker marker;
     private int pathColor = Color.BLUE;
     private int secondPath = Color.CYAN;
     private int thirdPath = Color.RED;
-    private float pathWidth = 5;
+    private float pathWidth = 3;
     private OnPathSetListener listener;
     private boolean alternatives = false;
     private long arrivalTime;
     private String avoid;
     private ArrayList<Polyline> lines = new ArrayList<>();
 
-    public Navigator(GoogleMap map, String placeName, String address, String type, LatLng startLocation, LatLng endLocation){
+    public Navigator(GoogleMap map, Place navPlace, Marker marker, LatLng startLocation, LatLng endLocation){
+        this.map = map;
+        this.navPlace = navPlace;
+        this.marker = marker;
         this.startPosition = startLocation;
         this.endPosition = endLocation;
-	    this.placeName = placeName;
-	    this.address = address;
-	    this.type = type;
-        this.map = map;
     }
 
     public interface OnPathSetListener{
-        void onPathSetListener(String placeName, String Address, String Type, Directions directions);
+        void onPathSetListener(Place clickedPlace, Marker placeMarker, Directions directions);
     }
 
     public void setOnPathSetListener(OnPathSetListener listener){
@@ -171,6 +172,8 @@ public class Navigator {
     }
 
     private Polyline showPath(Route route,int color){
+        map.clear();
+        PlacesTask.displayPlaces();
         return map.addPolyline(new PolylineOptions().addAll(route.getPath()).color(color).width(pathWidth));
     }
 
@@ -207,10 +210,6 @@ public class Navigator {
             }
 
             try {
-//                HttpClient httpClient = new DefaultHttpClient();
-//                HttpContext localContext = new BasicHttpContext();
-//                HttpPost httpPost = new HttpPost(url);
-//                HttpResponse response = httpClient.execute(httpPost, localContext);
                 StringBuilder responseStr = new StringBuilder();
 
                 URL googleURL = new URL(url);
@@ -259,7 +258,7 @@ public class Navigator {
                 }
 
                 if(listener != null){
-                    listener.onPathSetListener(placeName, address, type, directions);
+                    listener.onPathSetListener(navPlace, marker, directions);
                 }
 
             }
