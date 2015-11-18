@@ -15,8 +15,7 @@ import static java.lang.String.format;
 
 public abstract class StreetsAbstractView extends Fragment implements StreetsInterfaceView {
 
-    private static final String TAG = StreetsCommon.getTag(MenuLayout.class);
-    private static StreetsInterfaceView instance;
+    private final String TAG = StreetsCommon.getTag(MenuLayout.class);
     protected String TAB_HEADER;
     protected int menuIconResourceId;
     protected SlideMenuItem slideMenuItem;
@@ -45,7 +44,6 @@ public abstract class StreetsAbstractView extends Fragment implements StreetsInt
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        instance = this;
         Log.i(TAG, "+++ ON VIEW CREATED +++");
         Log.i(TAG, format("--- savedInstanceState: %s", savedInstanceState != null ? savedInstanceState.toString() : null));
         super.onViewCreated(view, savedInstanceState);
@@ -55,32 +53,5 @@ public abstract class StreetsAbstractView extends Fragment implements StreetsInt
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        res = getArguments().getInt(Integer.class.getName());
     }
-//
-//    @Override
-//    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-//                             Bundle savedInstanceState) {
-//        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-//        return rootView;
-//    }
-
-
-
-    /*
-        private int menuIconResourceId;
-
-
-//    protected int res;
-//    private Bitmap bitmap;
-
-//    public static StreetsFragment newInstance(int resId) {
-//        StreetsFragment contentFragment = new StreetsFragment();
-////        Bundle bundle = new Bundle();
-////        bundle.putInt(Integer.class.getName(), resId);
-////        contentFragment.setArguments(bundle);
-//        return contentFragment;
-//    }
-
-     */
 }

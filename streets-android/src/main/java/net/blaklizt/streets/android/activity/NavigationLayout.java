@@ -35,13 +35,15 @@ import java.util.ArrayList;
 public class NavigationLayout extends StreetsAbstractView implements Navigator.OnPathSetListener, GoogleMap.OnMarkerClickListener {
     private static final String TAG = StreetsCommon.getTag(NavigationLayout.class);
     private Navigator navigator;
-    static ExpandableListView navigation_steps;
-    static TextView nav_location_name;
-    static TextView nav_location_address;
-    static TextView nav_location_categories;
+    ExpandableListView navigation_steps;
+    TextView nav_location_name;
+    TextView nav_location_address;
+    TextView nav_location_categories;
     NavigationListAdapter navStepsAdapter;
-    ArrayList directions;
+    ArrayList<Steps> directions;
     LayoutInflater inflater;
+
+    private String currentPlaceName, currentAddress, currentPlaceType;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -60,31 +62,44 @@ public class NavigationLayout extends StreetsAbstractView implements Navigator.O
                 "you directions to any\n" +
                 "location/person you\n" +
                 "select on the MAP page.");
+
+        showNavigationSteps();
         return view;
+    }
+
+    public void showNavigationSteps() {
+        if (currentPlaceName != null) {
+            SparseArray<Group> directionsList = new SparseArray<>();
+
+            nav_location_name.setText(currentPlaceName);
+            nav_location_address.setText(currentAddress);
+            nav_location_categories.setText(currentPlaceType);
+            String header = "NAVIGATION [Click on item for speech]";
+
+            directionsList.put(0, new Group(header));
+
+            for (Steps step : directions) {
+                directionsList.get(0).children.add(Html.fromHtml(step.getStepInstructions()).toString());
+            }
+
+            navStepsAdapter = new NavigationListAdapter(this.inflater, directionsList);
+
+            navigation_steps.setAdapter(navStepsAdapter);
+
+            navigation_steps.expandGroup(0);
+
+        }
     }
 
     public void setDirections(String placeName, String address, String type, ArrayList<Steps> directions) {
         Log.i(TAG, "Setting directions to " + placeName);
         this.directions = directions;
-
-        SparseArray<Group> directionsList = new SparseArray<>();
-
-        nav_location_name.setText(placeName);
-        nav_location_address.setText(address);
-        nav_location_categories.setText(type);
-        String header = "NAVIGATION [Click on item for speech]";
-
-        directionsList.put(0, new Group(header));
-
-        for (Steps step : directions) {
-            directionsList.get(0).children.add(Html.fromHtml(step.getStepInstructions()).toString());
+        this.currentPlaceName = placeName;
+        this.currentAddress = address;
+        this.currentPlaceType = type;
+        if (this.inflater != null) {
+            showNavigationSteps();
         }
-
-        navStepsAdapter = new NavigationListAdapter(getActivity(), directionsList);
-
-        navigation_steps.setAdapter(navStepsAdapter);
-
-        navigation_steps.expandGroup(0);
     }
 
     @Override

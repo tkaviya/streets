@@ -53,8 +53,9 @@ public class GoogleMapTask extends StreetsAbstractTask {
     }
 
     protected void onPostExecuteRelay(Object result) {
-        final NavigationLayout navigationLayout= (NavigationLayout)AppContext.getFragmentView(NavigationLayout.class);
 
+        Log.i(TAG, "Setting map onMarkerClick listener to NavigationLayout");
+        final NavigationLayout navigationLayout= (NavigationLayout)AppContext.getFragmentView(NavigationLayout.class);
         if (AppContext.getInstance().getGoogleMap().isPresent()) {
             AppContext.getInstance().getGoogleMap().get().setOnMarkerClickListener(navigationLayout);
         }

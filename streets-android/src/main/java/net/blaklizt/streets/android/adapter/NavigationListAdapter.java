@@ -6,13 +6,11 @@ package net.blaklizt.streets.android.adapter;
 * Time: 1:56 PM
 */
 
-import android.app.Activity;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.CheckedTextView;
 import android.widget.TextView;
 
 import net.blaklizt.streets.android.R;
@@ -23,12 +21,10 @@ public class NavigationListAdapter extends BaseExpandableListAdapter
 {
 	private final SparseArray<Group> groups;
 	public LayoutInflater inflater;
-	public Activity activity;
 
-	public NavigationListAdapter(Activity act, SparseArray<Group> groups) {
-		this.activity = act;
+	public NavigationListAdapter(LayoutInflater inflater, SparseArray<Group> groups) {
+		this.inflater = inflater;
 		this.groups = groups;
-        this.inflater = act.getLayoutInflater();
 	}
 
 	@Override
@@ -87,13 +83,13 @@ public class NavigationListAdapter extends BaseExpandableListAdapter
 
 	@Override
 	public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-		if (convertView == null) {
-			convertView = inflater.inflate(R.layout.drawer_list_item, parent);
-		}
-		Group group = (Group) getGroup(groupPosition);
-		((CheckedTextView) convertView).setText(group.string);
-		((CheckedTextView) convertView).setChecked(isExpanded);
-		return convertView;
+//		if (convertView == null) {
+//			convertView = inflater.inflate(R.layout.drawer_list_item, parent);
+//		}
+//		Group group = (Group) getGroup(groupPosition);
+//		((TextView) convertView).setText(group.string);
+//		((TextView) convertView).setChecked(isExpanded);
+		return parent;
 	}
 
 	@Override
