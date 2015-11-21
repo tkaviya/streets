@@ -7,7 +7,6 @@ import android.util.Log;
 
 import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.Startup;
-import net.blaklizt.streets.android.common.TASK_TYPE;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -18,6 +17,7 @@ import static net.blaklizt.streets.android.activity.AppContext.MINIMUM_REFRESH_D
 import static net.blaklizt.streets.android.activity.AppContext.MINIMUM_REFRESH_TIME;
 import static net.blaklizt.streets.android.activity.AppContext.PROVIDER_CHEAPEST;
 import static net.blaklizt.streets.android.activity.AppContext.checkEnableGPS;
+import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.BG_LOCATION_TASK;
 
 /******************************************************************************
  * *
@@ -48,7 +48,7 @@ public class LocationUpdateTask extends StreetsAbstractTask {
         viewDependencies = new ArrayList<>();
         allowOnlyOnce = false;
         allowMultiInstance = false;
-        taskType = TASK_TYPE.BG_LOCATION_TASK;
+        taskType = BG_LOCATION_TASK;
         additionalParams = new Object[] { true };
         locationManager = AppContext.getInstance().getLocationManager();
     }

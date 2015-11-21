@@ -14,11 +14,11 @@ import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.activity.NavigationLayout;
 import net.blaklizt.streets.android.common.StreetsCommon;
-import net.blaklizt.streets.android.common.TASK_TYPE;
 
 import java.util.ArrayList;
 
 import static java.util.Collections.singletonList;
+import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.BG_GOOGLE_MAP_TASK;
 
 /******************************************************************************
  * *
@@ -49,7 +49,7 @@ public class GoogleMapTask extends StreetsAbstractTask {
         viewDependencies = new ArrayList<>(singletonList(MapLayout.class));
         allowOnlyOnce = true;
         allowMultiInstance = false;
-        taskType = TASK_TYPE.BG_GOOGLE_MAP_TASK;
+        taskType = BG_GOOGLE_MAP_TASK;
     }
 
     protected void onPostExecuteRelay(Object result) {

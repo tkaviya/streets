@@ -10,7 +10,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.common.StreetsCommon;
-import net.blaklizt.streets.android.common.TASK_TYPE;
 import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.location.places.PlaceTypes;
 import net.blaklizt.streets.android.location.places.PlacesService;
@@ -20,6 +19,7 @@ import java.util.Collections;
 
 import static java.util.Arrays.asList;
 import static net.blaklizt.streets.android.common.StreetsCommon.showSnackBar;
+import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.BG_PLACES_TASK;
 
 /******************************************************************************
  * *
@@ -50,7 +50,7 @@ public class PlacesTask extends StreetsAbstractTask {
         viewDependencies = new ArrayList<>(Collections.singletonList(MapLayout.class));
         allowOnlyOnce = false;
         allowMultiInstance = false;
-        taskType = TASK_TYPE.BG_PLACES_TASK;
+        taskType = BG_PLACES_TASK;
     }
 
     public static void displayPlaces() {

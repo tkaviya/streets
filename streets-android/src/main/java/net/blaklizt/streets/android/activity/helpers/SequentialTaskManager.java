@@ -1,6 +1,5 @@
 package net.blaklizt.streets.android.activity.helpers;
 
-import android.os.AsyncTask;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
 
@@ -15,10 +14,11 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CancellationException;
 
+import static android.os.AsyncTask.THREAD_POOL_EXECUTOR;
 import static java.lang.String.format;
 import static net.blaklizt.streets.android.activity.AppContext.getBackgroundExecutionTask;
 import static net.blaklizt.streets.android.activity.AppContext.getStreetsFragments;
-import static net.blaklizt.streets.android.common.TASK_TYPE.SYS_TASK;
+import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.SYS_TASK;
 import static net.blaklizt.streets.android.common.utils.SecurityContext.handleApplicationError;
 import static net.blaklizt.streets.android.common.utils.Try.fail;
 import static net.blaklizt.streets.android.common.utils.Try.success;
@@ -70,7 +70,7 @@ public class SequentialTaskManager {
             Log.i(TAG, format("Executing task %s", bgTask.getClassName()));
             runningTasks.put(bgTask.getClassName(), bgTask);
             try {
-                bgTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, bgTask.getAdditionalParams());
+                bgTask.executeOnExecutor(THREAD_POOL_EXECUTOR, bgTask.getAdditionalParams());
                 outstandingTasks.remove(bgTask.getClassName());
             } catch (CancellationException ex) {
                 Log.w(TAG, format("Task %s was cancelled before completion!", bgTask.getClassName()));
@@ -196,6 +196,10 @@ public class SequentialTaskManager {
         }
     }
 
+    public static void stopSchedulingNewTasks(boolean stopSchedulingNewTasks) {
+        SequentialTaskManager.holdPendingQueue = stopSchedulingNewTasks;
+    }
+
     public static void cancelRunningTasks() {
 
         Log.i(TAG, "Terminating running tasks...");
@@ -208,11 +212,6 @@ public class SequentialTaskManager {
                 Log.i(TAG, format("Terminating task %s", runningTaskName));
                 runningTasks.get(runningTaskName).cancel(true);
             }
-
-            //TODO find a way to reinitialize these variables correctly
-            completedTasks.clear();
-            processDependencyList.clear();
-            viewDependencyList.clear();
 
             runningTasks.clear();
         }

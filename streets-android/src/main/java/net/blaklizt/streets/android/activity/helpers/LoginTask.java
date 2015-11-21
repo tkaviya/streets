@@ -10,8 +10,6 @@ import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.MenuLayout;
 import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.StreetsCommon;
-import net.blaklizt.streets.android.common.TASK_TYPE;
-import net.blaklizt.streets.android.common.USER_PREFERENCE;
 
 import org.json.JSONObject;
 
@@ -19,6 +17,8 @@ import java.util.ArrayList;
 
 import static net.blaklizt.streets.android.common.StreetsCommon.showSnackBar;
 import static net.blaklizt.streets.android.common.StreetsCommon.showToast;
+import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.FG_LOGIN_TASK;
+import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.AUTO_LOGIN;
 
 /******************************************************************************
  * *
@@ -53,7 +53,7 @@ public class LoginTask extends StreetsAbstractTask {
         viewDependencies = new ArrayList<>();
         allowOnlyOnce = false;
         allowMultiInstance = false;
-        taskType = TASK_TYPE.FG_LOGIN_TASK;
+        taskType = FG_LOGIN_TASK;
     }
 
     @Override
@@ -91,7 +91,7 @@ public class LoginTask extends StreetsAbstractTask {
             } else {
                 final String loginResponseStr = responseJSON.getString("response_message");
                 Log.i(TAG, "Login failed: " + responseJSON.getString("response_message"));
-                AppContext.getStreetsCommon().setUserPreference(USER_PREFERENCE.AUTO_LOGIN, "0"); //disable auto login to prevent running out of attempts
+                AppContext.getStreetsCommon().setUserPreference(AUTO_LOGIN, "0"); //disable auto login to prevent running out of attempts
                 showToast(TAG, loginResponseStr, Toast.LENGTH_SHORT);
 
                 if (--counter <= 0) {

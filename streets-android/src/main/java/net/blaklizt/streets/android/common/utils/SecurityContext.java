@@ -4,15 +4,18 @@ import android.util.Log;
 
 import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.Startup;
-import net.blaklizt.streets.android.common.STATUS_CODES;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.SymbiosisUser;
-import net.blaklizt.streets.android.common.TASK_TYPE;
+import net.blaklizt.streets.android.common.enumeration.TASK_TYPE;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
 import static java.lang.String.format;
+import static net.blaklizt.streets.android.common.enumeration.STATUS_CODES.GENERAL_ERROR;
+import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.SYS_SECURITY;
+import static net.blaklizt.streets.android.common.utils.SecurityContext.ERROR_SEVERITY.GENERAL;
+import static net.blaklizt.streets.android.common.utils.SecurityContext.ERROR_SEVERITY.SEVERE;
 
 /******************************************************************************
  * *
@@ -69,10 +72,10 @@ public class SecurityContext {
 
     public static void handleApplicationError(ERROR_SEVERITY errorSeverity, String displayMsg, String error, TASK_TYPE taskType) {
 
-        AppContext.getStreetsCommon().writeEventLog(taskType, STATUS_CODES.GENERAL_ERROR, error);
-        if (errorSeverity == ERROR_SEVERITY.GENERAL) {
+        AppContext.getStreetsCommon().writeEventLog(taskType, GENERAL_ERROR, error);
+        if (errorSeverity == GENERAL) {
             Log.w(TAG, "A general error occurred: " + displayMsg + "\n" + error);
-        } else if (errorSeverity == ERROR_SEVERITY.SEVERE) {
+        } else if (errorSeverity == SEVERE) {
             Log.e(TAG, "A severe system error occurred: " + displayMsg + "\n" + error + "\nApplication will terminate.");
             Startup.getInstance().onDestroy();
         }
@@ -84,8 +87,8 @@ public class SecurityContext {
 
         if (symbiosisUser == null) {
             Log.e(TAG, "SymbiosisUser cannot be null!");
-            handleApplicationError(ERROR_SEVERITY.SEVERE, "User session is invalid! Please login again.",
-                "SymbiosisUser was null", TASK_TYPE.SYS_SECURITY);
+            handleApplicationError(SEVERE, "User session is invalid! Please login again.",
+                "SymbiosisUser was null", SYS_SECURITY);
             return false; /* app should have terminated */
         }
 
@@ -102,29 +105,29 @@ public class SecurityContext {
 
                 if (fieldValue == null) {
                     if (databaseValue != null && userDefaultDataSet.get(fieldName) != null) {
-                        handleApplicationError(ERROR_SEVERITY.SEVERE, "Value of mandatory field " + fieldName + " is invalid.",
-                                fieldName + " of SymbiosisUser was null.", TASK_TYPE.SYS_SECURITY);
+                        handleApplicationError(SEVERE, "Value of mandatory field " + fieldName + " is invalid.",
+                                fieldName + " of SymbiosisUser was null.", SYS_SECURITY);
                         return false;
                     } else { continue; }
                 }
 
                 if (!fieldValue.equals(databaseValue)) {
                     if (!userDefaultDataSet.containsKey(fieldName)) {
-                        handleApplicationError(ERROR_SEVERITY.SEVERE, "Value of field " + fieldName + " is invalid.",
+                        handleApplicationError(SEVERE, "Value of field " + fieldName + " is invalid.",
                             format(fieldName + " of SymbiosisUser was modified outside system context.\nDB Value = %s, Default Value = null",
-                                databaseValue), TASK_TYPE.SYS_SECURITY);
+                                databaseValue), SYS_SECURITY);
                         return false;
                     } else if (!fieldValue.equals(userDefaultDataSet.get(fieldName))) {
-                        handleApplicationError(ERROR_SEVERITY.SEVERE, "Value of field " + fieldName + " is invalid.",
+                        handleApplicationError(SEVERE, "Value of field " + fieldName + " is invalid.",
                             format(fieldName + " of SymbiosisUser was modified outside system context.\nDB Value = %s, Default Value = %s",
-                                databaseValue, userDefaultDataSet.get(fieldName)), TASK_TYPE.SYS_SECURITY);
+                                databaseValue, userDefaultDataSet.get(fieldName)), SYS_SECURITY);
                         return false;
                     }
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
-                handleApplicationError(ERROR_SEVERITY.SEVERE, "Failed to verify value of " + fieldName,
-                    "Failed to verify value of " + fieldName + ": " + ex.getMessage(), TASK_TYPE.SYS_SECURITY);
+                handleApplicationError(SEVERE, "Failed to verify value of " + fieldName,
+                    "Failed to verify value of " + fieldName + ": " + ex.getMessage(), SYS_SECURITY);
                 return false;
             }
         }

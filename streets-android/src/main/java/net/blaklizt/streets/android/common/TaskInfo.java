@@ -7,6 +7,8 @@ import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.activity.helpers.StreetsInterfaceTask;
+import net.blaklizt.streets.android.common.enumeration.STATUS_CODES;
+import net.blaklizt.streets.android.common.enumeration.TASK_TYPE;
 
 import java.util.ArrayList;
 import java.util.Date;

@@ -24,11 +24,11 @@ import net.blaklizt.streets.android.activity.helpers.PlacesTask;
 import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.activity.helpers.StreetsInterfaceView;
-import net.blaklizt.streets.android.common.STATUS_CODES;
 import net.blaklizt.streets.android.common.StreetsCommon;
-import net.blaklizt.streets.android.common.TASK_TYPE;
 import net.blaklizt.streets.android.common.TaskInfo;
-import net.blaklizt.streets.android.common.USER_PREFERENCE;
+import net.blaklizt.streets.android.common.enumeration.STATUS_CODES;
+import net.blaklizt.streets.android.common.enumeration.TASK_TYPE;
+import net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE;
 import net.blaklizt.streets.android.common.utils.Optional;
 import net.blaklizt.streets.android.common.utils.SecurityContext;
 import net.blaklizt.streets.android.listener.EnableGPSDialogueListener;
@@ -44,7 +44,8 @@ import java.util.Locale;
 
 import static java.lang.String.format;
 import static net.blaklizt.streets.android.activity.helpers.SequentialTaskManager.TaskStatus.COMPLETED;
-import static net.blaklizt.streets.android.common.TASK_TYPE.USER_PREF_READ;
+import static net.blaklizt.streets.android.common.StreetsCommon.getTag;
+import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.USER_PREF_READ;
 import static net.blaklizt.streets.android.common.utils.SecurityContext.handleApplicationError;
 
 /**
@@ -52,12 +53,11 @@ import static net.blaklizt.streets.android.common.utils.SecurityContext.handleAp
  */
 public class AppContext {
 
+    public static final String CHANNEL = "SMART_PHONE";
+
     /* =============== SYSTEM MANAGED CONTEXT INFORMATION =============== */
-
     private static Context applicationContext;
-
-    private static final String TAG = StreetsCommon.getTag(AppContext.class);
-
+    private static final String TAG = getTag(AppContext.class);
     private static AppContext streetsApplicationContext = null;
     private static StreetsDBHelper streetsDBHelper = null;
     private static StreetsCommon streetsCommon = null;
@@ -68,12 +68,16 @@ public class AppContext {
      *
      *  When application is terminating, onTermination() is called for all classes in this list. */
     private static final LinkedList<StreetsInterfaceView> SHUTDOWN_CALLBACK_QUEUE = new LinkedList<>();
+
     /* List of background tasks that can execute on the application. */
     private static final HashMap<Class<? extends TaskInfo>, TaskInfo> TASK_EXECUTION_INFO = new HashMap<>();
+
     /* List of fragment views created for this application. */
     private static final HashMap<Class<? extends StreetsAbstractView>, StreetsAbstractView> STREETS_FRAGMENTS = new HashMap<>();
+
     /* Mapping of fragment views to their menus */
     private static final HashMap<Class<? extends StreetsAbstractView>, SlideMenuItem> FRAGMENT_MENU_REGISTRY = new HashMap<>();
+
     /* Mapping of menus to their fragments */
     private static final HashMap<String, Class<? extends StreetsAbstractView>> MENU_FRAGMENT_REGISTRY = new HashMap<>();
 
@@ -426,6 +430,7 @@ public class AppContext {
         StreetsCommon.showSnackBar(TAG, "[- Now leaving Tha Streetz -]\n ...Goodbye...", Snackbar.LENGTH_SHORT);
 
         Log.i(TAG, "Terminating running tasks...");
+        SequentialTaskManager.stopSchedulingNewTasks(true);
         for (StreetsInterfaceView view : SHUTDOWN_CALLBACK_QUEUE) {
             view.onTermination();
         }

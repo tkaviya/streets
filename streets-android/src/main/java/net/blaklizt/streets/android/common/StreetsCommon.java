@@ -1,5 +1,7 @@
 package net.blaklizt.streets.android.common;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
@@ -12,8 +14,11 @@ import android.widget.Toast;
 
 import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.Startup;
+import net.blaklizt.streets.android.common.enumeration.STATUS_CODES;
+import net.blaklizt.streets.android.common.enumeration.TASK_TYPE;
+import net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE;
 import net.blaklizt.streets.android.common.utils.SecurityContext;
-import net.blaklizt.streets.android.common.utils.Validator;
+import net.blaklizt.symbiosis.sym_core_lib.utilities.Validator;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,8 +43,7 @@ public class StreetsCommon
 
 	//Application user
 	private SymbiosisUser symbiosisUser = null;
-	private String imei = null;
-	private String imsi = null;
+	private String imei = null, imsi = null, phoneNumber = null;
 
     //static class reference
 	private static StreetsCommon streetsCommon = null;
@@ -200,6 +204,29 @@ public class StreetsCommon
             }
         }
         return this.imsi;
+    }
+
+    public String getPhoneNumber() {
+        if (Validator.isNullOrEmpty(this.phoneNumber)) {
+            TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            if (telephonyManager != null && !Validator.isNullOrEmpty(this.phoneNumber = telephonyManager.getLine1Number())) {
+                Log.i(TAG, "Service 'TelephonyManager' returned phone number: " + this.phoneNumber);
+            } else {
+                AccountManager am = AccountManager.get(context);
+                Account[] accounts = am.getAccounts();
+
+                for (Account ac : accounts) {
+                    String acname = ac.name;
+                    String actype = ac.type;
+                    Log.i(TAG, "Accounts : " + acname + ", " + actype);
+                    if(Validator.isValidMsisdn(ac.name) || Validator.isValidMsisdn(ac.name, "27")){
+                        this.phoneNumber = ac.name;
+                    }
+                }
+
+            }
+        }
+        return this.phoneNumber;
     }
 
     public void setUserID(Long userID) {

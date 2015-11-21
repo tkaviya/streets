@@ -24,7 +24,6 @@ import android.widget.TextView;
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.common.StreetsCommon;
-import net.blaklizt.streets.android.common.USER_PREFERENCE;
 import net.blaklizt.streets.android.sidemenu.interfaces.Resourceble;
 import net.blaklizt.streets.android.sidemenu.model.SlideMenuItem;
 import net.blaklizt.streets.android.sidemenu.util.ViewAnimator;
@@ -42,6 +41,7 @@ import static net.blaklizt.streets.android.activity.AppContext.DEFAULT_FRAGMENT_
 import static net.blaklizt.streets.android.activity.AppContext.getFragmentView;
 import static net.blaklizt.streets.android.activity.AppContext.getMenuFragmentRegistry;
 import static net.blaklizt.streets.android.activity.AppContext.getStreetsFragments;
+import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.ASK_ON_EXIT;
 
 /******************************************************************************
  * *
@@ -151,7 +151,7 @@ public class MenuLayout extends AppCompatActivity implements
         boolean exit = (index == DialogInterface.BUTTON_POSITIVE);
         //only persist prefs on positive response
         if (exit) {
-            AppContext.getStreetsCommon().setUserPreference(USER_PREFERENCE.ASK_ON_EXIT, !isChecked ? "1" : "0");
+            AppContext.getStreetsCommon().setUserPreference(ASK_ON_EXIT, !isChecked ? "1" : "0");
         }
     }
 

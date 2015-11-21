@@ -1,4 +1,4 @@
-package net.blaklizt.streets.android.common;
+package net.blaklizt.streets.android.common.enumeration;
 
 /**
  * Created with IntelliJ IDEA.

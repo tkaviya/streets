@@ -1,9 +1,9 @@
 package net.blaklizt.streets.android.activity;
 
+import android.content.Intent;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,14 +27,17 @@ import net.blaklizt.streets.android.activity.helpers.LoginTask;
 import net.blaklizt.streets.android.activity.helpers.PlacesTask;
 import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
 import net.blaklizt.streets.android.common.StreetsCommon;
-import net.blaklizt.streets.android.common.USER_PREFERENCE;
 
+import static android.location.LocationManager.GPS_PROVIDER;
 import static android.media.MediaPlayer.OnCompletionListener;
 import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static android.view.View.OnClickListener;
 import static android.view.View.VISIBLE;
 import static net.blaklizt.streets.android.activity.AppContext.MINIMUM_REFRESH_DISTACE;
 import static net.blaklizt.streets.android.activity.AppContext.MINIMUM_REFRESH_TIME;
+import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.AUTO_LOGIN;
+import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.REQUEST_GPS_PERMS;
+import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.SHOW_INTRO;
 
 /**
  * Created with IntelliJ IDEA.
@@ -63,13 +66,21 @@ public class Startup extends AppCompatActivity implements OnClickListener, OnCom
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.intro_layout);
 
+        findViewById(R.id.labelLoginHeader).setOnClickListener(view -> {
+            Intent loginActivity = new Intent(getInstance(), Register.class);
+            startActivity(loginActivity);
+        });
+        findViewById(R.id.labelGoToRegistration).setOnClickListener(view -> {
+            Intent loginActivity = new Intent(getInstance(), Register.class);
+            startActivity(loginActivity);
+        });
         try
 		{
 			edtPassword = (EditText) findViewById(R.id.loginPin);
 			btnLogin = (Button) findViewById(R.id.btnLogin);
 			chkAutoLogin = (CheckBox) findViewById(R.id.chkAutoLogin);
 
-			if (AppContext.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.SHOW_INTRO).equals("1")) {
+			if (AppContext.getStreetsCommon().getUserPreferenceValue(SHOW_INTRO).equals("1")) {
                 playIntroVideo();
 			} else {
 				onCompletion(null);
@@ -91,7 +102,7 @@ public class Startup extends AppCompatActivity implements OnClickListener, OnCom
 	public void onCompletion(MediaPlayer mp) {
 		Log.i(TAG, "+++ ON COMPLETION +++");
 
-		if (AppContext.getStreetsCommon().getUserPreferenceValue(USER_PREFERENCE.AUTO_LOGIN).equals("1")) {
+		if (AppContext.getStreetsCommon().getUserPreferenceValue(AUTO_LOGIN).equals("1")) {
 			SequentialTaskManager.runWhenAvailable(new LoginTask(this));
 		}
 		else {
@@ -146,7 +157,7 @@ public class Startup extends AppCompatActivity implements OnClickListener, OnCom
 	public void onGpsStatusChanged(int i)
 	{
 		String currentProviderName = AppContext.getInstance().getCurrentProvider() == null ? null : AppContext.getInstance().getCurrentProvider().getName();
-		if ((i == GpsStatus.GPS_EVENT_STARTED || i == GpsStatus.GPS_EVENT_FIRST_FIX) && !LocationManager.GPS_PROVIDER.equalsIgnoreCase(currentProviderName))
+		if ((i == GpsStatus.GPS_EVENT_STARTED || i == GpsStatus.GPS_EVENT_FIRST_FIX) && !GPS_PROVIDER.equalsIgnoreCase(currentProviderName))
 		{
 			//GPS was turned on, is now ready & is now best location provider
 			Log.i(TAG, "GPS started, trying switch to GPS as preferred location provider from current provider: " + currentProviderName);
@@ -158,20 +169,20 @@ public class Startup extends AppCompatActivity implements OnClickListener, OnCom
 
 			// Creating a criteria object to retrieve provider
 			Log.i(TAG, "Checking for preferred location provider 'GPS' for best accuracy.");
-			AppContext.getInstance().setCurrentProvider(AppContext.getInstance().getLocationManager().getProvider(LocationManager.GPS_PROVIDER));
-			Location location = AppContext.getInstance().getLocationManager().getLastKnownLocation(LocationManager.GPS_PROVIDER);
+			AppContext.getInstance().setCurrentProvider(AppContext.getInstance().getLocationManager().getProvider(GPS_PROVIDER));
+			Location location = AppContext.getInstance().getLocationManager().getLastKnownLocation(GPS_PROVIDER);
 
 			if (location != null) {
                 AppContext.getInstance().setCurrentLocation(location);
 				//PLACE THE INITIAL MARKER
 				Log.i(TAG, "Found location using GPS.");
-				AppContext.getInstance().setCurrentProvider(AppContext.getInstance().getLocationManager().getProvider(LocationManager.GPS_PROVIDER));
+				AppContext.getInstance().setCurrentProvider(AppContext.getInstance().getLocationManager().getProvider(GPS_PROVIDER));
 
 				Log.i(TAG, "Provider accuracy: " + AppContext.getInstance().getCurrentProvider().getAccuracy());
 				Log.i(TAG, "Provider power: " + AppContext.getInstance().getCurrentProvider().getPowerRequirement());
 
-				Log.i(TAG, "Starting location update requests with provider: " + LocationManager.GPS_PROVIDER);
-				AppContext.getInstance().getLocationManager().requestLocationUpdates(LocationManager.GPS_PROVIDER, MINIMUM_REFRESH_TIME, MINIMUM_REFRESH_DISTACE, this);
+				Log.i(TAG, "Starting location update requests with provider: " + GPS_PROVIDER);
+				AppContext.getInstance().getLocationManager().requestLocationUpdates(GPS_PROVIDER, MINIMUM_REFRESH_TIME, MINIMUM_REFRESH_DISTACE, this);
 
 				Log.i(TAG, "Placing initial marker.");
 				AppContext.drawMarker(location);
@@ -184,7 +195,7 @@ public class Startup extends AppCompatActivity implements OnClickListener, OnCom
 
 			SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(LocationUpdateTask.class).setAdditionalParams(true));
 		}
-		else if (i == GpsStatus.GPS_EVENT_STOPPED && LocationManager.GPS_PROVIDER.equalsIgnoreCase(currentProviderName))
+		else if (i == GpsStatus.GPS_EVENT_STOPPED && GPS_PROVIDER.equalsIgnoreCase(currentProviderName))
 		{
 			//GPS was turned off, we need another location provider
 			Log.i(TAG, "GPS was turned off and was current location provider. Trying to find alternative location provider.");
@@ -203,11 +214,11 @@ public class Startup extends AppCompatActivity implements OnClickListener, OnCom
 			if (grantResults[c] != PERMISSION_GRANTED) {
 				Log.i(TAG, "Permission was denied for " + permissions[c] + ". Aborting location updates.");
 				AppContext.getStreetsCommon().addOutstandingPermission(permissions[c]);
-				AppContext.getStreetsCommon().setUserPreference(USER_PREFERENCE.REQUEST_GPS_PERMS, "0"); //if user rejects, he probably does not want to be bothered
+				AppContext.getStreetsCommon().setUserPreference(REQUEST_GPS_PERMS, "0"); //if user rejects, he probably does not want to be bothered
 			} else {
 				Log.i(TAG, "Permission granted for " + permissions[c]);
 				AppContext.getStreetsCommon().removeOutstandingPermission(permissions[c]);
-				AppContext.getStreetsCommon().setUserPreference(USER_PREFERENCE.REQUEST_GPS_PERMS, "1"); //reset preferences if permissions were updated
+				AppContext.getStreetsCommon().setUserPreference(REQUEST_GPS_PERMS, "1"); //reset preferences if permissions were updated
 				AppContext.setLocationPermissionsGranted(false);
 			}
 		}

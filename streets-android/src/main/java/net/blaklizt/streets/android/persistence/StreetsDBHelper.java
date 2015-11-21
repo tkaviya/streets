@@ -7,12 +7,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import net.blaklizt.streets.android.activity.AppContext;
-import net.blaklizt.streets.android.common.STATUS_CODES;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.SymbiosisUser;
-import net.blaklizt.streets.android.common.TASK_TYPE;
 import net.blaklizt.streets.android.common.TaskInfo;
-import net.blaklizt.streets.android.common.USER_PREFERENCE;
+import net.blaklizt.streets.android.common.enumeration.STATUS_CODES;
+import net.blaklizt.streets.android.common.enumeration.TASK_TYPE;
+import net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE;
 import net.blaklizt.streets.android.common.utils.SecurityContext;
 import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.location.places.PlaceTypes;
@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import static java.lang.String.format;
+import static net.blaklizt.streets.android.common.enumeration.STATUS_CODES.GENERAL_ERROR;
 import static net.blaklizt.streets.android.common.utils.SecurityContext.handleApplicationError;
 
 /**
@@ -318,7 +319,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
                 "('" + task_type.task_type_id + "', CURRENT_TIMESTAMP, " +  status.status_code + ", '" + description + "')";
 
         Log.i(TAG, "Inserting application event log for event type: " + task_type.task_type_name + " | Status: " + status.status_name);
-        if (!status.status_code.equals(STATUS_CODES.GENERAL_ERROR.status_code)) {
+        if (!status.status_code.equals(GENERAL_ERROR.status_code)) {
             Log.d(TAG, "If : " + task_type.task_type_name);
         }
         getStreetsWritableDatabase().execSQL(sql);
