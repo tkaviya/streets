@@ -183,9 +183,6 @@ public class Startup extends AppCompatActivity implements OnClickListener, OnCom
 
 				Log.i(TAG, "Starting location update requests with provider: " + GPS_PROVIDER);
 				AppContext.getInstance().getLocationManager().requestLocationUpdates(GPS_PROVIDER, MINIMUM_REFRESH_TIME, MINIMUM_REFRESH_DISTACE, this);
-
-				Log.i(TAG, "Placing initial marker.");
-				AppContext.drawMarker(location);
 				return;
 			}
 			else {
@@ -279,18 +276,11 @@ public class Startup extends AppCompatActivity implements OnClickListener, OnCom
 					AppContext.getInstance().getGoogleMap().get().moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
 					Log.i(TAG, "Camera moved to new location");
 
-
 					// Zoom in the Google Map
 					AppContext.getInstance().getGoogleMap().get().animateCamera(CameraUpdateFactory.zoomTo(13), 3000, null);
 					Log.i(TAG, "Camera zoomed to view");
 
-//                location_image.setImageDrawable(ContextCompat.getDrawable(mapLayout.getContext(), R.drawable.default_icon));
-//                location_info.setText("Bugatti & Millitainment");
-
-					AppContext.drawMarker(location);
-
 					SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(PlacesTask.class));
-
 				}
 			}
 		}

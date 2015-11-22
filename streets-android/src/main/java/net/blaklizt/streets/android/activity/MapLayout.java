@@ -1,5 +1,6 @@
 package net.blaklizt.streets.android.activity;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
 import net.blaklizt.streets.android.R;
@@ -18,6 +20,7 @@ import net.blaklizt.streets.android.activity.helpers.PlacesTask;
 import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.common.StreetsCommon;
+import net.blaklizt.streets.android.location.navigation.Navigator;
 
 import static java.lang.String.format;
 
@@ -26,7 +29,7 @@ import static java.lang.String.format;
  * Date: 6/21/14
  * Time: 5:58 PM
  */
-public class MapLayout extends StreetsAbstractView implements GoogleMap.InfoWindowAdapter
+public class MapLayout extends StreetsAbstractView implements GoogleMap.InfoWindowAdapter, GoogleMap.OnMarkerClickListener
 {
     private static final String TAG = StreetsCommon.getTag(MapLayout.class);
 	private View mapView;
@@ -70,6 +73,17 @@ public class MapLayout extends StreetsAbstractView implements GoogleMap.InfoWind
         SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(PlacesTask.class));
     }
 
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        location_info.setText(marker.getTitle());
+        Location currentLocation = AppContext.getInstance().getCurrentLocation().get();
+        Navigator navigator = new Navigator(AppContext.getInstance().getGoogleMap().get(), AppContext.getInstance().getMarkerPlaces().get(marker.getId()), marker,
+                new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), marker.getPosition());
+        navigator.setOnPathSetListener((NavigationLayout)AppContext.getFragmentView(NavigationLayout.class));
+        navigator.findDirections(false);
+        return false;
+    }
+
 	@Override
 	public View getInfoWindow(Marker marker)
 	{
@@ -79,12 +93,8 @@ public class MapLayout extends StreetsAbstractView implements GoogleMap.InfoWind
 	@Override
 	public View getInfoContents(Marker marker)
 	{
-		// Getting view from the layout file info_window_layout
 		View v = inflater.inflate(R.layout.info_window_layout, null);
-
-		// Getting reference to the TextView to set title
 		TextView note = (TextView) v.findViewById(R.id.note);
-
 		note.setText(marker.getTitle());
 //        note.setCompoundDrawables(null, null, ContextCompat.getDrawable(getContext(), R.drawable.compass), null);
 //        note.setClickable(true);

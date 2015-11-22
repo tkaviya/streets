@@ -34,6 +34,11 @@
         <item name="android:orientation">vertical</item>
     </style>
 
+    <style name="LayoutParent">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+    </style>
+
     <style name="AuthHeaderLogo">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">80dp</item>
@@ -44,6 +49,7 @@
     </style>
 
     <style name="AuthHeaderText">
+        <item name="android:textIsSelectable">true</item>
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">5dp</item>
@@ -53,6 +59,7 @@
     </style>
 
     <style name="AuthSwitchLoginRegister">
+        <item name="android:textIsSelectable">true</item>
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">5dp</item>
@@ -62,8 +69,8 @@
     </style>
 
     <style name="AuthBack">
-        <item name="android:layout_width">30dp</item>
-        <item name="android:layout_height">20dp</item>
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">30dp</item>
         <item name="android:layout_margin">5dp</item>
         <item name="android:gravity">left</item>
         <item name="android:contentDescription">@string/go_back</item>
@@ -71,8 +78,8 @@
     </style>
 
     <style name="AuthForward">
-        <item name="android:layout_width">30dp</item>
-        <item name="android:layout_height">20dp</item>
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">30dp</item>
         <item name="android:layout_margin">5dp</item>
         <item name="android:gravity">right</item>
         <item name="android:contentDescription">@string/go_forward</item>
@@ -110,6 +117,7 @@
     </style>
 
     <style name="AuthRegisterError">
+        <item name="android:textIsSelectable">true</item>
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">3dp</item>
@@ -119,6 +127,7 @@
     </style>
 
     <style name="AuthWebsite">
+        <item name="android:textIsSelectable">true</item>
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">40dp</item>
         <item name="android:layout_marginTop">10dp</item>
@@ -134,15 +143,16 @@
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:text">@string/info_register_service_company_business</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">13sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="ServiceRadioButtonHint">
+        <item name="android:textIsSelectable">true</item>
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">#E1E100</item>
-        <item name="android:layout_marginStart">40dp</item>
+        <item name="android:layout_marginStart">35dp</item>
         <item name="android:textSize">12sp</item>
         <item name="android:gravity">left</item>
     </style>

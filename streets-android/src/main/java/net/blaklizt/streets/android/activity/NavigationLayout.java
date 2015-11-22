@@ -1,6 +1,5 @@
 package net.blaklizt.streets.android.activity;
 
-import android.location.Location;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
@@ -11,8 +10,6 @@ import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
 import net.blaklizt.streets.android.R;
@@ -33,7 +30,7 @@ import java.util.ArrayList;
  * Date: 6/22/14
  * Time: 12:05 AM
  */
-public class NavigationLayout extends StreetsAbstractView implements Navigator.OnPathSetListener, GoogleMap.OnMarkerClickListener {
+public class NavigationLayout extends StreetsAbstractView implements Navigator.OnPathSetListener {
     private static final String TAG = StreetsCommon.getTag(NavigationLayout.class);
     ExpandableListView navigation_steps;
     TextView nav_location_name;
@@ -112,13 +109,4 @@ public class NavigationLayout extends StreetsAbstractView implements Navigator.O
         placeMarker.showInfoWindow();
     }
 
-    @Override
-    public boolean onMarkerClick(Marker marker) {
-        Location currentLocation = AppContext.getInstance().getCurrentLocation().get();
-        Navigator navigator = new Navigator(AppContext.getInstance().getGoogleMap().get(), AppContext.getInstance().getMarkerPlaces().get(marker.getId()), marker,
-                new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), marker.getPosition());
-        navigator.setOnPathSetListener(this);
-        navigator.findDirections(false);
-        return false;
-    }
 }

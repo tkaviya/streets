@@ -115,7 +115,7 @@ public class MenuLayout extends AppCompatActivity implements
         Log.i(TAG, format("Setting initial view to %s ", initialView));
 
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_frame, initialView, initialView.getViewName())
+                .replace(R.id.content_frame, initialView, initialView.getClassName())
                 .setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit();
 

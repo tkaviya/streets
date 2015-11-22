@@ -16,15 +16,7 @@ public class SlideMenuItem implements Resourceble {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public int getImageRes() {
         return imageRes;
-    }
-
-    public void setImageRes(int imageRes) {
-        this.imageRes = imageRes;
     }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent" android:layout_height="fill_parent" android:background="#000000">
-    <io.codetail.widget.RevealFrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent" android:layout_height="fill_parent">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:background="#000000" style="@style/LayoutParent" android:isScrollContainer="true" android:scrollbars="vertical">
+    <io.codetail.widget.RevealFrameLayout xmlns:android="http://schemas.android.com/apk/res/android" style="@style/LayoutParent">
 
         <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
 
@@ -31,4 +31,4 @@
 
         </LinearLayout>
     </io.codetail.widget.RevealFrameLayout>
-</LinearLayout>
+</ScrollView>

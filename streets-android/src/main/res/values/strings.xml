@@ -16,29 +16,29 @@
     <string name="label_login_automatically">Login Automatically</string>
 
 
-    <string name="info_register_service">To be found on the app, select a service type below.</string>
+    <string name="info_register_service">To be found on Tha Streetz, select your type of service from type.</string>
 
-    <string name="info_register_service_company_business">Established Company/Business (With office or building)</string>
-    <string name="info_register_service_company_business_hint">e.g. Shop/Studio/Internet Cafe/Driving School/Salon/Club</string>
+    <string name="info_register_service_company_business">Established Company/Business</string>
+    <string name="info_register_service_company_business_hint">
+        With office/building: e.g. Shop/Studio/Salon
+    </string>
 
-    <string name="info_register_service_small_business">Small/Medium/Home Business (Office section or outside)</string>
+    <string name="info_register_service_small_business">Small/Medium/Home Business</string>
     <string name="info_register_service_small_business_hint">
-        e.g. Mobile kitchen/Haircut/Shoe Repair/Cab/Handyman/IT guy\n
-        You will always find this at the same location.
+        In office section/Outside @ regular location)\n
+        e.g. Mobile kitchen/Shoe Repair/Cab/Handyman
     </string>
 
-    <string name="info_register_service_o_g_hustle">O.G. Hustle (On the block)</string>
+    <string name="info_register_service_o_g_hustle">O.G. Hustle (Always on the block!)</string>
     <string name="info_register_service_o_g_hustle_hint">
-        e.g. Live Performance (or battles)/Pushing product (cigarettes, mixtapes etc.)/Luggage Assistance\n
-        You own the streets! This app was made and named for you!\n
-        Your hustle can be whatever you want to call it!\n
-        Use whatever nickname you want to use!\n
-        Place your location anywhere near you. When someone buzzes
-        you on the app, you can meet wherever you have chosen.\n
+        e.g. Live performance/Pushing product(cigarettes, mixtapes etc.)/Luggage Assistance\n
+        The app name says it. You own the streets! So call your hustle whatever you want!
+        Choose any nickname! Just remember to select the location near your hustle spot,
+        so when someone finds you through the app and goes there,
+        you can meet them there real quick!
     </string>
 
-    <string name="info_register_service_none">None</string>
-    <string name="info_register_service_none_hint">You can join with no service and find what you need</string>
+    <string name="info_register_service_none">None - Just join to find what you need</string>
 
     <!-- Register page strings -->
     <string name="register_header_text">REGISTER</string>

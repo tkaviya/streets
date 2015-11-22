@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent" android:layout_height="fill_parent" android:background="#000000">
-    <io.codetail.widget.RevealFrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent" android:layout_height="fill_parent">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:background="#000000" style="@style/LayoutParent" android:isScrollContainer="true" android:scrollbars="none">
+    <io.codetail.widget.RevealFrameLayout xmlns:android="http://schemas.android.com/apk/res/android" style="@style/LayoutParent">
 
-        <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
+        <LinearLayout android:orientation="vertical" style="@style/LayoutParent">
 
             <ImageView style="@style/AuthHeaderLogo"/>
 
@@ -27,7 +27,6 @@
                 <TextView android:text="@string/info_register_service_o_g_hustle_hint" style="@style/ServiceRadioButtonHint"/>
 
                 <RadioButton android:id="@+id/registerNone" android:text="@string/info_register_service_none" style="@style/ServiceRadioButton"/>
-                <TextView android:text="@string/info_register_service_none_hint" style="@style/ServiceRadioButtonHint"/>
             </RadioGroup>
 
             <EditText android:id="@+id/registerServiceName" android:inputType="textAutoComplete" android:hint="@string/label_service_name" android:layout_marginTop="15dp" style="@style/AuthEditText"
@@ -37,4 +36,4 @@
 
     </LinearLayout>
     </io.codetail.widget.RevealFrameLayout>
-</LinearLayout>
+</ScrollView>

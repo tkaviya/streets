@@ -12,7 +12,6 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.MapLayout;
-import net.blaklizt.streets.android.activity.NavigationLayout;
 import net.blaklizt.streets.android.common.StreetsCommon;
 
 import java.util.ArrayList;
@@ -52,14 +51,14 @@ public class GoogleMapTask extends StreetsAbstractTask {
         taskType = BG_GOOGLE_MAP_TASK;
     }
 
-    protected void onPostExecuteRelay(Object result) {
-
-        Log.i(TAG, "Setting map onMarkerClick listener to NavigationLayout");
-        final NavigationLayout navigationLayout= (NavigationLayout)AppContext.getFragmentView(NavigationLayout.class);
-        if (AppContext.getInstance().getGoogleMap().isPresent()) {
-            AppContext.getInstance().getGoogleMap().get().setOnMarkerClickListener(navigationLayout);
-        }
-    }
+//    protected void onPostExecuteRelay(Object result) {
+//
+//        Log.i(TAG, "Setting map onMarkerClick listener to NavigationLayout");
+//        final NavigationLayout navigationLayout= (NavigationLayout)AppContext.getFragmentView(NavigationLayout.class);
+//        if (AppContext.getInstance().getGoogleMap().isPresent()) {
+//            AppContext.getInstance().getGoogleMap().get().setOnMarkerClickListener(navigationLayout);
+//        }
+//    }
 
     @Override
     protected Object doInBackground(Object[] params) {
@@ -72,39 +71,34 @@ public class GoogleMapTask extends StreetsAbstractTask {
             return null;
         }
 
-        AppContext.getFragmentView(MapLayout.class).getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.i(TAG, "Initializing Google Map");
+        AppContext.getFragmentView(MapLayout.class).getActivity().runOnUiThread(() -> {
+            Log.i(TAG, "Initializing Google Map");
 
-                //Create global configuration and initialize ImageLoader with this configuration
-                ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(mapLayout.getActivity().getApplicationContext()).build();
-                ImageLoader.getInstance().init(config);
+            //Create global configuration and initialize ImageLoader with this configuration
+            ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(mapLayout.getActivity().getApplicationContext()).build();
+            ImageLoader.getInstance().init(config);
 
-                int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(mapLayout.getActivity().getApplicationContext());
-                // Showing status
-                if (status != ConnectionResult.SUCCESS) // Google Play Services are not available
-                {
-                    Log.i(TAG, "Google Play Services are not available");
-                } else // Google Play Services are available
-                {
-                    Log.i(TAG, "Google Play Services are available");
-                    // Getting reference to the SupportMapFragment of activity_main.xml
-                    MapFragment fm = (MapFragment) mapLayout.getActivity().getFragmentManager().findFragmentById(R.id.map_fragment);
+            int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(mapLayout.getActivity().getApplicationContext());
+            // Showing status
+            if (status != ConnectionResult.SUCCESS) // Google Play Services are not available
+            {
+                Log.i(TAG, "Google Play Services are not available");
+            } else // Google Play Services are available
+            {
+                Log.i(TAG, "Google Play Services are available");
+                // Getting reference to the SupportMapFragment of activity_main.xml
+                MapFragment fm = (MapFragment) mapLayout.getActivity().getFragmentManager().findFragmentById(R.id.map_fragment);
 
-                    // Getting GoogleMap object from the fragment
-                    AppContext.getInstance().setGoogleMap(fm.getMap());
+                // Getting GoogleMap object from the fragment
+                AppContext.getInstance().setGoogleMap(fm.getMap());
 
-                    Log.i(TAG, "Got Google map");
+                Log.i(TAG, "Got Google map");
 
-                    AppContext.getInstance().getGoogleMap().get().setMyLocationEnabled(true);
-
-                    AppContext.getInstance().getGoogleMap().get().getUiSettings().setZoomGesturesEnabled(true);
-
-                    AppContext.getInstance().getGoogleMap().get().getUiSettings().setZoomControlsEnabled(true);
-
-                    AppContext.getInstance().getGoogleMap().get().setInfoWindowAdapter(mapLayout);
-                }
+                AppContext.getInstance().getGoogleMap().get().setMyLocationEnabled(true);
+                AppContext.getInstance().getGoogleMap().get().getUiSettings().setZoomGesturesEnabled(true);
+                AppContext.getInstance().getGoogleMap().get().getUiSettings().setZoomControlsEnabled(true);
+                AppContext.getInstance().getGoogleMap().get().setOnMarkerClickListener(mapLayout);
+//                    AppContext.getInstance().getGoogleMap().get().setInfoWindowAdapter(mapLayout);
             }
         });
 
