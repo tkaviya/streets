@@ -68,7 +68,7 @@ public class LoginTask extends StreetsAbstractTask {
         String loginResponse = "{response_code:1, response_message:\"success\", symbiosis_user_id:1}";
 
         if (loginResponse == null) {
-            showToast(TAG, "Login Failed. Check internet connection and try again.", Toast.LENGTH_LONG);
+            showToast(startup, TAG, "Login Failed. Check internet connection and try again.", Toast.LENGTH_LONG);
             return null;
         }
 
@@ -81,18 +81,18 @@ public class LoginTask extends StreetsAbstractTask {
                 AppContext.getStreetsCommon().setUserID(symbiosisUserID);
 
                 Log.i(TAG, "Login successful");
-                showSnackBar(TAG, "Login successful", Snackbar.LENGTH_SHORT);
+                showSnackBar(startup, TAG, "Login successful", Snackbar.LENGTH_SHORT);
 
                 Intent mainActivity = new Intent(startup, MenuLayout.class);
                 startup.startActivity(mainActivity);
             } else if (responseJSON.getInt("response_code") < 0) {
                 Log.i(TAG, "Login failed with internal error: " + responseJSON.getString("response_message"));
-                showToast(TAG, "Login Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT);
+                showToast(startup, TAG, "Login Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT);
             } else {
                 final String loginResponseStr = responseJSON.getString("response_message");
                 Log.i(TAG, "Login failed: " + responseJSON.getString("response_message"));
                 AppContext.getStreetsCommon().setUserPreference(AUTO_LOGIN, "0"); //disable auto login to prevent running out of attempts
-                showToast(TAG, loginResponseStr, Toast.LENGTH_SHORT);
+                showToast(startup, TAG, loginResponseStr, Toast.LENGTH_SHORT);
 
                 if (--counter <= 0) {
                     startup.runOnUiThread(new Runnable() {
@@ -100,7 +100,7 @@ public class LoginTask extends StreetsAbstractTask {
                         public void run() {
                             startup.edtPassword.setEnabled(false);
                             startup.btnLogin.setEnabled(false);
-                            showToast(TAG, "Maximum login attempts. Please contact support", Toast.LENGTH_LONG);
+                            showToast(startup, TAG, "Maximum login attempts. Please contact support", Toast.LENGTH_LONG);
                         }
                     });
                 }
@@ -108,7 +108,7 @@ public class LoginTask extends StreetsAbstractTask {
         } catch (Exception e) {
             Log.e(TAG, "Login failed: " + e.getMessage(), e);
             e.printStackTrace();
-            showToast(TAG, "Login Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT);
+            showToast(startup, TAG, "Login Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT);
         }
         return null;
     }

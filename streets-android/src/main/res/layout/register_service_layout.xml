@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent" android:layout_height="fill_parent" android:background="#000000">
+    <io.codetail.widget.RevealFrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent" android:layout_height="fill_parent">
+
+        <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
+
+            <ImageView style="@style/AuthHeaderLogo"/>
+
+            <TableLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_height="wrap_content" android:layout_width="fill_parent" android:stretchColumns="1">
+                <TableRow>
+                    <ImageView android:id="@+id/imgRegisterServiceBack" style="@style/AuthBack"/>
+                    <TextView android:id="@+id/labelRegisterServiceHeader" android:text="@string/register_service_header_text" style="@style/AuthHeaderText"/>
+                    <ImageView android:id="@+id/imgRegisterServiceForward" style="@style/AuthForward"/>
+                </TableRow>
+            </TableLayout>
+
+            <TextView android:textColor="#d2d2d2" android:layout_margin="15dp" android:text="@string/info_register_service" android:textSize="16sp" style="@style/AuthHeaderText"/>
+
+            <RadioGroup android:id="@+id/registerServiceRadioGroup" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <RadioButton android:id="@+id/registerCompanyBusiness" android:text="@string/info_register_service_company_business" style="@style/ServiceRadioButton" />
+                <TextView android:text="@string/info_register_service_company_business_hint" style="@style/ServiceRadioButtonHint" />
+
+                <RadioButton android:id="@+id/registerSmallBusiness" android:text="@string/info_register_service_small_business" style="@style/ServiceRadioButton"/>
+                <TextView android:text="@string/info_register_service_small_business_hint" style="@style/ServiceRadioButtonHint"/>
+
+                <RadioButton android:id="@+id/registerOGHustle" android:text="@string/info_register_service_o_g_hustle" style="@style/ServiceRadioButton" />
+                <TextView android:text="@string/info_register_service_o_g_hustle_hint" style="@style/ServiceRadioButtonHint"/>
+
+                <RadioButton android:id="@+id/registerNone" android:text="@string/info_register_service_none" style="@style/ServiceRadioButton"/>
+                <TextView android:text="@string/info_register_service_none_hint" style="@style/ServiceRadioButtonHint"/>
+            </RadioGroup>
+
+            <EditText android:id="@+id/registerServiceName" android:inputType="textAutoComplete" android:hint="@string/label_service_name" android:layout_marginTop="15dp" style="@style/AuthEditText"
+                      android:maxLength="50"/>
+
+            <Button android:id="@+id/btnStart" android:text="@string/label_continue_button" style="@style/AuthButton" android:enabled="false" />
+
+    </LinearLayout>
+    </io.codetail.widget.RevealFrameLayout>
+</LinearLayout>

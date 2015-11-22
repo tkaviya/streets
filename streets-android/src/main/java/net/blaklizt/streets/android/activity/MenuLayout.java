@@ -95,7 +95,7 @@ public class MenuLayout extends AppCompatActivity implements
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        menuItemList.add(new SlideMenuItem("Close", R.drawable.icn_close));
+        menuItemList.add(AppContext.getFragmentMenuRegistry().get(null));
 
         Log.i(TAG, "Initializing streets views and menus");
 
@@ -104,10 +104,9 @@ public class MenuLayout extends AppCompatActivity implements
         Log.i(TAG, format("Found %d views ready to initialize", streetsFragments.size()));
 
         for (Class<? extends StreetsAbstractView> streetsFragment : streetsFragments) {
-
             Log.i(TAG, format("Instantiating view %s ", streetsFragment.getSimpleName()));
             streetsViews.put(streetsFragment.getSimpleName(), getFragmentView(streetsFragment));
-            menuItemList.add(streetsViews.get(streetsFragment.getSimpleName()).getSlideMenuItem());
+            menuItemList.add(AppContext.getFragmentMenuRegistry().get(streetsFragment));
         }
 
         StreetsAbstractView initialView = getStreetsFragments().get(DEFAULT_FRAGMENT_VIEW);

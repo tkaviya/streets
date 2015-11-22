@@ -2,6 +2,7 @@ package net.blaklizt.streets.android.common;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
@@ -13,18 +14,19 @@ import android.util.Log;
 import android.widget.Toast;
 
 import net.blaklizt.streets.android.activity.AppContext;
-import net.blaklizt.streets.android.activity.Startup;
+import net.blaklizt.streets.android.common.enumeration.SHARE_PROVIDER;
 import net.blaklizt.streets.android.common.enumeration.STATUS_CODES;
 import net.blaklizt.streets.android.common.enumeration.TASK_TYPE;
 import net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE;
 import net.blaklizt.streets.android.common.utils.SecurityContext;
-import net.blaklizt.symbiosis.sym_core_lib.utilities.Validator;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
 import static net.blaklizt.streets.android.activity.AppContext.getUserPreferenceValues;
+import static net.blaklizt.symbiosis.sym_core_lib.utilities.Validator.isNullOrEmpty;
+import static net.blaklizt.symbiosis.sym_core_lib.utilities.Validator.isValidMsisdn;
 
 /**
  * Created with IntelliJ IDEA.
@@ -34,7 +36,7 @@ import static net.blaklizt.streets.android.activity.AppContext.getUserPreference
  */
 public class StreetsCommon
 {
-    public enum FILE_DATA_TYPE { ICON };
+    public enum FILE_DATA_TYPE { ICON }
 	//Tag all logs starting with the following tag
 	private static final String TAG = "Streets";
 
@@ -43,7 +45,7 @@ public class StreetsCommon
 
 	//Application user
 	private SymbiosisUser symbiosisUser = null;
-	private String imei = null, imsi = null, phoneNumber = null;
+	private String imei = null, imsi = null, phoneNumber = null, defaultEmail = null, defaultUsername = null;
 
     //static class reference
 	private static StreetsCommon streetsCommon = null;
@@ -60,33 +62,25 @@ public class StreetsCommon
 	private StreetsCommon(Context context)
 	{
 		this.context = context;
-
         streetsCommon = this;
+    }
 
-
-	}
     public static String getTag(Class streetsClass) { return StreetsCommon.TAG + "_" + streetsClass.getSimpleName(); }
 
-    public static void showSnackBar(final String TAG, final String text, final int duration) {
+    public static void showSnackBar(final Activity currentActivity, final String TAG, final String text, final int duration) {
 
         if      (duration == Snackbar.LENGTH_LONG)  { Log.w(TAG, text); }
         else if (duration == Snackbar.LENGTH_SHORT) { Log.i(TAG, text); }
 
-        if (Startup.getInstance() != null && Startup.getInstance().getCurrentFocus() != null) {
-            Startup.getInstance().runOnUiThread(() ->
-                    Snackbar.make(Startup.getInstance().getCurrentFocus(), text, duration).show());
-        }
+        currentActivity.runOnUiThread(() -> Snackbar.make(currentActivity.getCurrentFocus(), text, duration).show());
     }
 
-    public static void showToast(final String TAG, final String text, final int duration) {
+    public static void showToast(final Activity currentActivity, final String TAG, final String text, final int duration) {
 
         if      (duration == Toast.LENGTH_LONG)  { Log.w(TAG, text); }
         else if (duration == Toast.LENGTH_SHORT) { Log.i(TAG, text); }
 
-        if (Startup.getInstance() != null && Startup.getInstance().getCurrentFocus() != null) {
-            Startup.getInstance().runOnUiThread(() ->
-                    Toast.makeText(Startup.getInstance().getApplicationContext(), text, duration).show());
-        }
+        currentActivity.runOnUiThread(() -> Toast.makeText(currentActivity, text, duration).show());
     }
 
     public void speak(final String speechText)
@@ -184,9 +178,9 @@ public class StreetsCommon
     }
 
     public String getIMEI() {
-        if (Validator.isNullOrEmpty(this.imei)) {
+        if (isNullOrEmpty(this.imei)) {
             TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            if (telephonyManager != null && !Validator.isNullOrEmpty(this.imei = telephonyManager.getDeviceId())) {
+            if (!isNullOrEmpty(this.imei = telephonyManager.getDeviceId())) {
                 Log.i(TAG, "Service 'TelephonyManager' returned IMEI: " + this.imei);
             } else {
                 this.imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -197,9 +191,9 @@ public class StreetsCommon
     }
 
     public String getIMSI() {
-        if (Validator.isNullOrEmpty(this.imsi)) {
+        if (isNullOrEmpty(this.imsi)) {
             TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            if (telephonyManager != null && !Validator.isNullOrEmpty(this.imsi = telephonyManager.getSimSerialNumber())) {
+            if (!isNullOrEmpty(this.imsi = telephonyManager.getSimSerialNumber())) {
                 Log.i(TAG, "Service 'TelephonyManager' returned IMSI: " + this.imsi);
             }
         }
@@ -207,26 +201,53 @@ public class StreetsCommon
     }
 
     public String getPhoneNumber() {
-        if (Validator.isNullOrEmpty(this.phoneNumber)) {
+        if (isNullOrEmpty(this.phoneNumber)) {
             TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            if (telephonyManager != null && !Validator.isNullOrEmpty(this.phoneNumber = telephonyManager.getLine1Number())) {
+            if (!isNullOrEmpty(this.phoneNumber = telephonyManager.getLine1Number())) {
                 Log.i(TAG, "Service 'TelephonyManager' returned phone number: " + this.phoneNumber);
+            } else if (!isNullOrEmpty(this.phoneNumber = telephonyManager.getVoiceMailNumber())) {
+                Log.i(TAG, "Service 'TelephonyManager' returned approximate phone number: " + this.phoneNumber);
             } else {
-                AccountManager am = AccountManager.get(context);
-                Account[] accounts = am.getAccounts();
-
-                for (Account ac : accounts) {
-                    String acname = ac.name;
-                    String actype = ac.type;
-                    Log.i(TAG, "Accounts : " + acname + ", " + actype);
-                    if(Validator.isValidMsisdn(ac.name) || Validator.isValidMsisdn(ac.name, "27")){
-                        this.phoneNumber = ac.name;
-                    }
-                }
-
+                enumerateAccounts();
             }
         }
         return this.phoneNumber;
+    }
+
+    public String getDefaultEmail() {
+        enumerateAccounts();
+        return this.defaultEmail;
+    }
+
+    public String getDefaultUsername() {
+        enumerateAccounts();
+        return this.defaultUsername;
+    }
+
+    public void setDefaultUsername(String defaultUsername) {
+        this.defaultUsername = defaultUsername;
+    }
+
+    public void enumerateAccounts() {
+        if (isNullOrEmpty(this.defaultEmail)) {
+            AccountManager am = AccountManager.get(context);
+            Account[] accounts = am.getAccounts();
+
+            for (Account account : accounts) {
+                String accountName = account.name, accountType = account.type;
+                Log.i(TAG, "Accounts : " + accountName + ", " + accountType);
+                if (isNullOrEmpty(this.defaultEmail) && accountType.equals(SHARE_PROVIDER.GOOGLE.app_package)) {
+                    this.defaultEmail = accountName;
+                    Log.i(TAG, "Found default email: " + this.defaultEmail + " from account " + accountType);
+                } else if (isNullOrEmpty(this.defaultUsername) && accountType.equals(SHARE_PROVIDER.TWITTER.app_package)) {
+                    this.defaultUsername = accountName;
+                    Log.i(TAG, "Found default username: " + this.defaultUsername + " from account " + accountType);
+                } else if (isNullOrEmpty(this.phoneNumber) && (isValidMsisdn(accountName) || isValidMsisdn(accountName, "27"))) {
+                    this.phoneNumber = accountName;
+                    Log.i(TAG, "Found phone number: " + this.phoneNumber + " from account " + accountType);
+                }
+            }
+        }
     }
 
     public void setUserID(Long userID) {

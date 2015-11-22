@@ -1,6 +1,5 @@
 package net.blaklizt.streets.android.activity.helpers;
 
-import android.support.design.widget.Snackbar;
 import android.util.Log;
 
 import net.blaklizt.streets.android.common.StreetsCommon;
@@ -231,7 +230,6 @@ public class SequentialTaskManager {
                         awaitingTaskInfo.getViewDependencies().remove(initializedView.getClass());
                         Log.i(TAG, format("View dependency %s resolved for awaiting task %s. Attempting to schedule.", initializedViewName, awaitingTask));
                         if (runWhenAvailable(viewDependencyList.get(awaitingTask)).isSuccess()) {
-                            StreetsCommon.showSnackBar(TAG, "Starting task " + awaitingTask, Snackbar.LENGTH_SHORT);
                             Log.i(TAG, format("Scheduled previously awaiting job %s.", awaitingTask));
                             viewDependencyList.remove(awaitingTask);
                         }
@@ -265,7 +263,6 @@ public class SequentialTaskManager {
             case COMPLETED: {
                 //initiate all tasks that were held up by the now completed task
                 String completedTask = asyncTask.getClassName();
-                StreetsCommon.showSnackBar(TAG, "Background task " + completedTask + " completed", Snackbar.LENGTH_SHORT);
                 completedTasks.put(completedTask, runningTasks.get(completedTask));
                 runningTasks.remove(completedTask);
 
@@ -286,7 +283,6 @@ public class SequentialTaskManager {
                 for (String resolvedDependency : resolvedDependencies) {
                     Log.i(TAG, format("Removing resolved dependency %s.", resolvedDependency));
                     processDependencyList.remove(resolvedDependency);
-                    StreetsCommon.showSnackBar(TAG, "Starting task " + resolvedDependency, Snackbar.LENGTH_SHORT);
                     execute(outstandingTasks.get(resolvedDependency));
                 }
 

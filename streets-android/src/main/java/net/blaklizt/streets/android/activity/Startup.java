@@ -67,11 +67,11 @@ public class Startup extends AppCompatActivity implements OnClickListener, OnCom
         setContentView(R.layout.intro_layout);
 
         findViewById(R.id.labelLoginHeader).setOnClickListener(view -> {
-            Intent loginActivity = new Intent(getInstance(), Register.class);
+            Intent loginActivity = new Intent(getInstance(), RegisterService.class);
             startActivity(loginActivity);
         });
         findViewById(R.id.labelGoToRegistration).setOnClickListener(view -> {
-            Intent loginActivity = new Intent(getInstance(), Register.class);
+            Intent loginActivity = new Intent(getInstance(), RegisterService.class);
             startActivity(loginActivity);
         });
         try
@@ -128,7 +128,7 @@ public class Startup extends AppCompatActivity implements OnClickListener, OnCom
     }
 
 	@Override
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
 	public void onClick(View view)
 	{
         Log.i(TAG, "+++ ON CLICK +++");

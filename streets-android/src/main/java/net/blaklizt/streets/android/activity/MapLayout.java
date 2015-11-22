@@ -1,8 +1,6 @@
 package net.blaklizt.streets.android.activity;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,8 +34,6 @@ public class MapLayout extends StreetsAbstractView implements GoogleMap.InfoWind
 	private TextView location_info;
 	private LayoutInflater inflater;
 
-    private Drawable navigationDrawable;
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.i(TAG, "+++ ON CREATE VIEW +++");
@@ -55,9 +51,6 @@ public class MapLayout extends StreetsAbstractView implements GoogleMap.InfoWind
             location_image = (ImageView) mapView.findViewById(R.id.location_image_view);
             location_info = (TextView) mapView.findViewById(R.id.location_categories_text_view);
         }
-
-        navigationDrawable = ContextCompat.getDrawable(getContext(),R.drawable.compass);
-
         startTasks();
 
         return mapView;

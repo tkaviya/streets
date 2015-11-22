@@ -145,7 +145,7 @@
         android:layout_width="wrap_content"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|right|end"
-        android:src="@drawable/ic_discuss"
+        android:src="@drawable/res890"
         android:layout_margin="@dimen/fab_margin"
         android:clickable="true"/>
 

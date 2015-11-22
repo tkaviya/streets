@@ -67,7 +67,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
     private static final String REQUIRED_PERMS = "outstanding_permissions";		static { ALL_TABLES.add(REQUIRED_PERMS); }
 
     /* logging tables */
-    private static final String TASK_HISTORY_TABLE  = "task_history";            static { ALL_TABLES.add(TASK_HISTORY_TABLE); }
+    private static final String TASK_HISTORY_TABLE  = "task_history";           static { ALL_TABLES.add(TASK_HISTORY_TABLE); }
     private static final String EVENT_HISTORY_TABLE = "event_history";          static { ALL_TABLES.add(EVENT_HISTORY_TABLE); }
 
     private SQLiteDatabase sqlLiteDatabase = null;

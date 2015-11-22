@@ -5,7 +5,9 @@ package net.blaklizt.streets.android.common.enumeration;
  */
 public enum SHARE_PROVIDER {
 
-    WHATSAPP("Whatsapp", "com.whatsapp");
+    GOOGLE("Google", "com.google"),
+    WHATSAPP("Whatsapp", "com.whatsapp"),
+    TWITTER("Twitter", "com.twitter.android.auth.login");
 
     public final String app_name;
     public final String app_package;

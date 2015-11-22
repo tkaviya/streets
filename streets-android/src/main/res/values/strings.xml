@@ -10,7 +10,35 @@
 
     <!-- Login page strings -->
     <string name="login_header_text">LOGIN</string>
+    <string name="label_login_button">Login</string>
     <string name="label_goToRegister">[ CLICK HERE TO REGISTER ]</string>
+    <string name="label_login_pin">enter pin</string>
+    <string name="label_login_automatically">Login Automatically</string>
+
+
+    <string name="info_register_service">To be found on the app, select a service type below.</string>
+
+    <string name="info_register_service_company_business">Established Company/Business (With office or building)</string>
+    <string name="info_register_service_company_business_hint">e.g. Shop/Studio/Internet Cafe/Driving School/Salon/Club</string>
+
+    <string name="info_register_service_small_business">Small/Medium/Home Business (Office section or outside)</string>
+    <string name="info_register_service_small_business_hint">
+        e.g. Mobile kitchen/Haircut/Shoe Repair/Cab/Handyman/IT guy\n
+        You will always find this at the same location.
+    </string>
+
+    <string name="info_register_service_o_g_hustle">O.G. Hustle (On the block)</string>
+    <string name="info_register_service_o_g_hustle_hint">
+        e.g. Live Performance (or battles)/Pushing product (cigarettes, mixtapes etc.)/Luggage Assistance\n
+        You own the streets! This app was made and named for you!\n
+        Your hustle can be whatever you want to call it!\n
+        Use whatever nickname you want to use!\n
+        Place your location anywhere near you. When someone buzzes
+        you on the app, you can meet wherever you have chosen.\n
+    </string>
+
+    <string name="info_register_service_none">None</string>
+    <string name="info_register_service_none_hint">You can join with no service and find what you need</string>
 
     <!-- Register page strings -->
     <string name="register_header_text">REGISTER</string>
@@ -19,10 +47,19 @@
     <string name="label_username">Username</string>
     <string name="label_msisdn">Phone Number</string>
     <string name="label_email_address">Email Address</string>
-    <string name="label_password">Password</string>
-    <string name="label_confirm_password">Confirm Password</string>
+    <string name="label_password">Pin</string>
+    <string name="label_confirm_password">Confirm Pin</string>
     <string name="label_register_button">Register</string>
+    <string name="label_continue_button">Continue</string>
+    <string name="go_back">Go Back</string>
+    <string name="go_forward">Go Forward</string>
     <string name="label_goToLogin">[ CLICK HERE TO GO TO LOGIN ]</string>
+
+    <!-- Register page strings -->
+    <string name="register_service_header_text">REGISTER A SERVICE</string>
+    <string name="label_service_name">Service Name</string>
+    <string name="label_service_description">Service Description</string>
+    <string name="label_service_anonymity">Select Anonymity</string>
 
     <!-- Menu Strings -->
     <string name="menu_settings">Settings</string>
@@ -69,17 +106,5 @@
     <string name="drawer_close">Close</string>
     <string name="marker_info_default_text">Click on a marker for more information</string>
 
-    <style name="DefaultButtonText">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">50dp</item>
-        <item name="android:textColor">#232323</item>
-        <item name="android:gravity">center</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:shadowColor">#f9f9f9</item>
-        <item name="android:shadowDx">1</item>
-        <item name="android:shadowDy">1</item>
-        <item name="android:shadowRadius">1</item>
-    </style>
 
 </resources>

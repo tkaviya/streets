@@ -14,7 +14,7 @@
             android:layout_width="80dip"
             android:layout_height="100dip"
             android:contentDescription="@string/location_image"
-            android:src="@drawable/compass"
+            android:src="@drawable/res1000"
             android:layout_gravity="center_vertical|center_horizontal"
             />
         <TableLayout android:orientation="vertical"

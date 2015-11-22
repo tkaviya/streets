@@ -1,86 +1,113 @@
 package net.blaklizt.streets.android.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.RegisterTask;
 
 import static net.blaklizt.streets.android.common.StreetsCommon.getTag;
-import static net.blaklizt.streets.android.common.StreetsCommon.showToast;
+import static net.blaklizt.streets.android.common.StreetsCommon.showSnackBar;
+import static net.blaklizt.symbiosis.sym_core_lib.utilities.Validator.isValidPin;
+import static net.blaklizt.symbiosis.sym_core_lib.utilities.Validator.isValidUsername;
 
 /**
  * User: tkaviya
  * Date: 9/23/14
  * Time: 7:50 AM
  */
-public class Register extends Activity implements View.OnClickListener
+public class Register extends AppCompatActivity implements View.OnClickListener
 {
 	private static final String TAG = getTag(Register.class);
 
 	private static Register register;
-
-	public EditText firstName = null;
-	public EditText lastName = null;
-	public EditText username = null;
-	public EditText msisdn = null;
-	public EditText email = null;
-	public EditText confirmPassword = null;
-	public EditText password = null;
-	public TextView registerError;
+    public ImageView imgRegisterBack;
+    public ImageView imgRegisterForward;
+    public TextView textInfoRegister;
+    public EditText registerUsername;
+    public EditText registerPin;
+    public EditText registerConfirmPin;
+    public TextView registerError;
 	public Button registerBtn;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		try {
-			super.onCreate(savedInstanceState);
-			register = this;
-			setContentView(R.layout.register_layout);
-			firstName = (EditText) findViewById(R.id.registerFirstName);
-			lastName = (EditText) findViewById(R.id.registerLastName);
-			username = (EditText) findViewById(R.id.registerUsername);
-			msisdn = (EditText) findViewById(R.id.registerMsisdn);
-			email = (EditText) findViewById(R.id.registerEmail);
-			password = (EditText) findViewById(R.id.registerPin);
-			confirmPassword = (EditText) findViewById(R.id.registerConfirmPin);
-			registerError = (TextView) findViewById(R.id.register_error);
-			registerBtn = (Button) findViewById(R.id.btnRegister);
-			registerBtn.setOnClickListener(this);
+        super.onCreate(savedInstanceState);
+        register = this;
+        setContentView(R.layout.register_layout);
+        imgRegisterBack = (ImageView) findViewById(R.id.imgRegisterBack);
+        imgRegisterForward = (ImageView) findViewById(R.id.imgRegisterForward);
+        registerUsername = (EditText) findViewById(R.id.registerUsername);
+        registerPin = (EditText) findViewById(R.id.registerPin);
+        registerConfirmPin = (EditText) findViewById(R.id.registerConfirmPin);
+        registerError = (TextView) findViewById(R.id.registerError);
+        textInfoRegister = (TextView) findViewById(R.id.textInfoRegister);
+        registerBtn = (Button) findViewById(R.id.btnRegister);
+        registerBtn.setOnClickListener(this);
 
-			findViewById(R.id.labelRegisterHeader).setOnClickListener(view -> {
-                Intent loginActivity = new Intent(getInstance(), Startup.class);
-                startActivity(loginActivity);
-            });
-			findViewById(R.id.labelGoToLogin).setOnClickListener(view -> {
-                Intent loginActivity = new Intent(getInstance(), Startup.class);
-                startActivity(loginActivity);
-            });
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-			Log.e(TAG, "Failed to create register dialogue: " + ex.getMessage(), ex);
-			runOnUiThread(() -> showToast(TAG, "Failed to create register dialogue! An error occurred.", Toast.LENGTH_LONG));
-		}
+        imgRegisterBack.setOnClickListener(view -> {
+            Intent registerServiceActivity = new Intent(getInstance(), RegisterService.class);
+            startActivity(registerServiceActivity);
+        });
+
+        if (registerUsername.getText().length() == 0) {
+            registerUsername.setText(AppContext.getStreetsCommon().getDefaultUsername());
+        }
+
+        String chosenServiceMessage = "You have chosen not to register any service";
+
+        switch (RegisterTask.registrationServiceRequest.serviceType) {
+            case ESTABLISHED_BUSINESS: {
+                chosenServiceMessage =  "You have chosen to register an established business\n\n";
+                break;
+            }
+            case SMALL_BUSINESS: {
+                chosenServiceMessage =  "You have chosen to register a small/medium business\n\n";
+                break;
+            }
+            case OG_HUSTLE: {
+                chosenServiceMessage =  "You have chosen to register as an O.G. hustler\n\n";
+                break;
+            }
+        }
+
+        textInfoRegister.setText(chosenServiceMessage);
 	}
 
 	public static Register getInstance() { return register; }
 
 	public void onClick(View view)
 	{
-		if (!password.getText().toString().equals(confirmPassword.getText().toString()))
+        /* clear any outstanding error messages before starting validation */
+        registerError.setText("");
+        String errorMessage = "";
+
+        if (!isValidUsername(registerUsername.getText().toString())) {
+            errorMessage = "The username you typed is not valid! It must be between 2-50 characters long, start with a letter," +
+                          " and contain only numbers, letters, or the following characters: - _ .";
+            registerUsername.requestFocus();
+        }
+		else if (!isValidPin(registerPin.getText().toString())) {
+            errorMessage = "The pin you typed is not valid! It must be 4 digits long!";
+            registerPin.requestFocus();
+        }
+        else if (!registerPin.getText().toString().equals(registerConfirmPin.getText().toString()))
 		{
-			Toast.makeText(this, "Passwords don't match", Toast.LENGTH_SHORT).show();
-			password.requestFocus();
-			return;
-		}
-		new RegisterTask(this).execute();
+            errorMessage = "The confirmation pin did not match the original pin!";
+            registerConfirmPin.requestFocus();
+        } else {
+            /* all valid, going through */
+            registerError.setText("");
+            new RegisterTask(this).execute();
+        }
+        showSnackBar(this, TAG, errorMessage, Snackbar.LENGTH_SHORT);
+        registerError.setText(errorMessage);
 	}
 }

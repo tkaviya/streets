@@ -9,6 +9,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.MapLayout;
+import net.blaklizt.streets.android.activity.MenuLayout;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.location.places.PlaceTypes;
@@ -78,7 +79,7 @@ public class PlacesTask extends StreetsAbstractTask {
                     5000, PlaceTypes.getDefaultPlaces()));
         }
         else {
-            showSnackBar(TAG, "Current location unknown. Check location settings.", Snackbar.LENGTH_SHORT);
+            showSnackBar(MenuLayout.getInstance(), TAG, "Current location unknown. Check location settings.", Snackbar.LENGTH_SHORT);
         }
         return null;
     }

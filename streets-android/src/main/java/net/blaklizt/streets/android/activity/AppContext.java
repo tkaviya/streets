@@ -196,10 +196,10 @@ public class AppContext {
             MENU_FRAGMENT_REGISTRY.put(MNU_NAVIGATION, NavigationLayout.class);
             MENU_FRAGMENT_REGISTRY.put(MNU_PROFILE, ProfileLayout.class);
 
-            FRAGMENT_MENU_REGISTRY.put(null,                    new SlideMenuItem(MNU_CLOSE,        R.drawable.icn_close));
-            FRAGMENT_MENU_REGISTRY.put(MapLayout.class,         new SlideMenuItem(MNU_THA_STREETZ,  android.R.drawable.ic_dialog_map));
-            FRAGMENT_MENU_REGISTRY.put(NavigationLayout.class,  new SlideMenuItem(MNU_NAVIGATION,   R.drawable.world_search));
-            FRAGMENT_MENU_REGISTRY.put(ProfileLayout.class,     new SlideMenuItem(MNU_PROFILE,      R.drawable.icon_profile));
+            FRAGMENT_MENU_REGISTRY.put(null,                    new SlideMenuItem(MNU_CLOSE,        R.drawable.res971));
+            FRAGMENT_MENU_REGISTRY.put(MapLayout.class,         new SlideMenuItem(MNU_THA_STREETZ,  R.drawable.da_block));
+            FRAGMENT_MENU_REGISTRY.put(NavigationLayout.class,  new SlideMenuItem(MNU_NAVIGATION,   R.drawable.res1000));
+            FRAGMENT_MENU_REGISTRY.put(ProfileLayout.class,     new SlideMenuItem(MNU_PROFILE,      R.drawable.res884));
 //            MENU_VIEW_ITEMS.put(MNU_CHAT,            new SlideMenuItem(MNU_CHAT,         R.drawable.chat));
 //            MENU_VIEW_ITEMS.put(MNU_FRIENDS,         new SlideMenuItem(MNU_FRIENDS,      R.drawable.friends_group));
 //            MENU_VIEW_ITEMS.put(MNU_INVITE_REFER,    new SlideMenuItem(MNU_INVITE_REFER, R.drawable.plus));
@@ -262,7 +262,7 @@ public class AppContext {
         } catch (Exception ex) {
             ex.printStackTrace();
             Log.e(TAG, "Failed to initialize ttsEngine", ex);
-            StreetsCommon.showToast(TAG, "Failed to initialize text to speech!" + ex.getMessage(), Toast.LENGTH_LONG);
+            StreetsCommon.showToast(Startup.getInstance(), TAG, "Failed to initialize text to speech!" + ex.getMessage(), Toast.LENGTH_LONG);
             new PreferenceUpdateDialogueListener(applicationContext,
                     "Speech failed to start. Would you like to turn off Text To Speech permanently?",
                     USER_PREFERENCE.ENABLE_TTS, "Disable", "Cancel").show();
@@ -427,7 +427,7 @@ public class AppContext {
     public static void shutdown() {
         Log.i(TAG, "+++ SHUTDOWN +++");
 
-        StreetsCommon.showSnackBar(TAG, "[- Now leaving Tha Streetz -]\n ...Goodbye...", Snackbar.LENGTH_SHORT);
+        StreetsCommon.showSnackBar(Startup.getInstance(), TAG, "[- Now leaving Tha Streetz -]\n ...Goodbye...", Snackbar.LENGTH_SHORT);
 
         Log.i(TAG, "Terminating running tasks...");
         SequentialTaskManager.stopSchedulingNewTasks(true);
