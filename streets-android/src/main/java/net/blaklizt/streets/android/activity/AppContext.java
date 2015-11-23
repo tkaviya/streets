@@ -464,10 +464,10 @@ public class AppContext {
 	    List<Address> addresses;
 	    try {
 		    addresses = geocoder.getFromLocation(currentLocation.getLatitude(), currentLocation.getLongitude(), 1);
-		    if (currentCityTextView == null) {
+		    if (currentCityTextView != null) {
 			    currentCityTextView.setText("CITY: " + addresses.get(0).getLocality());
 		    }
-		    if (currentSuburbTextView == null){
+		    if (currentSuburbTextView != null){
 			    currentSuburbTextView.setText("SUBURB: " + addresses.get(0).getLocality());
 		    }
 	    }
