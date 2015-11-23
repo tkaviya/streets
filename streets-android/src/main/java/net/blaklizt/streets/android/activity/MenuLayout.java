@@ -160,7 +160,7 @@ public class MenuLayout extends AppCompatActivity implements
         Log.i(TAG, format("--- dialogInterface: %s", dialogInterface != null ? dialogInterface.toString() : null));
         Log.i(TAG, format("--- index: %d", index));
         boolean exit = (index == DialogInterface.BUTTON_POSITIVE);
-        if (exit) { AppContext.shutdown(); onDestroy(); finish(); }
+        if (exit) { AppContext.shutdown(); finish(); }
     }
 
     @Override

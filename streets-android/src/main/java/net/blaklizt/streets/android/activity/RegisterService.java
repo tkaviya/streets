@@ -10,6 +10,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import net.blaklizt.streets.android.R;
+import net.blaklizt.streets.android.R.id;
 import net.blaklizt.streets.android.activity.helpers.RegisterTask;
 
 import static android.support.design.widget.Snackbar.LENGTH_SHORT;
@@ -45,26 +46,30 @@ public class RegisterService extends AppCompatActivity
         super.onCreate(savedInstanceState);
         registerService = this;
         setContentView(R.layout.register_service_layout);
-        imgRegisterServiceBack = (ImageView) findViewById(R.id.imgRegisterServiceBack);
-        imgRegisterServiceForward = (ImageView) findViewById(R.id.imgRegisterServiceForward);
-        registerServiceRadioGroup = (RadioGroup) findViewById(R.id.registerServiceRadioGroup);
-        registerCompanyBusiness = (RadioButton) findViewById(R.id.registerCompanyBusiness);
-        registerSmallBusiness = (RadioButton) findViewById(R.id.registerSmallBusiness);
-        registerOGHustle = (RadioButton) findViewById(R.id.registerOGHustle);
-        registerNone = (RadioButton) findViewById(R.id.registerNone);
-        registerServiceName = (EditText) findViewById(R.id.registerServiceName);
-        btnStart = (Button) findViewById(R.id.btnStart);
+        imgRegisterServiceBack = (ImageView) findViewById(id.imgRegisterServiceBack);
+        imgRegisterServiceForward = (ImageView) findViewById(id.imgRegisterServiceForward);
+        registerServiceRadioGroup = (RadioGroup) findViewById(id.registerServiceRadioGroup);
+        registerCompanyBusiness = (RadioButton) findViewById(id.registerCompanyBusiness);
+        registerSmallBusiness = (RadioButton) findViewById(id.registerSmallBusiness);
+        registerOGHustle = (RadioButton) findViewById(id.registerOGHustle);
+        registerNone = (RadioButton) findViewById(id.registerNone);
+        registerServiceName = (EditText) findViewById(id.registerServiceName);
+        btnStart = (Button) findViewById(id.btnStart);
 
         imgRegisterServiceBack.setOnClickListener(v -> finish());
         imgRegisterServiceForward.setOnClickListener(v1 -> {
-            if (registerNone.isChecked() || (registerServiceRadioGroup.getCheckedRadioButtonId() != -1 &&
-                isValidProviderServiceName(RegisterTask.registrationServiceRequest.serivceName))) {
+            if (registerNone.isChecked() || registerServiceRadioGroup.getCheckedRadioButtonId() != -1 &&
+	            isValidProviderServiceName(RegisterTask.registrationServiceRequest.serivceName)) {
                 Intent registerProfileActivity = new Intent(getInstance(), Register.class);
                 startActivity(registerProfileActivity);
             }
         });
 
-        registerCompanyBusiness.setOnCheckedChangeListener((buttonView, isChecked) -> { if (isChecked) { RegisterTask.registrationServiceRequest.serviceType = ESTABLISHED_BUSINESS; } });
+        registerCompanyBusiness.setOnCheckedChangeListener((buttonView, isChecked) -> {
+	        if (isChecked) {
+		        RegisterTask.registrationServiceRequest.serviceType = ESTABLISHED_BUSINESS;
+	        }
+        });
         registerSmallBusiness.setOnCheckedChangeListener((buttonView, isChecked) -> { if (isChecked) { RegisterTask.registrationServiceRequest.serviceType = SMALL_BUSINESS; } });
         registerOGHustle.setOnCheckedChangeListener((buttonView, isChecked) -> { if (isChecked) { RegisterTask.registrationServiceRequest.serviceType = OG_HUSTLE; } });
         registerNone.setOnCheckedChangeListener((buttonView, isChecked) -> { if (isChecked) { RegisterTask.registrationServiceRequest.serviceType = null; } });

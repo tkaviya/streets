@@ -21,6 +21,7 @@ import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.location.navigation.Navigator;
+import net.blaklizt.streets.android.location.places.Place;
 
 import static java.lang.String.format;
 
@@ -75,7 +76,9 @@ public class MapLayout extends StreetsAbstractView implements GoogleMap.InfoWind
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        location_info.setText(marker.getTitle());
+	    Place clickedPlace = AppContext.getInstance().getMarkerPlaces().get(marker.getId());
+        location_info.setText(marker.getTitle() + "\n" + marker.getSnippet());
+        location_image.setImageDrawable(clickedPlace.image);
         Location currentLocation = AppContext.getInstance().getCurrentLocation().get();
         Navigator navigator = new Navigator(AppContext.getInstance().getGoogleMap().get(), AppContext.getInstance().getMarkerPlaces().get(marker.getId()), marker,
                 new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), marker.getPosition());

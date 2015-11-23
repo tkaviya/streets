@@ -195,7 +195,7 @@ public class AppContext {
             MENU_FRAGMENT_REGISTRY.put(MNU_PROFILE, ProfileLayout.class);
 
             FRAGMENT_MENU_REGISTRY.put(null,                    new SlideMenuItem(MNU_CLOSE,        drawable.res971));
-            FRAGMENT_MENU_REGISTRY.put(MapLayout.class,         new SlideMenuItem(MNU_THA_STREETZ,  drawable.da_block));
+            FRAGMENT_MENU_REGISTRY.put(MapLayout.class,         new SlideMenuItem(MNU_THA_STREETZ,  drawable.res605));
             FRAGMENT_MENU_REGISTRY.put(NavigationLayout.class,  new SlideMenuItem(MNU_NAVIGATION,   drawable.res1000));
             FRAGMENT_MENU_REGISTRY.put(ProfileLayout.class,     new SlideMenuItem(MNU_PROFILE,      drawable.res884));
 //            MENU_VIEW_ITEMS.put(MNU_CHAT,            new SlideMenuItem(MNU_CHAT,         R.drawable.chat));

@@ -2,12 +2,16 @@ package net.blaklizt.streets.android.location.places;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import net.blaklizt.streets.android.R;
+import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.common.StreetsCommon;
 
 import java.io.BufferedInputStream;
@@ -30,8 +34,42 @@ import static net.blaklizt.streets.android.common.StreetsCommon.getCacheDir;
  */
 public class Place {
 
-    private static HashMap<String, BitmapDescriptor> cachedBitmaps = new HashMap<>();
-    private final String TAG = StreetsCommon.getTag(Place.class);
+	private static final HashMap<String, Integer> mappedPlaceTypeIcons = new HashMap<>();
+
+	static {
+		mappedPlaceTypeIcons.put("airport", R.drawable.res23);
+		mappedPlaceTypeIcons.put("atm", R.drawable.res125);
+		mappedPlaceTypeIcons.put("bank", R.drawable.res126); //575
+		mappedPlaceTypeIcons.put("bar", R.drawable.res744);
+		mappedPlaceTypeIcons.put("book store", R.drawable.res488);
+		mappedPlaceTypeIcons.put("bus station", R.drawable.res178);
+		mappedPlaceTypeIcons.put("cafe", R.drawable.res133);
+		mappedPlaceTypeIcons.put("church", R.drawable.res813);
+		mappedPlaceTypeIcons.put("casino", R.drawable.res86);
+		mappedPlaceTypeIcons.put("clothing store", R.drawable.res703);
+		mappedPlaceTypeIcons.put("convenience store", R.drawable.res593);
+		mappedPlaceTypeIcons.put("courthouse", R.drawable.res534);
+		mappedPlaceTypeIcons.put("doctor", R.drawable.res508); //518
+		mappedPlaceTypeIcons.put("department store", R.drawable.res93);
+		mappedPlaceTypeIcons.put("dentist", R.drawable.res501);
+		mappedPlaceTypeIcons.put("hospital", R.drawable.res610);
+		mappedPlaceTypeIcons.put("food", R.drawable.res672); //641+
+		mappedPlaceTypeIcons.put("restaurant", R.drawable.res672); //641+
+		mappedPlaceTypeIcons.put("meal takeaway", R.drawable.res672); //641+
+		mappedPlaceTypeIcons.put("gas station", R.drawable.res85);
+		mappedPlaceTypeIcons.put("liquor store", R.drawable.res653);
+		mappedPlaceTypeIcons.put("police", R.drawable.res30);
+		mappedPlaceTypeIcons.put("shopping mall", R.drawable.res593);
+		mappedPlaceTypeIcons.put("store", R.drawable.res593);
+		mappedPlaceTypeIcons.put("convenience store", R.drawable.res593);
+		mappedPlaceTypeIcons.put("grocery", R.drawable.res593);
+		mappedPlaceTypeIcons.put("train station", R.drawable.res683);
+	}
+
+    private static HashMap<String, BitmapDescriptor> cachedIcons = new HashMap<>();
+	private static HashMap<String, Drawable> cachedImages = new HashMap<>();
+
+	private final String TAG = StreetsCommon.getTag(Place.class);
 
     public String name;
     public String reference;
@@ -41,7 +79,7 @@ public class Place {
     public Date lastUpdateTime;
     public BitmapDescriptor icon;
     public String icon_url;
-    //    public String image;
+    public Drawable image;
     public String formatted_address;
     public String formatted_phone_number;
     public double rating;
@@ -60,42 +98,56 @@ public class Place {
 
         this.lastUpdateTime = new Date();
 
+        if (cachedIcons.get(type) == null) {
 
-        if (cachedBitmaps.get(icon_url) == null) {
-
-            String fileName = icon_url.substring(icon_url.lastIndexOf("/") + 1);
-            String filePath = getCacheDir(StreetsCommon.FILE_DATA_TYPE.ICON);
-            if (!filePath.endsWith(File.separator)) {
-                filePath += File.separator;
-            }
-            filePath += fileName;
-
-            Bitmap scaledBitmap;
-            File iconFile;
+	        Bitmap scaledBitmap;
 
             try {
-                if (!(iconFile = new File(filePath)).exists()) {
-                    Log.i(TAG, "Loading icon for " + name + " from " + icon_url);
-                    Bitmap rawBitmap = ImageLoader.getInstance().loadImageSync(icon_url);
-                    scaledBitmap = createScaledBitmap(ImageLoader.getInstance().loadImageSync(icon_url), rawBitmap.getWidth() / 3, rawBitmap.getHeight() / 3, false);
-                    this.icon = BitmapDescriptorFactory.fromBitmap(scaledBitmap);
+	            if (mappedPlaceTypeIcons.get(type) != null) {
+		            Bitmap rawBitmap = BitmapFactory.decodeResource(AppContext.getApplicationContext().getResources(), mappedPlaceTypeIcons.get(type));
+		            scaledBitmap = createScaledBitmap(rawBitmap, rawBitmap.getWidth() / 4, rawBitmap.getHeight() / 4, false);
+		            this.image = new BitmapDrawable(AppContext.getApplicationContext().getResources(), rawBitmap);
+		            this.icon = BitmapDescriptorFactory.fromBitmap(scaledBitmap);
+
+	                /* cache bitmap in memory */
+		            cachedImages.put(type, this.image);
+		            cachedIcons.put(type, this.icon);
+	            } else {
+		            String fileName = icon_url.substring(icon_url.lastIndexOf("/") + 1);
+		            String filePath = getCacheDir(StreetsCommon.FILE_DATA_TYPE.ICON);
+		            if (!filePath.endsWith(File.separator)) {
+			            filePath += File.separator;
+		            }
+		            filePath += fileName;
+		            File iconFile;
+
+		            if (!(iconFile = new File(filePath)).exists()) {
+			            Log.i(TAG, "Loading icon for " + name + " from " + icon_url);
+			            Bitmap rawBitmap = ImageLoader.getInstance().loadImageSync(icon_url);
+			            scaledBitmap = createScaledBitmap(ImageLoader.getInstance().loadImageSync(icon_url), rawBitmap.getWidth() / 3, rawBitmap.getHeight() / 3, false);
+			            this.image = new BitmapDrawable(AppContext.getApplicationContext().getResources(), rawBitmap);
+			            this.icon = BitmapDescriptorFactory.fromBitmap(scaledBitmap);
 
 
-                    /* cache bitmap in memory */
-                    cachedBitmaps.put(icon_url, this.icon);
+	                    /* cache bitmap in memory */
+			            cachedImages.put(type, this.image);
+			            cachedIcons.put(type, this.icon);
 
-                    /* save downloaded bitmap to file cache */
-                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(iconFile));
-                    scaledBitmap.compress(Bitmap.CompressFormat.PNG, 100, bufferedOutputStream);
-                    bufferedOutputStream.flush();
-                    bufferedOutputStream.close();
-                } else {
-                    Log.i(TAG, "Loading icon for " + name + " from " + filePath);
+	                    /* save downloaded bitmap to file cache */
+			            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(iconFile));
+			            scaledBitmap.compress(Bitmap.CompressFormat.PNG, 100, bufferedOutputStream);
+			            bufferedOutputStream.flush();
+			            bufferedOutputStream.close();
+		            } else {
+			            Log.i(TAG, "Loading icon for " + name + " from " + filePath);
 
-                    /* load bitmap from file cache */
-                    scaledBitmap = BitmapFactory.decodeStream(new BufferedInputStream(new FileInputStream(iconFile)));
-                    this.icon = BitmapDescriptorFactory.fromBitmap(scaledBitmap);
-                }
+	                    /* load bitmap from file cache */
+			            scaledBitmap = BitmapFactory.decodeStream(new BufferedInputStream(new FileInputStream(iconFile)));
+			            //TODO set image to correct size
+			            this.image = new BitmapDrawable(AppContext.getApplicationContext().getResources(), scaledBitmap);
+			            this.icon = BitmapDescriptorFactory.fromBitmap(scaledBitmap);
+		            }
+	            }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -105,11 +157,13 @@ public class Place {
             }
 
             /* cache bitmap in memory */
-            cachedBitmaps.put(icon_url, this.icon);
+	        cachedImages.put(type, this.image);
+            cachedIcons.put(type, this.icon);
 
         } else {
-            Log.i(TAG, "Getting cached bitmap for " + name + " for icon url " + icon_url);
-            this.icon = cachedBitmaps.get(icon_url);
+            Log.i(TAG, "Getting cached bitmap for " + name + " for icon url " + type);
+            this.icon = cachedIcons.get(type);
+            this.image = cachedImages.get(type);
         }
 
     }
