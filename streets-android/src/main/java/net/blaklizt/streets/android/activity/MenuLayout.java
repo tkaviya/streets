@@ -89,7 +89,10 @@ public class MenuLayout extends AppCompatActivity implements
         setContentView(R.layout.main_menu_layout);
         menuLayout = this;
 
-        mainContentTable = findViewById(R.id.main_content_table);
+	    AppContext.getInstance().setCurrentCityTextView((TextView)findViewById(R.id.current_city));
+	    AppContext.getInstance().setCurrentSuburbTextView((TextView)findViewById(R.id.current_suburb));
+
+	    mainContentTable = findViewById(R.id.main_content_table);
 
         Log.i(TAG, "Creating toolbar");
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

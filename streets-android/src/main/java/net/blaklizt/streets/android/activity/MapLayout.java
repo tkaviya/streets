@@ -78,8 +78,8 @@ public class MapLayout extends StreetsAbstractView implements GoogleMap.InfoWind
     public boolean onMarkerClick(Marker marker) {
 	    Place clickedPlace = AppContext.getInstance().getMarkerPlaces().get(marker.getId());
         location_info.setText(marker.getTitle() + "\n" + marker.getSnippet());
-        location_image.setImageDrawable(clickedPlace.image);
-        Location currentLocation = AppContext.getInstance().getCurrentLocation().get();
+	    location_image.setImageDrawable(clickedPlace.image);
+	    Location currentLocation = AppContext.getInstance().getCurrentLocation().get();
         Navigator navigator = new Navigator(AppContext.getInstance().getGoogleMap().get(), AppContext.getInstance().getMarkerPlaces().get(marker.getId()), marker,
                 new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), marker.getPosition());
         navigator.setOnPathSetListener((NavigationLayout)AppContext.getFragmentView(NavigationLayout.class));
