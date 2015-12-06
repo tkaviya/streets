@@ -77,10 +77,10 @@ public class AppContext {
     private static final LinkedList<StreetsInterfaceView> SHUTDOWN_CALLBACK_QUEUE = new LinkedList<>();
 
     /* List of background tasks that can execute on the application. */
-    private static final HashMap<Class<? extends TaskInfo>, TaskInfo> TASK_EXECUTION_INFO = new HashMap<>();
+    private static final LinkedHashMap<Class<? extends TaskInfo>, TaskInfo> TASK_EXECUTION_INFO = new LinkedHashMap<>();
 
     /* List of fragment views created for this application. */
-    private static final HashMap<Class<? extends StreetsAbstractView>, StreetsAbstractView> STREETS_FRAGMENTS = new HashMap<>();
+    private static final LinkedHashMap<Class<? extends StreetsAbstractView>, StreetsAbstractView> STREETS_FRAGMENTS = new LinkedHashMap<>();
 
     /* Mapping of fragment views to their menus */
     private static final LinkedHashMap<Class<? extends StreetsAbstractView>, SlideMenuItem> FRAGMENT_MENU_REGISTRY = new LinkedHashMap<>();
@@ -88,15 +88,15 @@ public class AppContext {
     /* Mapping of menus to their fragments */
     private static final LinkedHashMap<String, Class<? extends StreetsAbstractView>> MENU_FRAGMENT_REGISTRY = new LinkedHashMap<>();
 
-    public static HashMap<Class<? extends StreetsAbstractView>, StreetsAbstractView> getStreetsFragments() {
+    public static LinkedHashMap<Class<? extends StreetsAbstractView>, StreetsAbstractView> getStreetsFragments() {
         return STREETS_FRAGMENTS;
     }
 
-    public static HashMap<Class<? extends StreetsAbstractView>, SlideMenuItem> getFragmentMenuRegistry() {
+    public static LinkedHashMap<Class<? extends StreetsAbstractView>, SlideMenuItem> getFragmentMenuRegistry() {
         return FRAGMENT_MENU_REGISTRY;
     }
 
-    public static HashMap<String, Class<? extends StreetsAbstractView>> getMenuFragmentRegistry() {
+    public static LinkedHashMap<String, Class<? extends StreetsAbstractView>> getMenuFragmentRegistry() {
         return MENU_FRAGMENT_REGISTRY;
     }
 
@@ -468,7 +468,7 @@ public class AppContext {
 			    currentCityTextView.setText("CITY: " + addresses.get(0).getLocality());
 		    }
 		    if (currentSuburbTextView != null){
-			    currentSuburbTextView.setText("SUBURB: " + addresses.get(0).getLocality());
+			    currentSuburbTextView.setText("SUBURB: " + addresses.get(0).getSubLocality());
 		    }
 	    }
 	    catch (IOException e) {

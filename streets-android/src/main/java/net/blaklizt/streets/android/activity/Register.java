@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -61,24 +62,32 @@ public class Register extends AppCompatActivity implements View.OnClickListener
             registerUsername.setText(AppContext.getStreetsCommon().getDefaultUsername());
         }
 
-        String chosenServiceMessage = "You have chosen not to register any service";
-
-        switch (RegisterTask.registrationServiceRequest.serviceType) {
-            case ESTABLISHED_BUSINESS: {
-                chosenServiceMessage =  "You have chosen to register an established business\n\n";
-                break;
-            }
-            case SMALL_BUSINESS: {
-                chosenServiceMessage =  "You have chosen to register a small/medium business\n\n";
-                break;
-            }
-            case OG_HUSTLE: {
-                chosenServiceMessage =  "You have chosen to register as an O.G. hustler\n\n";
-                break;
-            }
-        }
-
+		String chosenServiceMessage = null;
+		if (RegisterTask.registrationServiceRequest.serviceType == null) {
+			chosenServiceMessage = "You have chosen not to register any service";
+		} else {
+			switch (RegisterTask.registrationServiceRequest.serviceType) {
+				case ESTABLISHED_BUSINESS: {
+					chosenServiceMessage = "You have chosen to register an established business\n\n";
+					break;
+				}
+				case SMALL_BUSINESS: {
+					chosenServiceMessage = "You have chosen to register a small/medium business\n\n";
+					break;
+				}
+				case OG_HUSTLE: {
+					chosenServiceMessage = "You have chosen to register as an O.G. hustler\n\n";
+					break;
+				}
+			}
+		}
         textInfoRegister.setText(chosenServiceMessage);
+	}
+
+	@Override
+	public void onResume() {
+		Log.i(TAG, "+++ ON RESUME +++");
+		super.onResume();
 	}
 
 	public static Register getInstance() { return register; }

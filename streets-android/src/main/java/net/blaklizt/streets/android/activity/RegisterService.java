@@ -11,9 +11,9 @@ import android.widget.RadioGroup;
 
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.R.id;
-import net.blaklizt.streets.android.activity.helpers.RegisterTask;
 
 import static android.support.design.widget.Snackbar.LENGTH_SHORT;
+import static net.blaklizt.streets.android.activity.helpers.RegisterTask.registrationServiceRequest;
 import static net.blaklizt.streets.android.common.StreetsCommon.getTag;
 import static net.blaklizt.streets.android.common.StreetsCommon.showSnackBar;
 import static net.blaklizt.streets.android.common.enumeration.RegistrationServiceRequest.SERVICE_TYPE.ESTABLISHED_BUSINESS;
@@ -59,20 +59,16 @@ public class RegisterService extends AppCompatActivity
         imgRegisterServiceBack.setOnClickListener(v -> finish());
         imgRegisterServiceForward.setOnClickListener(v1 -> {
             if (registerNone.isChecked() || registerServiceRadioGroup.getCheckedRadioButtonId() != -1 &&
-	            isValidProviderServiceName(RegisterTask.registrationServiceRequest.serivceName)) {
+	            isValidProviderServiceName(registrationServiceRequest.serivceName)) {
                 Intent registerProfileActivity = new Intent(getInstance(), Register.class);
                 startActivity(registerProfileActivity);
             }
         });
 
-        registerCompanyBusiness.setOnCheckedChangeListener((buttonView, isChecked) -> {
-	        if (isChecked) {
-		        RegisterTask.registrationServiceRequest.serviceType = ESTABLISHED_BUSINESS;
-	        }
-        });
-        registerSmallBusiness.setOnCheckedChangeListener((buttonView, isChecked) -> { if (isChecked) { RegisterTask.registrationServiceRequest.serviceType = SMALL_BUSINESS; } });
-        registerOGHustle.setOnCheckedChangeListener((buttonView, isChecked) -> { if (isChecked) { RegisterTask.registrationServiceRequest.serviceType = OG_HUSTLE; } });
-        registerNone.setOnCheckedChangeListener((buttonView, isChecked) -> { if (isChecked) { RegisterTask.registrationServiceRequest.serviceType = null; } });
+        registerCompanyBusiness.setOnCheckedChangeListener((buttonView, isChecked) -> { if (isChecked) { registrationServiceRequest.serviceType = ESTABLISHED_BUSINESS; } });
+        registerSmallBusiness.setOnCheckedChangeListener((buttonView, isChecked) -> { if (isChecked) { registrationServiceRequest.serviceType = SMALL_BUSINESS; } });
+        registerOGHustle.setOnCheckedChangeListener((buttonView, isChecked) -> { if (isChecked) { registrationServiceRequest.serviceType = OG_HUSTLE; } });
+        registerNone.setOnCheckedChangeListener((buttonView, isChecked) -> { if (isChecked) { registrationServiceRequest.serviceType = null; } });
 
         btnStart.setOnClickListener(v -> {
             if (registerServiceRadioGroup.getCheckedRadioButtonId() == -1) {
@@ -87,7 +83,7 @@ public class RegisterService extends AppCompatActivity
 
                 if (registerOGHustle.isChecked()) { AppContext.getStreetsCommon().setDefaultUsername(registerServiceName.getText().toString()); }
 
-                RegisterTask.registrationServiceRequest.serivceName = registerServiceName.getText().toString();
+                registrationServiceRequest.serivceName = registerServiceName.getText().toString();
                 Intent registerProfileActivity = new Intent(getInstance(), Register.class);
                 startActivity(registerProfileActivity);
             }
