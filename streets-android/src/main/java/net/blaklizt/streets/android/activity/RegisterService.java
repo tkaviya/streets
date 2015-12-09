@@ -3,6 +3,7 @@ package net.blaklizt.streets.android.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -43,9 +44,11 @@ public class RegisterService extends AppCompatActivity
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "+++ ON CREATE +++");
         super.onCreate(savedInstanceState);
-        registerService = this;
         setContentView(R.layout.register_service_layout);
+        registerService = this;
+
         imgRegisterServiceBack = (ImageView) findViewById(id.imgRegisterServiceBack);
         imgRegisterServiceForward = (ImageView) findViewById(id.imgRegisterServiceForward);
         registerServiceRadioGroup = (RadioGroup) findViewById(id.registerServiceRadioGroup);

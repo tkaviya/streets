@@ -5,7 +5,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.util.Log;
 
-import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.MenuLayout;
 import net.blaklizt.streets.android.activity.Startup;
 
@@ -19,6 +18,7 @@ import static net.blaklizt.streets.android.activity.AppContext.MINIMUM_REFRESH_D
 import static net.blaklizt.streets.android.activity.AppContext.MINIMUM_REFRESH_TIME;
 import static net.blaklizt.streets.android.activity.AppContext.PROVIDER_CHEAPEST;
 import static net.blaklizt.streets.android.activity.AppContext.checkEnableGPS;
+import static net.blaklizt.streets.android.activity.AppContext.getAppContextInstance;
 import static net.blaklizt.streets.android.activity.AppContext.isLocationPermissionsGranted;
 import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.BG_LOCATION_TASK;
 
@@ -53,7 +53,7 @@ public class LocationUpdateTask extends StreetsAbstractTask {
         allowMultiInstance = false;
         taskType = BG_LOCATION_TASK;
         additionalParams = new Object[] { true };
-        locationManager = AppContext.getInstance().getLocationManager();
+        locationManager = getAppContextInstance().getLocationManager();
     }
 
     /* params[0] = shouldEnableGPS : boolean */
@@ -93,10 +93,10 @@ public class LocationUpdateTask extends StreetsAbstractTask {
                     Startup.getInstance().runOnUiThread(() -> MenuLayout.getInstance().onLocationChanged(location));
 
                     Log.i(TAG, "Found location using GPS.");
-                    AppContext.getInstance().setCurrentProvider(locationManager.getProvider(GPS_PROVIDER));
+                    getAppContextInstance().setCurrentProvider(locationManager.getProvider(GPS_PROVIDER));
 
-                    Log.i(TAG, "Provider accuracy: " + AppContext.getInstance().getCurrentProvider().getAccuracy());
-                    Log.i(TAG, "Provider power: " + AppContext.getInstance().getCurrentProvider().getPowerRequirement());
+                    Log.i(TAG, "Provider accuracy: " + getAppContextInstance().getCurrentProvider().getAccuracy());
+                    Log.i(TAG, "Provider power: " + getAppContextInstance().getCurrentProvider().getPowerRequirement());
 
                     Log.i(TAG, "Placing initial marker.");
                     return null;
@@ -112,12 +112,12 @@ public class LocationUpdateTask extends StreetsAbstractTask {
             criteria.setPowerRequirement(Criteria.POWER_LOW);
 
             // Getting the name of the best provider
-            AppContext.getInstance().setDefaultProvider(locationManager.getBestProvider(criteria, true));
+            getAppContextInstance().setDefaultProvider(locationManager.getBestProvider(criteria, true));
 
-            Log.i(TAG, "Got defaultProvider (fail safe) as: " + AppContext.getInstance().getDefaultProvider());
+            Log.i(TAG, "Got defaultProvider (fail safe) as: " + getAppContextInstance().getDefaultProvider());
 
             // Getting Current Location
-            Location location = locationManager.getLastKnownLocation(AppContext.getInstance().getDefaultProvider());
+            Location location = locationManager.getLastKnownLocation(getAppContextInstance().getDefaultProvider());
 
             if (location == null) {
                 Log.i(TAG, "Best location provider not available. Getting all other providers.");
@@ -128,12 +128,12 @@ public class LocationUpdateTask extends StreetsAbstractTask {
                 while (location == null && providerIterator.hasNext()) {
                     providerName = (String) providerIterator.next();
                     if (providerName.equalsIgnoreCase(GPS_PROVIDER))                    { continue; } //skip GPS provider,    we just tried it above
-                    if (providerName.equalsIgnoreCase(AppContext.getInstance().getDefaultProvider()))   { continue; } //skip defaultProvider, we just tried it above
+                    if (providerName.equalsIgnoreCase(getAppContextInstance().getDefaultProvider()))   { continue; } //skip defaultProvider, we just tried it above
                     Log.i(TAG, "Trying provider " + providerName);
                     location = locationManager.getLastKnownLocation(providerName);
                     if (location != null) {
                         Log.i(TAG, "Found working provider: " + providerName);
-                        AppContext.getInstance().setDefaultProvider(providerName); //found a working provider, use this to do future updates
+                        getAppContextInstance().setDefaultProvider(providerName); //found a working provider, use this to do future updates
                     }
                 }
             }
@@ -141,18 +141,18 @@ public class LocationUpdateTask extends StreetsAbstractTask {
             if (location != null) {
                 final Location finalLocation = location;
                 Startup.getInstance().runOnUiThread(() -> MenuLayout.getInstance().onLocationChanged(finalLocation));
-                Log.i(TAG, "Found location using provider '" + AppContext.getInstance().getDefaultProvider() + "'. Placing initial marker.");
+                Log.i(TAG, "Found location using provider '" + getAppContextInstance().getDefaultProvider() + "'. Placing initial marker.");
             } else {
                 //All providers failed, may as well poll using least battery consuming provider
-                AppContext.getInstance().setDefaultProvider(PROVIDER_CHEAPEST);
-                Log.i(TAG, "All providers failed. Polling location with cheapest provider: " + AppContext.getInstance().getDefaultProvider());
+                getAppContextInstance().setDefaultProvider(PROVIDER_CHEAPEST);
+                Log.i(TAG, "All providers failed. Polling location with cheapest provider: " + getAppContextInstance().getDefaultProvider());
             }
 
-            Log.i(TAG, "Starting location update requests with provider: " + AppContext.getInstance().getDefaultProvider());
+            Log.i(TAG, "Starting location update requests with provider: " + getAppContextInstance().getDefaultProvider());
 
-            AppContext.getInstance().setCurrentProvider(locationManager.getProvider(AppContext.getInstance().getDefaultProvider()));
-            Log.i(TAG, "Provider accuracy: " + AppContext.getInstance().getCurrentProvider().getAccuracy());
-            Log.i(TAG, "Provider power: " + AppContext.getInstance().getCurrentProvider().getPowerRequirement());
+            getAppContextInstance().setCurrentProvider(locationManager.getProvider(getAppContextInstance().getDefaultProvider()));
+            Log.i(TAG, "Provider accuracy: " + getAppContextInstance().getCurrentProvider().getAccuracy());
+            Log.i(TAG, "Provider power: " + getAppContextInstance().getCurrentProvider().getPowerRequirement());
 
         }
         catch (SecurityException se) {

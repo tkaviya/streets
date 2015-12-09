@@ -28,7 +28,9 @@ public enum USER_PREFERENCE
     @Override public String toString() { return this.name(); }
 
     USER_PREFERENCE(String pref_id, String default_value, String pref_description, String pref_data_type) {
-        this.pref_id = pref_id; this.pref_value = default_value;
-        this.pref_description = pref_description; this.pref_data_type = pref_data_type;
+        this.pref_id = pref_id;
+        this.pref_value = default_value;
+        this.pref_description = pref_description;
+        this.pref_data_type = pref_data_type;
     }
 }

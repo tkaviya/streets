@@ -4,7 +4,7 @@ import android.util.Log;
 
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.TaskInfo;
-import net.blaklizt.streets.android.common.utils.SecurityContext.ERROR_SEVERITY;
+import net.blaklizt.streets.android.common.utils.SecurityContext.EVENT_LEVEL;
 import net.blaklizt.streets.android.common.utils.Try;
 
 import java.util.ArrayList;
@@ -75,7 +75,7 @@ public class SequentialTaskManager {
                 Log.w(TAG, format("Task %s was cancelled before completion!", bgTask.getClassName()));
             } catch (Exception ex) {
                 ex.printStackTrace();
-                handleApplicationError(ERROR_SEVERITY.GENERAL,
+                handleApplicationError(EVENT_LEVEL.WARNING,
                     "Background task " + bgTask.getClassName() + "failed to complete execution! ", ex.getStackTrace(), SYS_TASK);
             }
         }

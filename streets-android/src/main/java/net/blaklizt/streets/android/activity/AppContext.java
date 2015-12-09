@@ -20,6 +20,7 @@ import com.google.android.gms.maps.GoogleMap;
 import net.blaklizt.streets.android.R.drawable;
 import net.blaklizt.streets.android.activity.helpers.CurrentViewLocationTask;
 import net.blaklizt.streets.android.activity.helpers.GoogleMapTask;
+import net.blaklizt.streets.android.activity.helpers.LocationSettingsTask;
 import net.blaklizt.streets.android.activity.helpers.LocationUpdateTask;
 import net.blaklizt.streets.android.activity.helpers.PlacesTask;
 import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
@@ -44,9 +45,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Locale;
 
+import static android.location.LocationManager.GPS_PROVIDER;
 import static java.lang.String.format;
 import static net.blaklizt.streets.android.activity.helpers.SequentialTaskManager.runWhenAvailable;
 import static net.blaklizt.streets.android.common.StreetsCommon.getTag;
+import static net.blaklizt.streets.android.common.StreetsCommon.showToast;
 import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.USER_PREF_READ;
 import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.AUTO_ENABLE_GPS;
 import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.ENABLE_TTS;
@@ -101,8 +104,8 @@ public class AppContext {
     private static HashMap<String, USER_PREFERENCE> userPreferenceValues = new HashMap<>();
 
     public static HashMap<String, USER_PREFERENCE> getUserPreferenceValues() {
-        if (AppContext.userPreferenceValues.size() == 0) { initUserPreferenceData(); }
-        return AppContext.userPreferenceValues;
+        if (userPreferenceValues.size() == 0) { initUserPreferenceData(); }
+        return userPreferenceValues;
     }
 
     public static void initUserPreferenceData() {
@@ -110,14 +113,14 @@ public class AppContext {
         try { userPreferenceValues = getStreetsDBHelper().getUserPreferences(); }
         catch (Exception ex) {
             ex.printStackTrace();
-            handleApplicationError(SecurityContext.ERROR_SEVERITY.SEVERE,
+            handleApplicationError(SecurityContext.EVENT_LEVEL.ERROR,
                     "User preferences could not be read from the database.\n\n" +
                             "Please update your application to the latest version to avoid potential data corruption.",
                     ex.getStackTrace(), USER_PREF_READ);
         }
 
-        if (AppContext.userPreferenceValues == null || AppContext.userPreferenceValues.isEmpty()) {
-            handleApplicationError(SecurityContext.ERROR_SEVERITY.SEVERE,
+        if (userPreferenceValues == null || userPreferenceValues.isEmpty()) {
+            handleApplicationError(SecurityContext.EVENT_LEVEL.ERROR,
                     "User preferences could not be read from the database.\n\n" +
                             "Please update your application to the latest version to avoid potential data corruption.",
                     "getUserPreferences returned no results", USER_PREF_READ);
@@ -161,6 +164,7 @@ public class AppContext {
         Log.i(TAG, "Initializing task execution information.");
         if (TASK_EXECUTION_INFO.isEmpty()) {
             TASK_EXECUTION_INFO.put(GoogleMapTask.class, null);
+            TASK_EXECUTION_INFO.put(LocationSettingsTask.class, null);
             TASK_EXECUTION_INFO.put(LocationUpdateTask.class, null);
             TASK_EXECUTION_INFO.put(PlacesTask.class, null);
             TASK_EXECUTION_INFO.put(CurrentViewLocationTask.class, null);
@@ -207,8 +211,8 @@ public class AppContext {
         }
     }
 
-    private AppContext(Context applicationContext) {
-        if (streetsApplicationContext == null) {
+    private AppContext(final Context applicationContext) {
+        if (AppContext.streetsApplicationContext == null) {
             AppContext.applicationContext = applicationContext;
             AppContext.streetsApplicationContext = this;
             getStreetsDBHelper();
@@ -216,14 +220,14 @@ public class AppContext {
         }
     }
 
-    public static AppContext getInstance(Context applicationContext) {
-        if (streetsApplicationContext == null) {
-            streetsApplicationContext = new AppContext(applicationContext);
+    public static AppContext getAppContextInstance(final Context applicationContext) {
+        if (AppContext.streetsApplicationContext == null) {
+            AppContext.streetsApplicationContext = new AppContext(applicationContext);
         }
-        return streetsApplicationContext;
+        return AppContext.streetsApplicationContext;
     }
 
-    public static AppContext getInstance() { return streetsApplicationContext; }
+    public static AppContext getAppContextInstance() { return streetsApplicationContext; }
 
     public static Context getApplicationContext() {
         return applicationContext;
@@ -237,15 +241,15 @@ public class AppContext {
     }
 
     public static StreetsDBHelper getStreetsDBHelper() {
-        if (AppContext.streetsDBHelper == null)
+        if (streetsDBHelper == null)
         {
             Log.i(TAG, "Initializing Streets database");
-            AppContext.streetsDBHelper = new StreetsDBHelper(applicationContext);
+            streetsDBHelper = new StreetsDBHelper(applicationContext);
         }
-        return AppContext.streetsDBHelper;
+        return streetsDBHelper;
     }
 
-    public static void setIsFirstLocationUpdate(boolean isFirstLocationUpdate) {
+    public static void setIsFirstLocationUpdate(final boolean isFirstLocationUpdate) {
         AppContext.firstLocationUpdate = isFirstLocationUpdate;
     }
 
@@ -262,7 +266,7 @@ public class AppContext {
         } catch (Exception ex) {
             ex.printStackTrace();
             Log.e(TAG, "Failed to initialize ttsEngine", ex);
-            StreetsCommon.showToast(Startup.getInstance(), TAG, "Failed to initialize text to speech!" + ex.getMessage(), Toast.LENGTH_LONG);
+            showToast(Startup.getInstance(), TAG, "Failed to initialize text to speech!" + ex.getMessage(), Toast.LENGTH_LONG);
             new PreferenceUpdateDialogueListener(applicationContext,
                     "Speech failed to start. Would you like to turn off Text To Speech permanently?",
                     ENABLE_TTS, "Disable", "Cancel").show();
@@ -274,7 +278,7 @@ public class AppContext {
         return defaultProvider;
     }
 
-    public void setDefaultProvider(String defaultProvider) {
+    public void setDefaultProvider(final String defaultProvider) {
         this.defaultProvider = defaultProvider;
     }
 
@@ -287,8 +291,16 @@ public class AppContext {
     }
 
 
-    public void setCurrentProvider(LocationProvider currentProvider) {
+    public void setCurrentProvider(final LocationProvider currentProvider) {
         this.currentProvider = currentProvider;
+    }
+
+    public void useGPSAsCurrentProvider() {
+        this.currentProvider = getLocationManager().getProvider(GPS_PROVIDER);
+    }
+
+    public void useDefaultAsCurrentProvider() {
+        this.currentProvider = getLocationManager().getProvider(getDefaultProvider());
     }
     /* ============== GLOBALLY ACCESSIBLE CONTEXT FUNCTIONS ============== */
 
@@ -335,31 +347,31 @@ public class AppContext {
 
     private static boolean checkAndRequestPermissions() {
 
-        Context context = AppContext.getApplicationContext().getApplicationContext();
+        Context context = getApplicationContext().getApplicationContext();
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.i(TAG, "Permission " + Manifest.permission.ACCESS_COARSE_LOCATION + " is not allowed.");
-            AppContext.getStreetsCommon().addOutstandingPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+            getStreetsCommon().addOutstandingPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
             locationPermissionsGranted = false;
         } else {
             Log.i(TAG, "Permission " + Manifest.permission.ACCESS_COARSE_LOCATION + " is allowed.");
-            AppContext.getStreetsCommon().removeOutstandingPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+            getStreetsCommon().removeOutstandingPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
             locationPermissionsGranted = false;
         }
 
         //check fine location
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.i(TAG, "Permission " + Manifest.permission.ACCESS_FINE_LOCATION + " is not allowed.");
-            AppContext.getStreetsCommon().addOutstandingPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+            getStreetsCommon().addOutstandingPermission(Manifest.permission.ACCESS_FINE_LOCATION);
             locationPermissionsGranted = false;
         } else {
             Log.i(TAG, "Permission " + Manifest.permission.ACCESS_FINE_LOCATION + " is allowed.");
-            AppContext.getStreetsCommon().removeOutstandingPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+            getStreetsCommon().removeOutstandingPermission(Manifest.permission.ACCESS_FINE_LOCATION);
             locationPermissionsGranted = false;
         }
 
-        ArrayList<String> outstandingPermissions = AppContext.getStreetsCommon().getOutstandingPermissions();
+        ArrayList<String> outstandingPermissions = getStreetsCommon().getOutstandingPermissions();
 
-        final MapLayout mapLayout = (MapLayout)AppContext.getFragmentView(MapLayout.class);
+        final MapLayout mapLayout = (MapLayout)getFragmentView(MapLayout.class);
 
         Log.i(TAG, "Outstanding permissions: " + outstandingPermissions.size());
         String logMessage = "";
@@ -368,7 +380,7 @@ public class AppContext {
             logMessage += " | " + permission;
         }
 
-        if (outstandingPermissions.size() > 0 && AppContext.getStreetsCommon().getUserPreferenceValue(REQUEST_GPS_PERMS).equals("1")) {
+        if (outstandingPermissions.size() > 0 && getStreetsCommon().getUserPreferenceValue(REQUEST_GPS_PERMS).equals("1")) {
             Log.i(TAG, "Not enough permissions to do location updates. Requesting from user.");
             mapLayout.requestPermissions(outstandingPermissions.toArray(new String[outstandingPermissions.size()]), PERMISSION_LOCATION_INFO);
             locationPermissionsGranted = false;
@@ -387,17 +399,17 @@ public class AppContext {
 
     public static void checkEnableGPS() {
         Log.i(TAG, "Checking GPS availability");
-        LocationManager locationManager = AppContext.getInstance().getLocationManager();
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        LocationManager locationManager = getAppContextInstance().getLocationManager();
+        if (!locationManager.isProviderEnabled(GPS_PROVIDER)) {
             Log.i(TAG, "GPS not enabled");
-            if (AppContext.getStreetsCommon().getUserPreferenceValue(AUTO_ENABLE_GPS).equals("1")) {
+            if (getStreetsCommon().getUserPreferenceValue(AUTO_ENABLE_GPS).equals("1")) {
                 Log.i(TAG, "User has granted auto enable privilege");
                 Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                Startup.getInstance().startActivity(myIntent);
-            } else if (AppContext.getStreetsCommon().getUserPreferenceValue(SUGGEST_GPS).equals("1")) {
+                MenuLayout.getInstance().startActivity(myIntent);
+            } else if (getStreetsCommon().getUserPreferenceValue(SUGGEST_GPS).equals("1")) {
                 Log.i(TAG, "Must request perms from use");
-                EnableGPSDialogueListener enableGpsListener = new EnableGPSDialogueListener(Startup.getInstance());
-                AlertDialog.Builder builder = new AlertDialog.Builder(Startup.getInstance());
+                EnableGPSDialogueListener enableGpsListener = new EnableGPSDialogueListener(MenuLayout.getInstance());
+                AlertDialog.Builder builder = new AlertDialog.Builder(MenuLayout.getInstance());
                 builder.setMessage("Turn on GPS?")
                         .setMultiChoiceItems(
                                 EnableGPSDialogueListener.getQuestionItems(),
@@ -412,7 +424,7 @@ public class AppContext {
     public static void shutdown() {
         Log.i(TAG, "+++ SHUTDOWN +++");
 
-        StreetsCommon.showSnackBar(Startup.getInstance(), TAG, "[- Now leaving Tha Streetz -]\n ...Goodbye...", Snackbar.LENGTH_SHORT);
+        StreetsCommon.showSnackBar(MenuLayout.getInstance(), TAG, "[- Now leaving Tha Streetz -]\n ...Goodbye...", Snackbar.LENGTH_SHORT);
 
         Log.i(TAG, "Terminating running tasks...");
         SequentialTaskManager.stopSchedulingNewTasks(true);
@@ -425,8 +437,8 @@ public class AppContext {
 
         try { //shutdown common classes
             Log.i(TAG, "Terminating common classes.");
-            if (getInstance().ttsEngine != null) {
-                getInstance().ttsEngine.shutdown();
+            if (getAppContextInstance().ttsEngine != null) {
+                getAppContextInstance().ttsEngine.shutdown();
             }
             if (streetsDBHelper != null) {
                 streetsDBHelper.close();
@@ -436,7 +448,9 @@ public class AppContext {
             Log.e(TAG, "Failed to shutdown common classes cleanly: " + ex.getMessage(), ex);
         }
 
-        Startup.getInstance().finish();
+        if (Startup.getInstance() != null) {
+            Startup.getInstance().finish();
+        }
     }
 
     /* =========== GLOBALLY ACCESSIBLE CONTEXT DATA FUNCTIONS =========== */
@@ -445,7 +459,7 @@ public class AppContext {
         return Optional.ofNullable(googleMap);
     }
 
-    public void setGoogleMap(GoogleMap googleMap) {
+    public void setGoogleMap(final GoogleMap googleMap) {
         this.googleMap = googleMap;
     }
 
@@ -453,7 +467,7 @@ public class AppContext {
         return Optional.ofNullable(currentLocation);
     }
 
-    public void setCurrentLocation(Location currentLocation) {
+    public void setCurrentLocation(final Location currentLocation) {
         this.currentLocation = currentLocation;
 	    runWhenAvailable(CurrentViewLocationTask.class);
     }
@@ -464,14 +478,14 @@ public class AppContext {
             Log.i(TAG, "Initializing location manager");
             //at activity start, if user has not disabled location stuff, request permissions.
             if (!locationPermissionsGranted &&
-                (AppContext.getStreetsCommon().getUserPreferenceValue(SUGGEST_GPS).equals("1") ||
-                 AppContext.getStreetsCommon().getUserPreferenceValue(AUTO_ENABLE_GPS).equals("1"))) {
-                 AppContext.getStreetsCommon().setUserPreference(REQUEST_GPS_PERMS, "1"); //reset preferences if permissions were updated
+                (getStreetsCommon().getUserPreferenceValue(SUGGEST_GPS).equals("1") ||
+                 getStreetsCommon().getUserPreferenceValue(AUTO_ENABLE_GPS).equals("1"))) {
+                 getStreetsCommon().setUserPreference(REQUEST_GPS_PERMS, "1"); //reset preferences if permissions were updated
             }
 
             Log.i(TAG, "Getting system location service");
             // Getting LocationManager object from System Service LOCATION_SERVICE
-            locationManager = (LocationManager) AppContext.getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+            locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
             if (isLocationPermissionsGranted()) {
                 try { locationManager.addGpsStatusListener(MenuLayout.getInstance()); }
@@ -490,7 +504,7 @@ public class AppContext {
         return nearbyPlaces;
     }
 
-    public void setNearbyPlaces(ArrayList<Place> nearbyPlaces) {
+    public void setNearbyPlaces(final ArrayList<Place> nearbyPlaces) {
         this.nearbyPlaces = nearbyPlaces;
     }
 

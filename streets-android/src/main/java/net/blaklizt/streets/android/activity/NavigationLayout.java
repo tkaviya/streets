@@ -68,7 +68,7 @@ public class NavigationLayout extends StreetsAbstractView implements Navigator.O
         if (currentPlaceName != null) {
 
             /* Prepare TTS before first use */
-            AppContext.getInstance().getTextToSpeech();
+            AppContext.getAppContextInstance().getTextToSpeech();
 
             SparseArray<Group> directionsList = new SparseArray<>();
 
@@ -106,6 +106,7 @@ public class NavigationLayout extends StreetsAbstractView implements Navigator.O
         Log.d(TAG, "New path set");
         setDirections(clickedPlace.name, clickedPlace.formatted_address, clickedPlace.type, directions.getRoutes().get(0).getLegs().get(0).getSteps());
         Log.i(TAG, "Set directions to place " + clickedPlace.name);
+        Log.i(TAG, "Showing info window with info: " + placeMarker.getTitle());
         placeMarker.showInfoWindow();
     }
 

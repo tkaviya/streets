@@ -60,7 +60,7 @@ public class CurrentViewLocationTask extends StreetsAbstractTask {
 	    Geocoder geocoder = new Geocoder(AppContext.getApplicationContext(), Locale.getDefault());
 	    List<Address> addresses;
 	    try {
-		    Location currentViewLocation = AppContext.getInstance().getCurrentLocation().get();
+		    Location currentViewLocation = AppContext.getAppContextInstance().getCurrentLocation().get();
 		    addresses = geocoder.getFromLocation(currentViewLocation.getLatitude(), currentViewLocation.getLongitude(), 1);
 		    lastUpdateDate = new Date();
 		    currentCity = addresses.get(0).getLocality();
@@ -68,8 +68,8 @@ public class CurrentViewLocationTask extends StreetsAbstractTask {
 		    MenuLayout.getInstance().runOnUiThread(new Runnable() {
 			    @Override
 			    public void run() {
-				    if (currentCity != null)    {   MenuLayout.getInstance().currentCityTextView.setText("CITY: " + currentCity);       }
-				    if (currentSuburb != null)  {   MenuLayout.getInstance().currentSuburbTextView.setText("SUBURB: " + currentSuburb); }
+				    if (currentCity != null)    {   MenuLayout.getInstance().currentCityTextView.setText(currentCity);       }
+				    if (currentSuburb != null)  {   MenuLayout.getInstance().currentSuburbTextView.setText(currentSuburb); }
 			    }
 		    });
 	    }

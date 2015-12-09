@@ -6,15 +6,16 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.MenuLayout;
 import net.blaklizt.streets.android.activity.Register;
 import net.blaklizt.streets.android.common.enumeration.RegistrationServiceRequest;
 
 import org.json.JSONObject;
 
+import static net.blaklizt.streets.android.activity.AppContext.getStreetsCommon;
 import static net.blaklizt.streets.android.common.StreetsCommon.getTag;
 import static net.blaklizt.streets.android.common.StreetsCommon.showToast;
+import static net.blaklizt.symbiosis.sym_core_lib.enumeration.SYM_RESPONSE_CODE.SUCCESS;
 
 /**
  * Created by tsungai.kaviya on 2015-11-21.
@@ -46,7 +47,7 @@ public class RegisterTask extends AsyncTask<Void, Void, Void> {
 //						"&imei=" + AppContext.getStreetsCommon().getIMEI() +
 //						"&imsi=" + AppContext.getStreetsCommon().getIMSI());
 
-		String registerResponse = "{response_code:1, response_message:\"success\", symbiosis_user_id:1}";
+		String registerResponse = "{response_code:0, response_message:\"success\", symbiosis_user_id:1}";
 
         if (registerResponse == null) {
             showToast(register, TAG, "Registration Failed. Check Internet Connection.", Toast.LENGTH_SHORT);
@@ -56,26 +57,25 @@ public class RegisterTask extends AsyncTask<Void, Void, Void> {
         try {
             JSONObject responseJSON = new JSONObject(registerResponse);
 
-            if (responseJSON.getInt("response_code") == 1)//ResponseCode.SUCCESS.getValue())
-            {
+            if (responseJSON.getInt("response_code") == SUCCESS.responseCode()) {
 				Long symbiosisUserID = responseJSON.getLong("symbiosis_user_id");
-				AppContext.getStreetsCommon().setUserID(symbiosisUserID);
-				Log.i(TAG, "Registration successful");
-                register.runOnUiThread(() -> showToast(register, TAG, "Registration successful", Toast.LENGTH_SHORT));
-                Intent mainActivity = new Intent(Register.getInstance(), MenuLayout.class);
+				getStreetsCommon().setUserID(symbiosisUserID);
+                showToast(register, TAG, "Registration successful", Toast.LENGTH_SHORT);
+
+                Intent mainActivity = new Intent(register, MenuLayout.class);
                 register.startActivity(mainActivity);
-            } else if (responseJSON.getInt("response_code") < 0) {
-                Log.i(TAG, "Registration failed with internal error: " + responseJSON.getString("response_message"));
-                register.runOnUiThread(() -> showToast(register, TAG, "Registration Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT));
-            } else {
+            }
+            else if (responseJSON.getInt("response_code") < 0) {
+                showToast(register, TAG, "Registration Failed. An unknown error occurred on the server.", Toast.LENGTH_LONG);
+            }
+            else {
                 final String registerResponseStr = responseJSON.getString("response_message");
-                Log.i(TAG, "Registration failed: " + responseJSON.getString("response_message"));
                 register.runOnUiThread(() -> showToast(register, TAG, registerResponseStr, Toast.LENGTH_SHORT));
             }
         } catch (Exception e) {
             Log.e(TAG, "Registration failed: " + e.getMessage(), e);
             e.printStackTrace();
-            register.runOnUiThread(() -> showToast(register, TAG, "Registration Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT));
+            showToast(register, TAG, "Registration Failed. An unknown error occurred on the server.", Toast.LENGTH_SHORT);
         }
         return null;
     }
@@ -83,13 +83,9 @@ public class RegisterTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPreExecute() {
-        progressDialog = ProgressDialog.show(Register.getInstance(), "Registering", "Registering...", true, false);
+        progressDialog = ProgressDialog.show(register, "Registering", "Registering...", true, false);
         progressDialog.show();
     }
-
-    @Override
-    protected void onProgressUpdate(Void... progress) {
-	}
 
     @Override
     protected void onPostExecute(Void result) {

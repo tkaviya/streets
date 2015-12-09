@@ -364,7 +364,7 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
             return userPreferenceValues;
         } catch (Exception ex) {
             ex.printStackTrace();
-            handleApplicationError(SecurityContext.ERROR_SEVERITY.SEVERE, "Failed to get user preferences! " +
+            handleApplicationError(SecurityContext.EVENT_LEVEL.ERROR, "Failed to get user preferences! " +
                     ex.getMessage(), ex.getStackTrace(), TASK_TYPE.SYS_DB);
             return null; //will never return. should terminate with exception
         }
@@ -372,11 +372,12 @@ public class StreetsDBHelper extends SQLiteOpenHelper {
 
 	public void setUserPreference(USER_PREFERENCE preference, String value, String description, String data_type)
 	{
-		Log.d(TAG, "Updating user preference " + preference + " to " + value);
-		getStreetsWritableDatabase().execSQL("REPLACE INTO " + USER_PREFERENCE_TABLE +
-				" (pref_id, pref_name, pref_value, pref_description, pref_data_type) VALUES" +
-				" ('" + preference.pref_id + "','" + preference.name() +
-                "','" + value + "','" + description + "','" + data_type + "')");
+        String sql = "REPLACE INTO " + USER_PREFERENCE_TABLE +
+                " (pref_id, pref_name, pref_value, pref_description, pref_data_type) VALUES" +
+                " ('" + preference.pref_id + "','" + preference.name() +
+                "','" + value + "','" + description + "','" + data_type + "')";
+        Log.i(TAG, "Updating user preference " + preference + " to " + value + ". SQL: " + sql);
+        getStreetsWritableDatabase().execSQL(sql);
 	}
 
 	public ArrayList<Place> getNearbyFriendLocations()

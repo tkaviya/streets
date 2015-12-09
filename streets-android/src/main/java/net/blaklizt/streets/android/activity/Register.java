@@ -14,6 +14,7 @@ import android.widget.TextView;
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.RegisterTask;
 
+import static net.blaklizt.streets.android.activity.AppContext.getStreetsCommon;
 import static net.blaklizt.streets.android.common.StreetsCommon.getTag;
 import static net.blaklizt.streets.android.common.StreetsCommon.showSnackBar;
 import static net.blaklizt.symbiosis.sym_core_lib.utilities.Validator.isValidPin;
@@ -40,9 +41,11 @@ public class Register extends AppCompatActivity implements View.OnClickListener
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "+++ ON CREATE +++");
         super.onCreate(savedInstanceState);
-        register = this;
         setContentView(R.layout.register_layout);
+        register = this;
+
         imgRegisterBack = (ImageView) findViewById(R.id.imgRegisterBack);
         imgRegisterForward = (ImageView) findViewById(R.id.imgRegisterForward);
         registerUsername = (EditText) findViewById(R.id.registerUsername);
@@ -59,7 +62,7 @@ public class Register extends AppCompatActivity implements View.OnClickListener
         });
 
         if (registerUsername.getText().length() == 0) {
-            registerUsername.setText(AppContext.getStreetsCommon().getDefaultUsername());
+            registerUsername.setText(getStreetsCommon().getDefaultUsername());
         }
 
 		String chosenServiceMessage = null;

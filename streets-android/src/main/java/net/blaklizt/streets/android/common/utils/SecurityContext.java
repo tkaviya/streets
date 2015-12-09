@@ -3,7 +3,6 @@ package net.blaklizt.streets.android.common.utils;
 import android.util.Log;
 
 import net.blaklizt.streets.android.activity.AppContext;
-import net.blaklizt.streets.android.activity.Startup;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.SymbiosisUser;
 import net.blaklizt.streets.android.common.enumeration.TASK_TYPE;
@@ -12,10 +11,11 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 
 import static java.lang.String.format;
+import static net.blaklizt.streets.android.activity.AppContext.getStreetsCommon;
 import static net.blaklizt.streets.android.common.enumeration.STATUS_CODES.GENERAL_ERROR;
 import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.SYS_SECURITY;
-import static net.blaklizt.streets.android.common.utils.SecurityContext.ERROR_SEVERITY.GENERAL;
-import static net.blaklizt.streets.android.common.utils.SecurityContext.ERROR_SEVERITY.SEVERE;
+import static net.blaklizt.streets.android.common.utils.SecurityContext.EVENT_LEVEL.ERROR;
+import static net.blaklizt.streets.android.common.utils.SecurityContext.EVENT_LEVEL.WARNING;
 
 /******************************************************************************
  * *
@@ -45,7 +45,7 @@ public class SecurityContext {
 
     private static final HashMap<String, Object> userDefaultDataSet = new HashMap<>();
 
-    public enum ERROR_SEVERITY { GENERAL, SEVERE }
+    public enum EVENT_LEVEL { INFO, WARNING, ERROR }
 
     static {
         userDefaultDataSet.put("symbiosisUserID", 0L);
@@ -62,22 +62,22 @@ public class SecurityContext {
         return userDefaultDataSet;
     }
 
-    public static void handleApplicationError(ERROR_SEVERITY errorSeverity, String displayMsg, StackTraceElement[] stackTrace, TASK_TYPE taskType) {
+    public static void handleApplicationError(EVENT_LEVEL eventLevel, String displayMsg, StackTraceElement[] stackTrace, TASK_TYPE taskType) {
         StringBuilder stacktraceMessage = new StringBuilder();
         for (StackTraceElement stackTraceElement : stackTrace) {
             stacktraceMessage.append(stackTraceElement.toString()).append("\n");
         }
-        handleApplicationError(errorSeverity, displayMsg, stacktraceMessage.toString(), taskType);
+        handleApplicationError(eventLevel, displayMsg, stacktraceMessage.toString(), taskType);
     }
 
-    public static void handleApplicationError(ERROR_SEVERITY errorSeverity, String displayMsg, String error, TASK_TYPE taskType) {
+    public static void handleApplicationError(EVENT_LEVEL eventLevel, String displayMsg, String error, TASK_TYPE taskType) {
 
-        AppContext.getStreetsCommon().writeEventLog(taskType, GENERAL_ERROR, error);
-        if (errorSeverity == GENERAL) {
-            Log.w(TAG, "A general error occurred: " + displayMsg + "\n" + error);
-        } else if (errorSeverity == SEVERE) {
-            Log.e(TAG, "A severe system error occurred: " + displayMsg + "\n" + error + "\nApplication will terminate.");
-            Startup.getInstance().onDestroy();
+        getStreetsCommon().writeEventLog(taskType, GENERAL_ERROR, error);
+        if (eventLevel == WARNING) {
+            Log.w(TAG, "Warning, an error occurred: " + displayMsg + "\n" + error);
+        } else if (eventLevel == ERROR) {
+            Log.e(TAG, "A severe error occurred: " + displayMsg + "\n" + error + "\nApplication will terminate.");
+            AppContext.shutdown();
         }
     }
 
@@ -87,12 +87,12 @@ public class SecurityContext {
 
         if (symbiosisUser == null) {
             Log.e(TAG, "SymbiosisUser cannot be null!");
-            handleApplicationError(SEVERE, "User session is invalid! Please login again.",
+            handleApplicationError(ERROR, "User session is invalid! Please login again.",
                 "SymbiosisUser was null", SYS_SECURITY);
             return false; /* app should have terminated */
         }
 
-        SymbiosisUser dbUser = AppContext.getStreetsCommon().getSymbiosisUser();
+        SymbiosisUser dbUser = getStreetsCommon().getSymbiosisUser();
 
         for (Field field : symbiosisUser.getClass().getFields()) {
             String fieldName = field.getName();
@@ -105,7 +105,7 @@ public class SecurityContext {
 
                 if (fieldValue == null) {
                     if (databaseValue != null && userDefaultDataSet.get(fieldName) != null) {
-                        handleApplicationError(SEVERE, "Value of mandatory field " + fieldName + " is invalid.",
+                        handleApplicationError(ERROR, "Value of mandatory field " + fieldName + " is invalid.",
                                 fieldName + " of SymbiosisUser was null.", SYS_SECURITY);
                         return false;
                     } else { continue; }
@@ -113,20 +113,20 @@ public class SecurityContext {
 
                 if (!fieldValue.equals(databaseValue)) {
                     if (!userDefaultDataSet.containsKey(fieldName)) {
-                        handleApplicationError(SEVERE, "Value of field " + fieldName + " is invalid.",
+                        handleApplicationError(ERROR, "Value of field " + fieldName + " is invalid.",
                             format(fieldName + " of SymbiosisUser was modified outside system context.\nDB Value = %s, Default Value = null",
                                 databaseValue), SYS_SECURITY);
                         return false;
                     } else if (!fieldValue.equals(userDefaultDataSet.get(fieldName))) {
-                        handleApplicationError(SEVERE, "Value of field " + fieldName + " is invalid.",
-                            format(fieldName + " of SymbiosisUser was modified outside system context.\nDB Value = %s, Default Value = %s",
-                                databaseValue, userDefaultDataSet.get(fieldName)), SYS_SECURITY);
+                        handleApplicationError(ERROR, "Value of field " + fieldName + " is invalid.",
+                                format(fieldName + " of SymbiosisUser was modified outside system context.\nDB Value = %s, Default Value = %s",
+                                        databaseValue, userDefaultDataSet.get(fieldName)), SYS_SECURITY);
                         return false;
                     }
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
-                handleApplicationError(SEVERE, "Failed to verify value of " + fieldName,
+                handleApplicationError(ERROR, "Failed to verify value of " + fieldName,
                     "Failed to verify value of " + fieldName + ": " + ex.getMessage(), SYS_SECURITY);
                 return false;
             }

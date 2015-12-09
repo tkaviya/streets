@@ -57,7 +57,7 @@ public class FragmentDrawer extends Fragment {
 			// drawer labels
 
 			Log.i(TAG, "Loading places of interest");
-			ArrayList placesOfInterest = AppContext.getInstance().getStreetsDBHelper().getPlacesOfInterest();
+			ArrayList placesOfInterest = AppContext.getStreetsDBHelper().getPlacesOfInterest();
 			String[] places = new String[placesOfInterest.size()];
 
 			for (int c = 0; c < placesOfInterest.size(); c++) {
@@ -142,9 +142,9 @@ public class FragmentDrawer extends Fragment {
 //
 //	}
 	
-	public static interface ClickListener {
-		public void onClick(View view, int position);
-		public void onLongClick(View view, int position);
+	public interface ClickListener {
+		void onClick(View view, int position);
+		void onLongClick(View view, int position);
 	}
 	
 //	static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener
@@ -182,5 +182,5 @@ public class FragmentDrawer extends Fragment {
 //		@Override public void onTouchEvent(RecyclerView rv, MotionEvent e) { Log.i(TAG, "+++ ON TOUCH EVENT +++"); }
 //	}
 
-	public interface FragmentDrawerListener { public void onDrawerItemSelected(View view, int position); }
+	public interface FragmentDrawerListener { void onDrawerItemSelected(View view, int position); }
 }

@@ -66,7 +66,7 @@ public class GoogleMapTask extends StreetsAbstractTask {
 
         final MapLayout mapLayout = (MapLayout)AppContext.getFragmentView(MapLayout.class);
 
-        if (AppContext.getInstance().getGoogleMap().isPresent()) {
+        if (AppContext.getAppContextInstance().getGoogleMap().isPresent()) {
             Log.i(TAG, "Google map already initialized");
             return null;
         }
@@ -90,14 +90,14 @@ public class GoogleMapTask extends StreetsAbstractTask {
                 MapFragment fm = (MapFragment) mapLayout.getActivity().getFragmentManager().findFragmentById(R.id.map_fragment);
 
                 // Getting GoogleMap object from the fragment
-                AppContext.getInstance().setGoogleMap(fm.getMap());
+                AppContext.getAppContextInstance().setGoogleMap(fm.getMap());
 
                 Log.i(TAG, "Got Google map");
 
-                AppContext.getInstance().getGoogleMap().get().setMyLocationEnabled(true);
-                AppContext.getInstance().getGoogleMap().get().getUiSettings().setZoomGesturesEnabled(true);
-                AppContext.getInstance().getGoogleMap().get().getUiSettings().setZoomControlsEnabled(true);
-                AppContext.getInstance().getGoogleMap().get().setOnMarkerClickListener(mapLayout);
+                AppContext.getAppContextInstance().getGoogleMap().get().setMyLocationEnabled(true);
+                AppContext.getAppContextInstance().getGoogleMap().get().getUiSettings().setZoomGesturesEnabled(true);
+                AppContext.getAppContextInstance().getGoogleMap().get().getUiSettings().setZoomControlsEnabled(true);
+                AppContext.getAppContextInstance().getGoogleMap().get().setOnMarkerClickListener(mapLayout);
 //                    AppContext.getInstance().getGoogleMap().get().setInfoWindowAdapter(mapLayout);
             }
         });
@@ -107,12 +107,12 @@ public class GoogleMapTask extends StreetsAbstractTask {
 
     @Override
     public void onCancelledRelay() {
-        AppContext.getInstance().getGoogleMap().ifPresent(GoogleMap::stopAnimation);
+        AppContext.getAppContextInstance().getGoogleMap().ifPresent(GoogleMap::stopAnimation);
     }
 
     @Override
     public void onTerminationRelay() {
         Log.i(TAG, "Shutting down class " + getClassName());
-        AppContext.getInstance().getGoogleMap().ifPresent(GoogleMap::stopAnimation);
+        AppContext.getAppContextInstance().getGoogleMap().ifPresent(GoogleMap::stopAnimation);
     }
 }

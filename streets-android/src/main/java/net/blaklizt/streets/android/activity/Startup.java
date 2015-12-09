@@ -10,16 +10,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Toast;
 import android.widget.VideoView;
 
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.LoginTask;
-import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
 import net.blaklizt.streets.android.common.StreetsCommon;
 
 import static android.view.View.OnClickListener;
 import static android.view.View.VISIBLE;
+import static net.blaklizt.streets.android.activity.AppContext.getAppContextInstance;
+import static net.blaklizt.streets.android.activity.AppContext.getStreetsCommon;
+import static net.blaklizt.streets.android.activity.helpers.SequentialTaskManager.runWhenAvailable;
 import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.AUTO_LOGIN;
 import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.SHOW_INTRO;
 
@@ -44,50 +45,41 @@ public class Startup extends AppCompatActivity implements OnClickListener, Media
     @Override
 	public void onCreate(Bundle savedInstanceState)
 	{
-        AppContext.getInstance(this.getApplicationContext()); startup = this;
-
+        getAppContextInstance(this.getApplicationContext());
         Log.i(TAG, "+++ ON CREATE +++");
-		super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.intro_layout);
+        startup = this;
 
         findViewById(R.id.labelLoginHeader).setOnClickListener(view -> {
-            Intent loginActivity = new Intent(getInstance(), RegisterService.class);
-            startActivity(loginActivity);
+            Intent registerActivity = new Intent(getApplicationContext(), RegisterService.class);
+            getInstance().finish();
+            startActivity(registerActivity);
         });
+
         findViewById(R.id.labelGoToRegistration).setOnClickListener(view -> {
-            Intent loginActivity = new Intent(getInstance(), RegisterService.class);
-            startActivity(loginActivity);
+            Intent registerActivity = new Intent(getApplicationContext(), RegisterService.class);
+            getInstance().finish();
+            startActivity(registerActivity);
         });
-        try
-		{
-			edtPassword = (EditText) findViewById(R.id.loginPin);
-			btnLogin = (Button) findViewById(R.id.btnLogin);
-			chkAutoLogin = (CheckBox) findViewById(R.id.chkAutoLogin);
 
-			if (AppContext.getStreetsCommon().getUserPreferenceValue(SHOW_INTRO).equals("1")) {
-                playIntroVideo();
-			} else {
-				onCompletion(null);
-			}
+        edtPassword = (EditText) findViewById(R.id.loginPin);
+        btnLogin = (Button) findViewById(R.id.btnLogin);
+        chkAutoLogin = (CheckBox) findViewById(R.id.chkAutoLogin);
 
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-			Log.e(TAG, "Failed to start application: " + ex.getMessage(), ex);
-			runOnUiThread(() ->
-                Toast.makeText(getApplication(), "Failed to start application! An error occurred.",
-                Toast.LENGTH_SHORT).show());
-			finish();
-		}
+        if (getStreetsCommon().getUserPreferenceValue(SHOW_INTRO).equals("1")) {
+            playIntroVideo();
+        }
+
+        onCompletion(null);
 	}
 
 	@Override
-	public void onCompletion(MediaPlayer mp) {
+	public void onCompletion(MediaPlayer mediaPlayer) {
 		Log.i(TAG, "+++ ON COMPLETION +++");
 
-		if (AppContext.getStreetsCommon().getUserPreferenceValue(AUTO_LOGIN).equals("1")) {
-			SequentialTaskManager.runWhenAvailable(new LoginTask(this));
+		if (getStreetsCommon().getUserPreferenceValue(AUTO_LOGIN).equals("1")) {
+			runWhenAvailable(new LoginTask(this));
 		}
 		else {
 			edtPassword.setVisibility(VISIBLE);
@@ -121,11 +113,9 @@ public class Startup extends AppCompatActivity implements OnClickListener, Media
 
     @Override
     public void onDestroy() {
-
         Log.i(TAG, "+++ ON DESTROY +++");
         super.onDestroy();
-
-        AppContext.shutdown();
+        startup = null;
     }
 
 	@Override
