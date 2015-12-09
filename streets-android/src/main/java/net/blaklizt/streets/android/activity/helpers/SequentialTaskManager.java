@@ -176,6 +176,10 @@ public class SequentialTaskManager {
         return success(bgTask);
     }
 
+	public static Try<TaskInfo, String> runWhenAvailable(Class<? extends TaskInfo> streetsAbstractTask) {
+		return runWhenAvailable(getBackgroundExecutionTask(streetsAbstractTask));
+	}
+
     public static Try<TaskInfo, String> runWhenAvailable(TaskInfo bgTask) {
 
         Log.i(TAG, "Scheduling task for later execution: " + bgTask.getClassName());

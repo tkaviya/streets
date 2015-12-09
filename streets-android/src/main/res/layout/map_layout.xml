@@ -15,7 +15,8 @@
                 android:layout_height="80dp"
                 android:contentDescription="@string/location_image"
                 android:padding="5dp"
-                android:src="@drawable/default_icon" />
+                android:src="@drawable/default_icon"
+                android:layout_gravity="top"/>
         <TextView
                 android:id="@+id/location_categories_text_view"
                 android:text="@string/marker_info_default_text"

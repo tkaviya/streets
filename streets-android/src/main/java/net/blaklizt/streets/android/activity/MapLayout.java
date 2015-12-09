@@ -9,28 +9,30 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
 import net.blaklizt.streets.android.R;
+import net.blaklizt.streets.android.activity.helpers.CurrentViewLocationTask;
 import net.blaklizt.streets.android.activity.helpers.GoogleMapTask;
 import net.blaklizt.streets.android.activity.helpers.LocationUpdateTask;
 import net.blaklizt.streets.android.activity.helpers.PlacesTask;
-import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.location.navigation.Navigator;
 import net.blaklizt.streets.android.location.places.Place;
 
 import static java.lang.String.format;
+import static net.blaklizt.streets.android.activity.helpers.SequentialTaskManager.runWhenAvailable;
 
 /**
  * User: tkaviya
  * Date: 6/21/14
  * Time: 5:58 PM
  */
-public class MapLayout extends StreetsAbstractView implements GoogleMap.InfoWindowAdapter, GoogleMap.OnMarkerClickListener
+public class MapLayout extends StreetsAbstractView implements InfoWindowAdapter, OnMarkerClickListener
 {
     private static final String TAG = StreetsCommon.getTag(MapLayout.class);
 	private View mapView;
@@ -69,9 +71,10 @@ public class MapLayout extends StreetsAbstractView implements GoogleMap.InfoWind
         }
 
         Log.i(TAG, "Queuing tasks for dependency managed execution.");
-        SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(GoogleMapTask.class));
-        SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(LocationUpdateTask.class));
-        SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(PlacesTask.class));
+        runWhenAvailable(GoogleMapTask.class);
+        runWhenAvailable(LocationUpdateTask.class);
+        runWhenAvailable(PlacesTask.class);
+	    runWhenAvailable(CurrentViewLocationTask.class);
     }
 
     @Override

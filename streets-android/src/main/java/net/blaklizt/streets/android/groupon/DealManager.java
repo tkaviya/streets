@@ -21,7 +21,7 @@ public class DealManager
 		String line;
 		String result = "";
 		try {
-			url = new URL("http://api.groupon.com/v2/deals/?channel_id=goods?" +
+			url = new URL("http://api.groMupon.com/v2/deals/?channel_id=goods?" +
 //				"client_id=c77a05aabd8b1651961fd5b48c26f4919ec4bed0&" +
 				"client_id=b91d375e38147f3c1e0339a3588d0b791c190424&" +
 				"show=tags,options");

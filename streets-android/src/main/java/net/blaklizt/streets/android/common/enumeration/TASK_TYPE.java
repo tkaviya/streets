@@ -19,10 +19,11 @@ public enum TASK_TYPE
 
     NET_ACCESS          ("30", "net_access",        "network access"),
 
-    BG_GOOGLE_MAP_TASK  ("51", "google_map_task",   "load google map"),
-    BG_LOCATION_TASK    ("52", "location_task",     "update current user location"),
-    BG_PLACES_TASK      ("53", "places_task",       "update nearby places"),
-    BG_PERMISSIONS_TASK ("54", "permissions_task",  "permission request task"),
+    BG_GOOGLE_MAP_TASK      ("51", "google_map_task",       "load google map"),
+    BG_LOCATION_TASK        ("52", "location_task",         "update current user location"),
+    BG_PLACES_TASK          ("53", "places_task",           "update nearby places"),
+    BG_PERMISSIONS_TASK     ("54", "permissions_task",      "permission request task"),
+    BG_VIEW_LOCATION_TASK   ("55", "view_location_task",    "permission request task"),
 
     FG_LOGIN_TASK       ("101", "login_task",       "login to the app"),
     FG_REGISTER_TASK    ("102", "register_task",    "register onto the streets"),

@@ -104,6 +104,7 @@ public class GoogleMapTask extends StreetsAbstractTask {
 
         return null;
     }
+
     @Override
     public void onCancelledRelay() {
         AppContext.getInstance().getGoogleMap().ifPresent(GoogleMap::stopAnimation);

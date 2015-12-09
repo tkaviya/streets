@@ -5,8 +5,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
@@ -15,12 +13,12 @@ import android.speech.tts.TextToSpeech;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 
 import net.blaklizt.streets.android.R.drawable;
+import net.blaklizt.streets.android.activity.helpers.CurrentViewLocationTask;
 import net.blaklizt.streets.android.activity.helpers.GoogleMapTask;
 import net.blaklizt.streets.android.activity.helpers.LocationUpdateTask;
 import net.blaklizt.streets.android.activity.helpers.PlacesTask;
@@ -40,15 +38,14 @@ import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.persistence.StreetsDBHelper;
 import net.blaklizt.streets.android.sidemenu.model.SlideMenuItem;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 
 import static java.lang.String.format;
+import static net.blaklizt.streets.android.activity.helpers.SequentialTaskManager.runWhenAvailable;
 import static net.blaklizt.streets.android.common.StreetsCommon.getTag;
 import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.USER_PREF_READ;
 import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.AUTO_ENABLE_GPS;
@@ -130,18 +127,16 @@ public class AppContext {
 
     /* =================== SHARED CONTEXT INFORMATION =================== */
     private GoogleMap googleMap;
-	private String currentCity, currentLocality;
     private Location currentLocation;
     private TextToSpeech ttsEngine;
     private LocationManager locationManager;
     private ArrayList<Place> nearbyPlaces;
     private HashMap<String, Place> markerPlaces = new HashMap<>();
-	private TextView currentCityTextView;
-	private TextView currentSuburbTextView;
     //location provider data
     public final static String PROVIDER_CHEAPEST = "passive";
     public final static Integer MINIMUM_REFRESH_TIME = 600000;
-    public final static Integer MINIMUM_REFRESH_DISTACE = 10;
+    public final static Integer SUBURB_REFRESH_MINS = 3;
+    public final static Integer MINIMUM_REFRESH_DISTANCE = 10;
     public String defaultProvider = PROVIDER_CHEAPEST;        //default working provider
 
     public static boolean firstLocationUpdate = true;
@@ -168,6 +163,7 @@ public class AppContext {
             TASK_EXECUTION_INFO.put(GoogleMapTask.class, null);
             TASK_EXECUTION_INFO.put(LocationUpdateTask.class, null);
             TASK_EXECUTION_INFO.put(PlacesTask.class, null);
+            TASK_EXECUTION_INFO.put(CurrentViewLocationTask.class, null);
         }
     }
 
@@ -459,22 +455,7 @@ public class AppContext {
 
     public void setCurrentLocation(Location currentLocation) {
         this.currentLocation = currentLocation;
-
-	    Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-	    List<Address> addresses;
-	    try {
-		    addresses = geocoder.getFromLocation(currentLocation.getLatitude(), currentLocation.getLongitude(), 1);
-		    if (currentCityTextView != null) {
-			    currentCityTextView.setText("CITY: " + addresses.get(0).getLocality());
-		    }
-		    if (currentSuburbTextView != null){
-			    currentSuburbTextView.setText("SUBURB: " + addresses.get(0).getSubLocality());
-		    }
-	    }
-	    catch (IOException e) {
-		    e.printStackTrace();
-		    throw new RuntimeException(e);
-	    }
+	    runWhenAvailable(CurrentViewLocationTask.class);
     }
 
     public LocationManager getLocationManager() {
@@ -493,9 +474,9 @@ public class AppContext {
             locationManager = (LocationManager) AppContext.getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
             if (isLocationPermissionsGranted()) {
-                try { locationManager.addGpsStatusListener(Startup.getInstance()); }
+                try { locationManager.addGpsStatusListener(MenuLayout.getInstance()); }
                 catch (SecurityException ex) {
-                    ex.printStackTrace();  /* try catch done to please compiler. cant reach here because we check permissions beforehand*/
+                    ex.printStackTrace();  /* try catch done to please compiler. cant reach here because we check permissions beforehand */
                     Log.e(TAG, "Failed to setup location update requests! " + ex.getMessage(), ex);
                     throw new RuntimeException(ex);
                 }
@@ -516,13 +497,4 @@ public class AppContext {
     public HashMap<String, Place> getMarkerPlaces() {
         return markerPlaces;
     }
-
-	public void setCurrentCityTextView(TextView currentCityTextView) {
-		this.currentCityTextView = currentCityTextView;
-	}
-
-	public void setCurrentSuburbTextView(TextView currentSuburbTextView) {
-		this.currentSuburbTextView = currentSuburbTextView;
-	}
-
 }

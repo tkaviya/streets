@@ -6,6 +6,7 @@ import android.location.LocationManager;
 import android.util.Log;
 
 import net.blaklizt.streets.android.activity.AppContext;
+import net.blaklizt.streets.android.activity.MenuLayout;
 import net.blaklizt.streets.android.activity.Startup;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.List;
 
 import static android.location.LocationManager.GPS_PROVIDER;
 import static java.util.Collections.singletonList;
-import static net.blaklizt.streets.android.activity.AppContext.MINIMUM_REFRESH_DISTACE;
+import static net.blaklizt.streets.android.activity.AppContext.MINIMUM_REFRESH_DISTANCE;
 import static net.blaklizt.streets.android.activity.AppContext.MINIMUM_REFRESH_TIME;
 import static net.blaklizt.streets.android.activity.AppContext.PROVIDER_CHEAPEST;
 import static net.blaklizt.streets.android.activity.AppContext.checkEnableGPS;
@@ -65,7 +66,7 @@ public class LocationUpdateTask extends StreetsAbstractTask {
         }
         try {
             Log.i(TAG, "Starting location update requests with provider: " + GPS_PROVIDER);
-            locationManager.requestLocationUpdates(GPS_PROVIDER, MINIMUM_REFRESH_TIME, MINIMUM_REFRESH_DISTACE, Startup.getInstance());
+            locationManager.requestLocationUpdates(GPS_PROVIDER, MINIMUM_REFRESH_TIME, MINIMUM_REFRESH_DISTANCE, MenuLayout.getInstance());
         } catch (SecurityException ex) {
             ex.printStackTrace();
             Log.e(TAG, "Failed to setup location update requests! " + ex.getMessage(), ex);
@@ -89,7 +90,7 @@ public class LocationUpdateTask extends StreetsAbstractTask {
                 final Location location = locationManager.getLastKnownLocation(GPS_PROVIDER);
 
                 if (location != null) {
-                    Startup.getInstance().runOnUiThread(() -> Startup.getInstance().onLocationChanged(location));
+                    Startup.getInstance().runOnUiThread(() -> MenuLayout.getInstance().onLocationChanged(location));
 
                     Log.i(TAG, "Found location using GPS.");
                     AppContext.getInstance().setCurrentProvider(locationManager.getProvider(GPS_PROVIDER));
@@ -139,7 +140,7 @@ public class LocationUpdateTask extends StreetsAbstractTask {
 
             if (location != null) {
                 final Location finalLocation = location;
-                Startup.getInstance().runOnUiThread(() -> Startup.getInstance().onLocationChanged(finalLocation));
+                Startup.getInstance().runOnUiThread(() -> MenuLayout.getInstance().onLocationChanged(finalLocation));
                 Log.i(TAG, "Found location using provider '" + AppContext.getInstance().getDefaultProvider() + "'. Placing initial marker.");
             } else {
                 //All providers failed, may as well poll using least battery consuming provider

@@ -5,8 +5,13 @@ import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.location.GpsStatus;
+import android.location.Location;
+import android.location.LocationListener;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -21,7 +26,13 @@ import android.view.animation.TranslateAnimation;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+
 import net.blaklizt.streets.android.R;
+import net.blaklizt.streets.android.activity.helpers.LocationUpdateTask;
+import net.blaklizt.streets.android.activity.helpers.PlacesTask;
+import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.sidemenu.interfaces.Resourceble;
@@ -36,12 +47,17 @@ import java.util.Set;
 import io.codetail.animation.SupportAnimator;
 import io.codetail.animation.ViewAnimationUtils;
 
+import static android.location.LocationManager.GPS_PROVIDER;
+import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static java.lang.String.format;
 import static net.blaklizt.streets.android.activity.AppContext.DEFAULT_FRAGMENT_VIEW;
+import static net.blaklizt.streets.android.activity.AppContext.MINIMUM_REFRESH_DISTANCE;
+import static net.blaklizt.streets.android.activity.AppContext.MINIMUM_REFRESH_TIME;
 import static net.blaklizt.streets.android.activity.AppContext.getFragmentView;
 import static net.blaklizt.streets.android.activity.AppContext.getMenuFragmentRegistry;
 import static net.blaklizt.streets.android.activity.AppContext.getStreetsFragments;
 import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.ASK_ON_EXIT;
+import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.REQUEST_GPS_PERMS;
 
 /******************************************************************************
  * *
@@ -67,19 +83,21 @@ import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.AS
 
 public class MenuLayout extends AppCompatActivity implements
         ViewAnimator.ViewAnimatorListener, DialogInterface.OnClickListener,
-        DialogInterface.OnMultiChoiceClickListener {
+        DialogInterface.OnMultiChoiceClickListener, ActivityCompat.OnRequestPermissionsResultCallback, GpsStatus.Listener, LocationListener {
 
     private final String TAG = StreetsCommon.getTag(MenuLayout.class);
     private final List<SlideMenuItem> menuItemList = new ArrayList<>();
     private final HashMap<String, StreetsAbstractView> streetsViews = new HashMap<>();
     private static MenuLayout menuLayout = null;
-    private View mainContentTable;
-    private float lastTranslate = 0.0f;
-    private DrawerLayout drawerLayout;
-    private ActionBarDrawerToggle drawerToggle;
-    private ViewAnimator viewAnimator;
-    private LinearLayout linearLayout;
-    private TextView statusTextView;
+	public TextView currentCityTextView;
+	public TextView currentSuburbTextView;
+	private View mainContentTable;
+	private float lastTranslate = 0.0f;
+	private DrawerLayout drawerLayout;
+	private ActionBarDrawerToggle drawerToggle;
+	private ViewAnimator viewAnimator;
+	private LinearLayout linearLayout;
+	private TextView statusTextView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -89,8 +107,8 @@ public class MenuLayout extends AppCompatActivity implements
         setContentView(R.layout.main_menu_layout);
         menuLayout = this;
 
-	    AppContext.getInstance().setCurrentCityTextView((TextView)findViewById(R.id.current_city));
-	    AppContext.getInstance().setCurrentSuburbTextView((TextView)findViewById(R.id.current_suburb));
+	    currentCityTextView = (TextView)findViewById(R.id.current_city);
+	    currentSuburbTextView = (TextView)findViewById(R.id.current_suburb);
 
 	    mainContentTable = findViewById(R.id.main_content_table);
 
@@ -186,7 +204,6 @@ public class MenuLayout extends AppCompatActivity implements
                 .setPositiveButton("Yes", this)
                 .setNegativeButton("No", this).show();
     }
-
 
     private void setActionBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -315,4 +332,155 @@ public class MenuLayout extends AppCompatActivity implements
         Log.i(TAG, format("Adding view %s", view.getTag()));
         linearLayout.addView(view);
     }
+
+
+	@Override
+	public void onGpsStatusChanged(int i)
+	{
+		String currentProviderName = AppContext.getInstance().getCurrentProvider() == null ? null : AppContext.getInstance().getCurrentProvider().getName();
+		if ((i == GpsStatus.GPS_EVENT_STARTED || i == GpsStatus.GPS_EVENT_FIRST_FIX) && !GPS_PROVIDER.equalsIgnoreCase(currentProviderName))
+		{
+			//GPS was turned on, is now ready & is now best location provider
+			Log.i(TAG, "GPS started, trying switch to GPS as preferred location provider from current provider: " + currentProviderName);
+
+			if (!AppContext.isLocationPermissionsGranted()) {
+				Log.i(TAG, "Cannot run location updates. Insufficient permissions.");
+				return;
+			}
+
+			// Creating a criteria object to retrieve provider
+			Log.i(TAG, "Checking for preferred location provider 'GPS' for best accuracy.");
+			AppContext.getInstance().setCurrentProvider(AppContext.getInstance().getLocationManager().getProvider(GPS_PROVIDER));
+
+			Location location;
+			try { location = AppContext.getInstance().getLocationManager().getLastKnownLocation(GPS_PROVIDER); }
+			catch (SecurityException ex) {
+				ex.printStackTrace();  /* try catch done to please compiler. cant reach here because we check permissions beforehand */
+				Log.e(TAG, "Failed to change to GPS location provider! " + ex.getMessage(), ex);
+				throw new RuntimeException(ex);
+			}
+
+			if (location != null) {
+				AppContext.getInstance().setCurrentLocation(location);
+				//PLACE THE INITIAL MARKER
+				Log.i(TAG, "Found location using GPS.");
+				AppContext.getInstance().setCurrentProvider(AppContext.getInstance().getLocationManager().getProvider(GPS_PROVIDER));
+
+				Log.i(TAG, "Provider accuracy: " + AppContext.getInstance().getCurrentProvider().getAccuracy());
+				Log.i(TAG, "Provider power: " + AppContext.getInstance().getCurrentProvider().getPowerRequirement());
+
+				Log.i(TAG, "Starting location update requests with provider: " + GPS_PROVIDER);
+				try { AppContext.getInstance().getLocationManager().requestLocationUpdates(GPS_PROVIDER, MINIMUM_REFRESH_TIME, MINIMUM_REFRESH_DISTANCE, this); }
+				catch (SecurityException ex) {
+					ex.printStackTrace();  /* try catch done to please compiler. cant reach here because we check permissions beforehand */
+					Log.e(TAG, "Failed to start location updates with GPS location provider! " + ex.getMessage(), ex);
+					throw new RuntimeException(ex);
+				}
+				return;
+			}
+			else {
+				AppContext.getInstance().setCurrentProvider(AppContext.getInstance().getLocationManager().getProvider(AppContext.getInstance().getDefaultProvider()));
+				Log.i(TAG, "GPS location provider not available.");
+			}
+
+			SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(LocationUpdateTask.class).setAdditionalParams(true));
+		}
+		else if (i == GpsStatus.GPS_EVENT_STOPPED && GPS_PROVIDER.equalsIgnoreCase(currentProviderName))
+		{
+			//GPS was turned off, we need another location provider
+			Log.i(TAG, "GPS was turned off and was current location provider. Trying to find alternative location provider.");
+			SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(LocationUpdateTask.class).setAdditionalParams(false));
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+		if (!(requestCode == AppContext.PERMISSION_LOCATION_INFO)) {
+			return; //not our required permissions
+		}
+
+		for (int c = 0; c < grantResults.length; c++) {
+			if (grantResults[c] != PERMISSION_GRANTED) {
+				Log.i(TAG, "Permission was denied for " + permissions[c] + ". Aborting location updates.");
+				AppContext.getStreetsCommon().addOutstandingPermission(permissions[c]);
+				AppContext.getStreetsCommon().setUserPreference(REQUEST_GPS_PERMS, "0"); //if user rejects, he probably does not want to be bothered
+			} else {
+				Log.i(TAG, "Permission granted for " + permissions[c]);
+				AppContext.getStreetsCommon().removeOutstandingPermission(permissions[c]);
+				AppContext.getStreetsCommon().setUserPreference(REQUEST_GPS_PERMS, "1"); //reset preferences if permissions were updated
+				AppContext.setLocationPermissionsGranted(false);
+			}
+		}
+
+		if (AppContext.getStreetsCommon().getOutstandingPermissions().size() == 0) { //we have everything we need! Great. Start location updates.
+			Log.i(TAG, "All required permissions granted. Performing location updates");
+			SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(LocationUpdateTask.class));
+			AppContext.setLocationPermissionsGranted(true);
+		}
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onLocationChanged(Location location) {
+		Log.d(TAG, "+++ ON LOCATION CHANGED +++");
+
+		try
+		{
+			AppContext.getInstance().setCurrentLocation(location);
+
+			// Getting latitude of the current location
+			double latitude = location.getLatitude();
+
+			// Getting longitude of the current location
+			double longitude = location.getLongitude();
+
+			Log.i(TAG, "New location " + latitude + ":" + longitude);
+
+			// Creating a LatLng object for the current location
+			LatLng latLng = new LatLng(latitude, longitude);
+
+			//show a random news items
+			//MenuActivity.getInstance().setAppInfo(">>> " + random news);
+
+			if (AppContext.isFirstLocationUpdate())
+			{
+				// Showing the current location in Google Map
+				if (AppContext.getInstance().getGoogleMap().isPresent()) {
+
+					//prevent all other processes from updating
+					AppContext.setIsFirstLocationUpdate(false);
+
+					AppContext.getInstance().getGoogleMap().get().moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+					Log.i(TAG, "Camera moved to new location");
+
+					// Zoom in the Google Map
+					AppContext.getInstance().getGoogleMap().get().animateCamera(CameraUpdateFactory.zoomTo(13), 3000, null);
+					Log.i(TAG, "Camera zoomed to view");
+
+					SequentialTaskManager.runWhenAvailable(AppContext.getBackgroundExecutionTask(PlacesTask.class));
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			Log.e(TAG, "Failed to update to new location", ex);
+		}
+	}
+
 }
