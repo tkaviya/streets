@@ -15,8 +15,8 @@
     <mvc:annotation-driven />
 
     <!--<bean id="documentationConfig" class="com.mangofactory.swagger.configuration.DocumentationConfig"/>-->
-    <bean id="swagger2Config" class="springfox.documentation.swagger2.configuration.Swagger2DocumentationConfiguration"/>
-    <bean id="springConfig" class="net.blaklizt.streets.api.StreetsInterceptor"/>
+    <!--<bean id="swagger2Config" class="springfox.documentation.swagger2.configuration.Swagger2DocumentationConfiguration"/>-->
+    <!--<bean id="springConfig" class="net.blaklizt.streets.api.LogResource "/>-->
 
     <context:component-scan base-package="net.blaklizt.streets.api" />
 
