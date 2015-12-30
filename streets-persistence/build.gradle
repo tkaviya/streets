@@ -1,0 +1,7 @@
+description = 'Streets Persistence'
+
+jar { baseName = 'persistence' }
+
+dependencies {
+    compile group: 'net.blaklizt.symbiosis', name: 'sym_persistence', version: '2.0.0'
+}

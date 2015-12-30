@@ -4,15 +4,11 @@ import net.blaklizt.streets.persistence.User;
 import net.blaklizt.streets.persistence.UserGroupRole;
 import net.blaklizt.streets.persistence.dao.UserDao;
 import net.blaklizt.streets.persistence.dao.UserGroupRoleDao;
-import net.blaklizt.symbiosis.sym_authentication.security.Security;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
-import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
 * Created with IntelliJ IDEA.
@@ -30,7 +27,7 @@ import java.util.List;
 */
 @Service
 @Transactional(readOnly=true)
-public class StreetAuthenticator implements UserDetailsService, PasswordEncoder {
+public class StreetAuthenticator {
 	protected HashMap<String, List<SimpleGrantedAuthority>> grantedAuthoritiesCache = new HashMap<>();
 
 	@Autowired
@@ -41,7 +38,6 @@ public class StreetAuthenticator implements UserDetailsService, PasswordEncoder 
 
 	private static final Logger logger = Configuration.getNewLogger(StreetAuthenticator.class.getSimpleName());
 
-	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
 	{
 		logger.info("Logging in user: " + username);
@@ -55,7 +51,7 @@ public class StreetAuthenticator implements UserDetailsService, PasswordEncoder 
 		else
 		{
 			active = false;
-			logger.warn("Cannot login " + dbUser.getUsername() + " : Account is not active.");
+			logger.warning("Cannot login " + dbUser.getUsername() + " : Account is not active.");
 		}
 
 		return new org.springframework.security.core.userdetails.User(username, dbUser.getPassword(),
@@ -82,19 +78,5 @@ public class StreetAuthenticator implements UserDetailsService, PasswordEncoder 
 			grantedAuthoritiesCache.put(userGroup, authList);
 		}
 		return grantedAuthoritiesCache.get(userGroup);
-	}
-
-	@Override
-	public String encodePassword(String rawPass, Object salt) {
-		//implement hectic encryption here
-		logger.info("Encrypting [ " + rawPass + " with salt " + salt + " ]");
-		return new String(Security.encrypt(rawPass.getBytes()));
-	}
-
-	@Override
-	public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-		//implement hectic encryption here
-		logger.info("Comparing [ " + new String(Security.encrypt(rawPass.getBytes())) + " | " + rawPass + " ]");
-		return encPass.matches(new String(Security.encrypt(rawPass.getBytes())));
 	}
 }

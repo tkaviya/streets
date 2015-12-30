@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
-
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.common.Group;

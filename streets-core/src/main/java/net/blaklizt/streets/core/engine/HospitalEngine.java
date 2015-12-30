@@ -10,7 +10,7 @@ import net.blaklizt.streets.persistence.EventLog;
 import net.blaklizt.streets.persistence.User;
 import net.blaklizt.streets.persistence.UserAttribute;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
-import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
+import net.blaklizt.symbiosis.sym_core_lib.utilities.CommonUtilities;
 
 import java.util.Date;
 import java.util.List;

@@ -6,7 +6,6 @@ import net.blaklizt.streets.core.module.ModuleInterface;
 import net.blaklizt.streets.core.session.UserSession;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
 import net.blaklizt.symbiosis.sym_common.utilities.Format;
-import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 /**
  * Created with IntelliJ IDEA.

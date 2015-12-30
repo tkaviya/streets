@@ -3,7 +3,6 @@ package net.blaklizt.streets.android.activity.helpers;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-
 import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.MenuLayout;
 
@@ -53,25 +52,31 @@ public class CurrentViewLocationTask extends StreetsAbstractTask {
     @Override
     protected Object doInBackground(Object...params) {
 
-	    if (minutesBetween(new Date(), lastUpdateDate) < SUBURB_REFRESH_MINS) {
+	    if (lastUpdateDate != null && minutesBetween(new Date(), lastUpdateDate) < SUBURB_REFRESH_MINS) {
 		    return null;
 	    }
 
 	    Geocoder geocoder = new Geocoder(AppContext.getApplicationContext(), Locale.getDefault());
 	    List<Address> addresses;
 	    try {
-		    Location currentViewLocation = AppContext.getAppContextInstance().getCurrentLocation().get();
-		    addresses = geocoder.getFromLocation(currentViewLocation.getLatitude(), currentViewLocation.getLongitude(), 1);
-		    lastUpdateDate = new Date();
-		    currentCity = addresses.get(0).getLocality();
-		    currentSuburb = addresses.get(0).getSubLocality() != null ? addresses.get(0).getSubLocality() : addresses.get(0).getSubAdminArea();
-		    MenuLayout.getInstance().runOnUiThread(new Runnable() {
-			    @Override
-			    public void run() {
-				    if (currentCity != null)    {   MenuLayout.getInstance().currentCityTextView.setText(currentCity);       }
-				    if (currentSuburb != null)  {   MenuLayout.getInstance().currentSuburbTextView.setText(currentSuburb); }
-			    }
-		    });
+            if (AppContext.getAppContextInstance().getCurrentLocation().isPresent()) {
+                Location currentViewLocation = AppContext.getAppContextInstance().getCurrentLocation().get();
+                addresses = geocoder.getFromLocation(currentViewLocation.getLatitude(), currentViewLocation.getLongitude(), 1);
+                lastUpdateDate = new Date();
+                currentCity = addresses.get(0).getLocality();
+                currentSuburb = addresses.get(0).getSubLocality() != null ? addresses.get(0).getSubLocality() : addresses.get(0).getSubAdminArea();
+                MenuLayout.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (currentCity != null) {
+                            MenuLayout.getInstance().currentCityTextView.setText(currentCity);
+                        }
+                        if (currentSuburb != null) {
+                            MenuLayout.getInstance().currentSuburbTextView.setText(currentSuburb);
+                        }
+                    }
+                });
+            }
 	    }
 	    catch (IOException e) {
 		    e.printStackTrace();

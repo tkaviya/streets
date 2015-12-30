@@ -4,7 +4,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.util.Log;
-
+import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.activity.MenuLayout;
 import net.blaklizt.streets.android.activity.Startup;
 
@@ -14,12 +14,7 @@ import java.util.List;
 
 import static android.location.LocationManager.GPS_PROVIDER;
 import static java.util.Collections.singletonList;
-import static net.blaklizt.streets.android.activity.AppContext.MINIMUM_REFRESH_DISTANCE;
-import static net.blaklizt.streets.android.activity.AppContext.MINIMUM_REFRESH_TIME;
-import static net.blaklizt.streets.android.activity.AppContext.PROVIDER_CHEAPEST;
-import static net.blaklizt.streets.android.activity.AppContext.checkEnableGPS;
-import static net.blaklizt.streets.android.activity.AppContext.getAppContextInstance;
-import static net.blaklizt.streets.android.activity.AppContext.isLocationPermissionsGranted;
+import static net.blaklizt.streets.android.activity.AppContext.*;
 import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.BG_LOCATION_TASK;
 
 /******************************************************************************
@@ -48,7 +43,7 @@ public class LocationUpdateTask extends StreetsAbstractTask {
 
     public LocationUpdateTask() {
         processDependencies = new ArrayList<>(singletonList(GoogleMapTask.class.getSimpleName()));
-        viewDependencies = new ArrayList<>();
+        viewDependencies = new ArrayList<>(singletonList(MapLayout.class));
         allowOnlyOnce = false;
         allowMultiInstance = false;
         taskType = BG_LOCATION_TASK;

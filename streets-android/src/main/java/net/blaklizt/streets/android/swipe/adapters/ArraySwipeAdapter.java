@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-
 import net.blaklizt.streets.android.swipe.SwipeLayout;
 import net.blaklizt.streets.android.swipe.implments.SwipeItemMangerImpl;
 import net.blaklizt.streets.android.swipe.interfaces.SwipeAdapterInterface;

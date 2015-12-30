@@ -7,7 +7,6 @@ package net.blaklizt.streets.android.location.navigation;
  */
 
 import com.google.android.gms.maps.model.LatLng;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 

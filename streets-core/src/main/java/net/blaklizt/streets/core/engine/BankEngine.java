@@ -8,7 +8,7 @@ import net.blaklizt.streets.core.session.UserSession;
 import net.blaklizt.streets.persistence.EventLog;
 import net.blaklizt.streets.persistence.User;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
-import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
+import net.blaklizt.symbiosis.sym_core_lib.utilities.CommonUtilities;
 
 import java.util.Date;
 import java.util.List;
@@ -34,8 +34,8 @@ public class BankEngine extends ModuleInterface {
     public Menu execute(UserSession userSession)
 	{
         return MenuItem.createFinalMenu("You currently have " + CommonUtilities.formatDoubleToMoney(
-				userSession.getUser().getUserAttribute().getBankBalance(),
-				Configuration.getProperty("currencySymbol")) + " in your bank account.",
+						userSession.getUser().getUserAttribute().getBankBalance(),
+						Configuration.getProperty("currencySymbol")) + " in your bank account.",
             streets.getMainMenu(userSession), userSession);
     }
 

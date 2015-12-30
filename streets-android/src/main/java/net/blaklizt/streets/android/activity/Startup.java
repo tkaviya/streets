@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.VideoView;
-
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.LoginTask;
 import net.blaklizt.streets.android.common.StreetsCommon;

@@ -2,11 +2,9 @@ package net.blaklizt.streets.android.activity.helpers;
 
 import android.support.design.widget.Snackbar;
 import android.util.Log;
-
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
 import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.activity.MenuLayout;
@@ -89,7 +87,7 @@ public class PlacesTask extends StreetsAbstractTask {
         displayPlaces();
     }
 
-    protected static void drawPlaceMarker(Place place){
+    public static void drawPlaceMarker(Place place){
         Log.i(TAG, "Drawing place marker for " + place.name + " at location " + place.latitude + " : " + place.longitude);
         if (AppContext.getAppContextInstance().getGoogleMap().isPresent()) {
             LatLng currentPosition = new LatLng(place.latitude, place.longitude);

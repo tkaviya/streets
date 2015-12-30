@@ -10,11 +10,7 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
-import static net.blaklizt.streets.android.rotatemenu.view.RingOperationLayout.mLevel1Width;
-import static net.blaklizt.streets.android.rotatemenu.view.RingOperationLayout.mLevel2ISRuning;
-import static net.blaklizt.streets.android.rotatemenu.view.RingOperationLayout.mLevel2Width;
-import static net.blaklizt.streets.android.rotatemenu.view.RingOperationLayout.mLevel3ISRuning;
-import static net.blaklizt.streets.android.rotatemenu.view.RingOperationLayout.mLevel3Width;
+import static net.blaklizt.streets.android.rotatemenu.view.RingOperationLayout.*;
 
 @SuppressLint("DrawAllocation")
 public class CoverRingImageView extends ImageView {

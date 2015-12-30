@@ -8,12 +8,12 @@ import net.blaklizt.streets.core.session.UserSession;
 import net.blaklizt.streets.persistence.Module;
 import net.blaklizt.streets.persistence.ModuleTime;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
-import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Created with IntelliJ IDEA.
@@ -35,14 +35,14 @@ public abstract class ModuleInterface extends MenuItem
 
 	protected MenuItem instance = null;
 
-	protected Logger log4j;
+	protected Logger logger;
 
 	protected Module module;
 
 	protected ModuleInterface(String name)
 	{
 		super(name); instance = this;
-		log4j = Configuration.getNewLogger(this.getClass().getSimpleName());
+		logger = Configuration.getNewLogger(this.getClass().getSimpleName());
 		moduleEngines.put(name, this);
 	}
 
@@ -92,7 +92,7 @@ public abstract class ModuleInterface extends MenuItem
 					logger.info(name + " is schedule to run at " + moduleTime.getRuntime() + "hrs");
 				}
 				catch (NumberFormatException ex) {
-					logger.error("Failed to parse time " + moduleTime.getRuntime()
+					logger.severe("Failed to parse time " + moduleTime.getRuntime()
 						+ " for module " + module.getModuleName());
 				}
 			}

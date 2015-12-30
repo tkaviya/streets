@@ -6,4 +6,4 @@ gen-external-apklibs/
 target/
 build/
 local.properties
-
+*/local.properties

@@ -5,13 +5,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.provider.Settings;
 import android.util.Log;
-
 import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.common.StreetsCommon;
 
-import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.AUTO_ENABLE_GPS;
-import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.REQUEST_GPS_PERMS;
-import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.SUGGEST_GPS;
+import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.*;
 
 /**
  * Created with IntelliJ IDEA.

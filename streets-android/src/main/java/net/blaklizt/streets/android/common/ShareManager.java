@@ -2,7 +2,6 @@ package net.blaklizt.streets.android.common;
 
 import android.app.Activity;
 import android.content.Intent;
-
 import net.blaklizt.streets.android.common.enumeration.SHARE_PROVIDER;
 
 import static net.blaklizt.streets.android.common.StreetsCommon.getTag;

@@ -5,21 +5,14 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
-
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.nostra13.universalimageloader.core.ImageLoader;
-
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.common.StreetsCommon;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Date;
 import java.util.HashMap;
 

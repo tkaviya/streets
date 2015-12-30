@@ -2,7 +2,6 @@ package net.blaklizt.streets.android.common;
 
 import android.os.AsyncTask;
 import android.util.Log;
-
 import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
@@ -13,7 +12,6 @@ import net.blaklizt.streets.android.common.enumeration.TASK_TYPE;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static java.lang.String.format;
 import static net.blaklizt.streets.android.activity.helpers.SequentialTaskManager.onTaskUpdate;
 
 /******************************************************************************

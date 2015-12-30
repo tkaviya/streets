@@ -32,10 +32,6 @@
 
         <dependency>
             <groupId>net.blaklizt.symbiosis</groupId>
-            <artifactId>sym_common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.blaklizt.symbiosis</groupId>
             <artifactId>sym_authentication</artifactId>
         </dependency>
 

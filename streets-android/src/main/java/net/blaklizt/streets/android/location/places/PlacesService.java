@@ -9,10 +9,8 @@ package net.blaklizt.streets.android.location.places;
  */
 
 import android.util.Log;
-
 import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.common.StreetsCommon;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

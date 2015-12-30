@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
-
 import net.blaklizt.streets.android.swipe.SwipeLayout;
 import net.blaklizt.streets.android.swipe.implments.SwipeItemMangerImpl;
 import net.blaklizt.streets.android.swipe.interfaces.SwipeAdapterInterface;

@@ -10,7 +10,6 @@ package net.blaklizt.streets.android.adapter;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-
 import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.activity.NavigationLayout;
 import net.blaklizt.streets.android.activity.ProfileLayout;

@@ -9,13 +9,11 @@ package net.blaklizt.streets.android.location.navigation;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
-
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-
 import net.blaklizt.streets.android.activity.helpers.PlacesTask;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.location.places.Place;

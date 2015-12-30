@@ -3,7 +3,6 @@ package net.blaklizt.streets.android.rotatemenu;
 
 import android.app.Activity;
 import android.os.Bundle;
-
 import net.blaklizt.streets.android.R;
 
 public class CircleRunActivity extends Activity {

@@ -2,7 +2,6 @@ package net.blaklizt.streets.android.swipe.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
-
 import net.blaklizt.streets.android.swipe.SwipeLayout;
 import net.blaklizt.streets.android.swipe.implments.SwipeItemMangerImpl;
 import net.blaklizt.streets.android.swipe.interfaces.SwipeAdapterInterface;

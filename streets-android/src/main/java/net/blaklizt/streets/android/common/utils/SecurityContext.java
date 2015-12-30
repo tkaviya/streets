@@ -1,7 +1,6 @@
 package net.blaklizt.streets.android.common.utils;
 
 import android.util.Log;
-
 import net.blaklizt.streets.android.activity.AppContext;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.SymbiosisUser;

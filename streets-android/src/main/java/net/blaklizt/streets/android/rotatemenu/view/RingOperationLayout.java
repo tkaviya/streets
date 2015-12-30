@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.rotatemenu.RotateAnimations;
 

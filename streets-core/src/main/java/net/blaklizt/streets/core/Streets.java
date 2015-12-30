@@ -13,7 +13,7 @@ import net.blaklizt.streets.persistence.UserAttribute;
 import net.blaklizt.streets.persistence.dao.LocationDao;
 import net.blaklizt.streets.persistence.dao.UserAttributeDao;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
-import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
+import net.blaklizt.symbiosis.sym_core_lib.utilities.CommonUtilities;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -117,7 +117,7 @@ public class Streets
 									return MenuItem.createFinalMenu("The problem has been resolved for " + cost +
 											". You may continue with business as usual." +
 											"Current Funds: " + CommonUtilities.formatDoubleToMoney(
-											userAttribute.getBankBalance(), Configuration.getProperty("currencySymbol")),
+													userAttribute.getBankBalance(), Configuration.getProperty("currencySymbol")),
 											getMainMenu(currentSession), currentSession);
 								} else {
 									//insufficient funds

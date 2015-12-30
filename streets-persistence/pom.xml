@@ -23,9 +23,8 @@
     <dependencies>
 
         <dependency>
-            <groupId>net.blaklizt.streets</groupId>
-            <artifactId>streets-common</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>net.blaklizt.symbiosis</groupId>
+            <artifactId>sym_persistence</artifactId>
         </dependency>
 
         <!-- MySQL database driver -->

@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.widget.ImageView;
-
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.common.StreetsCommon;
@@ -17,8 +16,6 @@ import net.blaklizt.streets.android.sidemenu.interfaces.Resourceble;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.String.format;
 
 public class ViewAnimator<T extends Resourceble> {
     private final int ANIMATION_DURATION = 175;

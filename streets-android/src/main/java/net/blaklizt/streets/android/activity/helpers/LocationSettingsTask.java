@@ -3,7 +3,6 @@ package net.blaklizt.streets.android.activity.helpers;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.util.Log;
-
 import net.blaklizt.streets.android.activity.MenuLayout;
 import net.blaklizt.streets.android.listener.EnableGPSDialogueListener;
 

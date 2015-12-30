@@ -3,7 +3,6 @@ package net.blaklizt.streets.android.swipe.adapters;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-
 import net.blaklizt.streets.android.swipe.SwipeLayout;
 import net.blaklizt.streets.android.swipe.implments.SwipeItemMangerImpl;
 import net.blaklizt.streets.android.swipe.interfaces.SwipeAdapterInterface;

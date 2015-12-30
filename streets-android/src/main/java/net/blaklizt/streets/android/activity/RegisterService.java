@@ -4,12 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-
+import android.widget.*;
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.R.id;
 
@@ -17,9 +12,7 @@ import static android.support.design.widget.Snackbar.LENGTH_SHORT;
 import static net.blaklizt.streets.android.activity.helpers.RegisterTask.registrationServiceRequest;
 import static net.blaklizt.streets.android.common.StreetsCommon.getTag;
 import static net.blaklizt.streets.android.common.StreetsCommon.showSnackBar;
-import static net.blaklizt.streets.android.common.enumeration.RegistrationServiceRequest.SERVICE_TYPE.ESTABLISHED_BUSINESS;
-import static net.blaklizt.streets.android.common.enumeration.RegistrationServiceRequest.SERVICE_TYPE.OG_HUSTLE;
-import static net.blaklizt.streets.android.common.enumeration.RegistrationServiceRequest.SERVICE_TYPE.SMALL_BUSINESS;
+import static net.blaklizt.streets.android.common.enumeration.RegistrationServiceRequest.SERVICE_TYPE.*;
 import static net.blaklizt.symbiosis.sym_core_lib.utilities.Validator.isValidProviderServiceName;
 
 /**

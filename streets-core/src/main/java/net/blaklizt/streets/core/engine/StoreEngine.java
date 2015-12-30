@@ -6,7 +6,7 @@ import net.blaklizt.streets.core.module.ModuleInterface;
 import net.blaklizt.streets.core.session.UserSession;
 import net.blaklizt.streets.persistence.*;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
-import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
+import net.blaklizt.symbiosis.sym_core_lib.utilities.CommonUtilities;
 
 import java.util.Date;
 import java.util.List;

@@ -1,18 +1,13 @@
 package net.blaklizt.streets.android.swipe.implments;
 
 import android.view.View;
-
 import net.blaklizt.streets.android.swipe.SimpleSwipeListener;
 import net.blaklizt.streets.android.swipe.SwipeLayout;
 import net.blaklizt.streets.android.swipe.interfaces.SwipeAdapterInterface;
 import net.blaklizt.streets.android.swipe.interfaces.SwipeItemMangerInterface;
 import net.blaklizt.streets.android.swipe.util.Attributes;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * SwipeItemMangerImpl is a helper class to help all the adapters to maintain open status.

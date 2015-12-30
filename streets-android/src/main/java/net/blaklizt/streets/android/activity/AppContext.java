@@ -1,35 +1,22 @@
 package net.blaklizt.streets.android.activity;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
-import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.google.android.gms.maps.GoogleMap;
-
 import net.blaklizt.streets.android.R.drawable;
-import net.blaklizt.streets.android.activity.helpers.CurrentViewLocationTask;
-import net.blaklizt.streets.android.activity.helpers.GoogleMapTask;
-import net.blaklizt.streets.android.activity.helpers.LocationSettingsTask;
-import net.blaklizt.streets.android.activity.helpers.LocationUpdateTask;
-import net.blaklizt.streets.android.activity.helpers.PlacesTask;
-import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
-import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
-import net.blaklizt.streets.android.activity.helpers.StreetsInterfaceView;
+import net.blaklizt.streets.android.activity.helpers.*;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.TaskInfo;
 import net.blaklizt.streets.android.common.enumeration.STATUS_CODES;
-import net.blaklizt.streets.android.common.enumeration.TASK_TYPE;
 import net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE;
 import net.blaklizt.streets.android.common.utils.Optional;
 import net.blaklizt.streets.android.common.utils.SecurityContext;
@@ -39,22 +26,19 @@ import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.persistence.StreetsDBHelper;
 import net.blaklizt.streets.android.sidemenu.model.SlideMenuItem;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.Locale;
+import java.util.*;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.location.LocationManager.GPS_PROVIDER;
-import static java.lang.String.format;
+import static android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS;
 import static net.blaklizt.streets.android.activity.helpers.SequentialTaskManager.runWhenAvailable;
 import static net.blaklizt.streets.android.common.StreetsCommon.getTag;
 import static net.blaklizt.streets.android.common.StreetsCommon.showToast;
+import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.BG_PERMISSIONS_TASK;
 import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.USER_PREF_READ;
-import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.AUTO_ENABLE_GPS;
-import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.ENABLE_TTS;
-import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.REQUEST_GPS_PERMS;
-import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.SUGGEST_GPS;
+import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.*;
 import static net.blaklizt.streets.android.common.utils.SecurityContext.handleApplicationError;
 
 /**
@@ -348,24 +332,24 @@ public class AppContext {
     private static boolean checkAndRequestPermissions() {
 
         Context context = getApplicationContext().getApplicationContext();
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG, "Permission " + Manifest.permission.ACCESS_COARSE_LOCATION + " is not allowed.");
-            getStreetsCommon().addOutstandingPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+        if (ContextCompat.checkSelfPermission(context, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) {
+            Log.i(TAG, "Permission " + ACCESS_COARSE_LOCATION + " is not allowed.");
+            getStreetsCommon().addOutstandingPermission(ACCESS_COARSE_LOCATION);
             locationPermissionsGranted = false;
         } else {
-            Log.i(TAG, "Permission " + Manifest.permission.ACCESS_COARSE_LOCATION + " is allowed.");
-            getStreetsCommon().removeOutstandingPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+            Log.i(TAG, "Permission " + ACCESS_COARSE_LOCATION + " is allowed.");
+            getStreetsCommon().removeOutstandingPermission(ACCESS_COARSE_LOCATION);
             locationPermissionsGranted = false;
         }
 
         //check fine location
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG, "Permission " + Manifest.permission.ACCESS_FINE_LOCATION + " is not allowed.");
-            getStreetsCommon().addOutstandingPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+        if (ContextCompat.checkSelfPermission(context, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
+            Log.i(TAG, "Permission " + ACCESS_FINE_LOCATION + " is not allowed.");
+            getStreetsCommon().addOutstandingPermission(ACCESS_FINE_LOCATION);
             locationPermissionsGranted = false;
         } else {
-            Log.i(TAG, "Permission " + Manifest.permission.ACCESS_FINE_LOCATION + " is allowed.");
-            getStreetsCommon().removeOutstandingPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+            Log.i(TAG, "Permission " + ACCESS_FINE_LOCATION + " is allowed.");
+            getStreetsCommon().removeOutstandingPermission(ACCESS_FINE_LOCATION);
             locationPermissionsGranted = false;
         }
 
@@ -384,12 +368,12 @@ public class AppContext {
             Log.i(TAG, "Not enough permissions to do location updates. Requesting from user.");
             mapLayout.requestPermissions(outstandingPermissions.toArray(new String[outstandingPermissions.size()]), PERMISSION_LOCATION_INFO);
             locationPermissionsGranted = false;
-            getStreetsCommon().writeEventLog(TASK_TYPE.BG_PERMISSIONS_TASK, STATUS_CODES.GENERAL_ERROR,
+            getStreetsCommon().writeEventLog(BG_PERMISSIONS_TASK, STATUS_CODES.GENERAL_ERROR,
                 "User did not accept all permissions. %d outstanding permissions: " + logMessage);
         }
         else {
             locationPermissionsGranted = true;
-            getStreetsCommon().writeEventLog(TASK_TYPE.BG_PERMISSIONS_TASK, STATUS_CODES.SUCCESS, "All required location permissions available.");
+            getStreetsCommon().writeEventLog(BG_PERMISSIONS_TASK, STATUS_CODES.SUCCESS, "All required location permissions available.");
         }
 
         checkEnableGPS();
@@ -404,7 +388,7 @@ public class AppContext {
             Log.i(TAG, "GPS not enabled");
             if (getStreetsCommon().getUserPreferenceValue(AUTO_ENABLE_GPS).equals("1")) {
                 Log.i(TAG, "User has granted auto enable privilege");
-                Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                Intent myIntent = new Intent(ACTION_LOCATION_SOURCE_SETTINGS);
                 MenuLayout.getInstance().startActivity(myIntent);
             } else if (getStreetsCommon().getUserPreferenceValue(SUGGEST_GPS).equals("1")) {
                 Log.i(TAG, "Must request perms from use");

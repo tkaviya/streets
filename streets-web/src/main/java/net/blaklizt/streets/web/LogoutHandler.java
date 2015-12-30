@@ -3,11 +3,11 @@ package net.blaklizt.streets.web;
 import net.blaklizt.streets.core.Streets;
 import net.blaklizt.streets.core.session.UserSession;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
-import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.*;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * Created with IntelliJ IDEA.

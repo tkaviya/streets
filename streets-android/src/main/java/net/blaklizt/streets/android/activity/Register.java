@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.RegisterTask;
 

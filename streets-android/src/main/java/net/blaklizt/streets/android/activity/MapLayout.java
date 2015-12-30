@@ -8,18 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-
 import net.blaklizt.streets.android.R;
-import net.blaklizt.streets.android.activity.helpers.CurrentViewLocationTask;
-import net.blaklizt.streets.android.activity.helpers.GoogleMapTask;
-import net.blaklizt.streets.android.activity.helpers.LocationUpdateTask;
-import net.blaklizt.streets.android.activity.helpers.PlacesTask;
-import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
+import net.blaklizt.streets.android.activity.helpers.*;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.location.navigation.Navigator;
 import net.blaklizt.streets.android.location.places.Place;

@@ -12,7 +12,6 @@ import android.support.design.widget.Snackbar;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
-
 import net.blaklizt.streets.android.common.enumeration.SHARE_PROVIDER;
 import net.blaklizt.streets.android.common.enumeration.STATUS_CODES;
 import net.blaklizt.streets.android.common.enumeration.TASK_TYPE;
@@ -24,15 +23,11 @@ import java.util.Date;
 import java.util.HashMap;
 
 import static android.content.Context.TELEPHONY_SERVICE;
-import static net.blaklizt.streets.android.activity.AppContext.getAppContextInstance;
-import static net.blaklizt.streets.android.activity.AppContext.getStreetsDBHelper;
-import static net.blaklizt.streets.android.activity.AppContext.getUserPreferenceValues;
+import static net.blaklizt.streets.android.activity.AppContext.*;
 import static net.blaklizt.streets.android.common.enumeration.SHARE_PROVIDER.GOOGLE;
 import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.USER_PREF_UPDATE;
 import static net.blaklizt.streets.android.common.utils.SecurityContext.EVENT_LEVEL;
-import static net.blaklizt.streets.android.common.utils.SecurityContext.EVENT_LEVEL.ERROR;
-import static net.blaklizt.streets.android.common.utils.SecurityContext.EVENT_LEVEL.INFO;
-import static net.blaklizt.streets.android.common.utils.SecurityContext.EVENT_LEVEL.WARNING;
+import static net.blaklizt.streets.android.common.utils.SecurityContext.EVENT_LEVEL.*;
 import static net.blaklizt.streets.android.common.utils.SecurityContext.handleApplicationError;
 import static net.blaklizt.symbiosis.sym_core_lib.utilities.Validator.isNullOrEmpty;
 import static net.blaklizt.symbiosis.sym_core_lib.utilities.Validator.isValidMsisdn;

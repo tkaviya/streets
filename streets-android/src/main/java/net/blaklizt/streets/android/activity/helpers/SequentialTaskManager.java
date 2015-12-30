@@ -1,7 +1,6 @@
 package net.blaklizt.streets.android.activity.helpers;
 
 import android.util.Log;
-
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.TaskInfo;
 import net.blaklizt.streets.android.common.utils.SecurityContext.EVENT_LEVEL;
@@ -69,8 +68,8 @@ public class SequentialTaskManager {
             Log.i(TAG, format("Executing task %s", bgTask.getClassName()));
             runningTasks.put(bgTask.getClassName(), bgTask);
             try {
-                bgTask.executeOnExecutor(THREAD_POOL_EXECUTOR, bgTask.getAdditionalParams());
                 outstandingTasks.remove(bgTask.getClassName());
+                bgTask.executeOnExecutor(THREAD_POOL_EXECUTOR, bgTask.getAdditionalParams());
             } catch (CancellationException ex) {
                 Log.w(TAG, format("Task %s was cancelled before completion!", bgTask.getClassName()));
             } catch (Exception ex) {

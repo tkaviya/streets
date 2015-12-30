@@ -5,11 +5,9 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
-
 import net.blaklizt.streets.android.activity.MenuLayout;
 import net.blaklizt.streets.android.activity.Register;
 import net.blaklizt.streets.android.common.enumeration.RegistrationServiceRequest;
-
 import org.json.JSONObject;
 
 import static net.blaklizt.streets.android.activity.AppContext.getStreetsCommon;
@@ -57,7 +55,7 @@ public class RegisterTask extends AsyncTask<Void, Void, Void> {
         try {
             JSONObject responseJSON = new JSONObject(registerResponse);
 
-            if (responseJSON.getInt("response_code") == SUCCESS.responseCode()) {
+            if (responseJSON.getInt("response_code") == SUCCESS.code) {
 				Long symbiosisUserID = responseJSON.getLong("symbiosis_user_id");
 				getStreetsCommon().setUserID(symbiosisUserID);
                 showToast(register, TAG, "Registration successful", Toast.LENGTH_SHORT);

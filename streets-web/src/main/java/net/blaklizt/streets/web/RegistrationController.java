@@ -9,8 +9,6 @@ import net.blaklizt.streets.persistence.UserAttribute;
 import net.blaklizt.symbiosis.sym_authentication.security.Security;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
 import net.blaklizt.symbiosis.sym_common.mail.EMailer;
-import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
-import java.util.logging.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -21,6 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.logging.Logger;
 
 /**
  * Created with IntelliJ IDEA.

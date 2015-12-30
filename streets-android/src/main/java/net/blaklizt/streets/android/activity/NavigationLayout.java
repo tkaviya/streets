@@ -9,10 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
-
 import com.google.android.gms.maps.model.Marker;
-
 import net.blaklizt.streets.android.R;
+import net.blaklizt.streets.android.activity.helpers.PlacesTask;
 import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
 import net.blaklizt.streets.android.adapter.NavigationListAdapter;
 import net.blaklizt.streets.android.common.Group;
@@ -107,7 +106,7 @@ public class NavigationLayout extends StreetsAbstractView implements Navigator.O
         setDirections(clickedPlace.name, clickedPlace.formatted_address, clickedPlace.type, directions.getRoutes().get(0).getLegs().get(0).getSteps());
         Log.i(TAG, "Set directions to place " + clickedPlace.name);
         Log.i(TAG, "Showing info window with info: " + placeMarker.getTitle());
-        placeMarker.showInfoWindow();
+        PlacesTask.drawPlaceMarker(clickedPlace);
     }
 
 }

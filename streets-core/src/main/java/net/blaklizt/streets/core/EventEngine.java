@@ -4,9 +4,9 @@ import net.blaklizt.streets.core.event.Event;
 import net.blaklizt.streets.core.module.ModuleInterface;
 import net.blaklizt.streets.persistence.Module;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
-import java.util.logging.Logger;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Created with IntelliJ IDEA.

@@ -6,7 +6,6 @@ import net.blaklizt.streets.core.session.UserSession;
 import net.blaklizt.streets.persistence.EventLog;
 import net.blaklizt.streets.persistence.dao.UserDao;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
-import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.logging.Logger;
 
 /**
  * Created with IntelliJ IDEA.

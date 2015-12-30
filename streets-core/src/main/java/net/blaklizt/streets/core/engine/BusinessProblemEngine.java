@@ -11,7 +11,7 @@ import net.blaklizt.streets.persistence.EventLog;
 import net.blaklizt.streets.persistence.Location;
 import net.blaklizt.streets.persistence.User;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
-import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
+import net.blaklizt.symbiosis.sym_core_lib.utilities.CommonUtilities;
 
 import javax.annotation.PostConstruct;
 import java.util.Date;
@@ -138,7 +138,7 @@ public class BusinessProblemEngine extends ModuleInterface
 							}
 							else
 							{
-								logger.warn(location.getBestBusinessType() + " has no associated problems!");
+								logger.warning(location.getBestBusinessType() + " has no associated problems!");
 							}
 						}
 					}

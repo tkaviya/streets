@@ -5,7 +5,7 @@ import net.blaklizt.streets.core.event.BusinessProblemEvent;
 import net.blaklizt.streets.core.event.Event;
 import net.blaklizt.streets.core.session.UserSession;
 import net.blaklizt.symbiosis.sym_common.configuration.Configuration;
-import net.blaklizt.symbiosis.sym_common.utilities.CommonUtilities;
+import net.blaklizt.symbiosis.sym_core_lib.utilities.CommonUtilities;
 
 import java.util.ArrayList;
 
@@ -45,7 +45,7 @@ public abstract class Menu
 				businessProblemEvent.getLocation().getLocationName().toUpperCase() + " " +
 				businessProblemEvent.getBusinessProblem().getBusinessType().toUpperCase() + " BUSINESS NEEDS " +
 					CommonUtilities.formatDoubleToMoney(businessProblemEvent.getBusinessProblem().getCost(),
-					Configuration.getProperty("currencySymbol")) + "\r\n")
+							Configuration.getProperty("currencySymbol")) + "\r\n")
 				+ setUserEventFormat(businessProblemEvent.getDescription()) + "\r\n\r\n";
 		}
 
