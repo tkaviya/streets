@@ -12,7 +12,7 @@
 
     <groupId>net.blaklizt.streets</groupId>
     <artifactId>streets-core</artifactId>
-    <version>${project.parent.version}</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>Streets Core</name>
     <description>Streets Core</description>

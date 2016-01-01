@@ -31,7 +31,7 @@
     <beans:bean id="authentication" class="net.blaklizt.streets.core.authentication.StreetAuthenticator" />
 
     <authentication-manager>
-        <authentication-provider symbiosisUser-service-ref="authentication">
+        <authentication-provider user-service-ref="authentication">
             <password-encoder ref="authentication" />
         </authentication-provider>
     </authentication-manager>

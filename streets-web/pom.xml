@@ -12,7 +12,7 @@
 
     <groupId>net.blaklizt.streets</groupId>
     <artifactId>streets-web</artifactId>
-    <version>${project.parent.version}</version>
+    <version>1.0.0</version>
     <packaging>war</packaging>
     <name>Streets WEB</name>
     <description>Streets WEB</description>
@@ -48,7 +48,7 @@
         <dependency>
             <groupId>net.blaklizt.streets</groupId>
             <artifactId>streets-core</artifactId>
-            <version>${project.parent.version}</version>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>
@@ -69,11 +69,6 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-taglibs</artifactId>
         </dependency>
 
         <dependency>
