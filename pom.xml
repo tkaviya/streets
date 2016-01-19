@@ -21,7 +21,7 @@
     <modules>
         <!--<module>streets-common</module>-->
         <!--<module>streets-core</module>-->
-        <module>streets-persistence</module>
+        <!--<module>streets-persistence</module>-->
         <module>streets-rest-api</module>
         <!--<module>streets-web</module>-->
     </modules>

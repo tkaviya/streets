@@ -3,5 +3,21 @@ description = 'Streets Persistence'
 jar { baseName = 'persistence' }
 
 dependencies {
-    compile group: 'net.blaklizt.symbiosis', name: 'sym_persistence', version: '2.0.0'
+    compile group: 'net.blaklizt.symbiosis', name: 'sym_authentication', version: '2.0.0'
+//	compile libraries.hsqldb
+//	compile libraries.dom4j
+//	compile libraries.antlr
+//	compile libraries.cglib
+//	compile libraries.jta
+//	compile libraries.mysql_connector
+//	compile libraries.spring_context
+//	compile libraries.spring_orm
+//	compile libraries.spring_security_core
+//	compile libraries.jpa_2_1_api
+//	compile libraries.hibernate_core
+//	compile libraries.commons_logging
+//	compile libraries.commons_collections
+//	testCompile libraries.testng
+//	testCompile libraries.jmockit
+//	testCompile libraries.spring_test
 }

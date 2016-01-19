@@ -1,24 +1,22 @@
 package net.blaklizt.streets.restapi.test;
 
-import java.util.List;
-
-import net.blaklizt.streets.restapi.persistence.model.Foo;
-import org.springframework.http.MediaType;
-
 import com.google.common.base.Preconditions;
 import com.thoughtworks.xstream.XStream;
+import org.springframework.http.MediaType;
+
+import java.util.List;
 
 public final class XStreamMarshaller implements IMarshaller {
 
     private XStream xstream;
 
-    public XStreamMarshaller() {
-        super();
-
-        xstream = new XStream();
-        xstream.autodetectAnnotations(true);
-        xstream.processAnnotations(Foo.class);
-    }
+//    public XStreamMarshaller() {
+//        super();
+//
+//        xstream = new XStream();
+//        xstream.autodetectAnnotations(true);
+//        xstream.processAnnotations(Foo.class);
+//    }
 
     // API
 

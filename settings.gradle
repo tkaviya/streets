@@ -4,5 +4,5 @@
 
 include ':sbm'
 include ':streets-persistence'
-include ':streets-core'
+include ':streets-api'
 include ':streets-rest-api'

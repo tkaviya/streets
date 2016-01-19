@@ -1,18 +1,15 @@
 package net.blaklizt.streets.restapi.test;
 
-import java.io.IOException;
-import java.util.List;
-
-import net.blaklizt.streets.restapi.persistence.model.Foo;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Preconditions;
+import java.io.IOException;
+import java.util.List;
 
 public final class JacksonMarshaller implements IMarshaller {
     private final Logger logger = LoggerFactory.getLogger(JacksonMarshaller.class);
@@ -68,21 +65,21 @@ public final class JacksonMarshaller implements IMarshaller {
         Preconditions.checkNotNull(resourcesAsString);
 
         List<T> entities = null;
-        try {
-            if (clazz.equals(Foo.class)) {
-                entities = objectMapper.readValue(resourcesAsString, new TypeReference<List<Foo>>() {
-                    // ...
-                });
-            } else {
-                entities = objectMapper.readValue(resourcesAsString, List.class);
-            }
-        } catch (final JsonParseException parseEx) {
-            logger.error("", parseEx);
-        } catch (final JsonMappingException mappingEx) {
-            logger.error("", mappingEx);
-        } catch (final IOException ioEx) {
-            logger.error("", ioEx);
-        }
+//        try {
+//            if (clazz.equals(Foo.class)) {
+//                entities = objectMapper.readValue(resourcesAsString, new TypeReference<List<Foo>>() {
+//                    // ...
+//                });
+//            } else {
+//                entities = objectMapper.readValue(resourcesAsString, List.class);
+//            }
+//        } catch (final JsonParseException parseEx) {
+//            logger.error("", parseEx);
+//        } catch (final JsonMappingException mappingEx) {
+//            logger.error("", mappingEx);
+//        } catch (final IOException ioEx) {
+//            logger.error("", ioEx);
+//        }
 
         return entities;
     }

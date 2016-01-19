@@ -1,9 +1,19 @@
 description = 'Streets Rest Web Service API'
 
+
+apply plugin: 'spring-boot'
+
 jar { baseName = 'streets-rest-api' }
+
+configurations {
+	provided.all*.exclude group: 'javax.servlet'
+}
 
 dependencies {
 	compile project(':streets-persistence')
+	compile group: 'net.blaklizt.symbiosis', name: 'sym_authentication', version: '2.0.0'
+	compile libraries.boot_web
+	compile libraries.boot_actuator
 	compile libraries.spring_security_core
 	compile libraries.spring_security_web
 	compile libraries.spring_security_config
@@ -25,15 +35,18 @@ dependencies {
 	compile libraries.logback
 	compile libraries.jcl_over_slf4j
 	compile libraries.log4j_over_slf4j
+	compile libraries.javax_servlet_api
 	runtime libraries.javax_servlet_jstl
-    testCompile libraries.spring_test
+	compile libraries.swagger2
+	compile libraries.swagger_ui
+	compile libraries.jackson
+	compile libraries.jaxb_api
+	testCompile libraries.spring_test
     testCompile libraries.junit
     testCompile libraries.hamcrest_core
     testCompile libraries.hamcrest_lib
     testCompile libraries.mockito
     testCompile libraries.rest_assured
-	compile libraries.javax_servlet_api
-//    providedCompile libraries.javax_servlet_api
 }
 //compile group: 'javax.servlet', name: 'servlet-api', version:'2.5'
 //compile group: 'org.json', name: 'json', version:'20080701'

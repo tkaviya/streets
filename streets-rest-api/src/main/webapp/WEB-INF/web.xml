@@ -15,7 +15,7 @@
     </context-param>
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>net.blaklizt.streets.rest-api.spring</param-value>
+        <param-value>net.blaklizt.streets.restapi.spring</param-value>
     </context-param>
 
     <listener>
@@ -55,5 +55,13 @@
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
+
+    <!--<jsp-config>-->
+        <!--<jsp-property-group>-->
+            <!--<url-pattern>/jsp/*</url-pattern>-->
+            <!--<include-prelude>/jsp/header.jsp</include-prelude>-->
+            <!--<include-coda>/jsp/footer.jsp</include-coda>-->
+        <!--</jsp-property-group>-->
+    <!--</jsp-config>-->
 
 </web-app>
