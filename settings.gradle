@@ -3,6 +3,7 @@
 //project(':SymbiosisBM').projectDir = new File(symbiosis_build_manager_location)
 
 include ':sbm'
+include ':streets-android'
 include ':streets-persistence'
 include ':streets-api'
 include ':streets-rest-api'
