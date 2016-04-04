@@ -1,0 +1,8 @@
+//def symbiosis_build_manager_location = "/mnt/projects/SymbiosisBM"
+//include ':SymbiosisBM'
+//project(':SymbiosisBM').projectDir = new File(symbiosis_build_manager_location)
+
+include ':sbm'
+include ':streets-persistence'
+include ':streets-api'
+include ':streets-rest-api'

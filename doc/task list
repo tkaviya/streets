@@ -1,0 +1,32 @@
+->password encryption
+->registration
+
+statistics
+adverts
+graphical user interface
+persisting data
+the hunt
+
+chat (send location, files, etc)
+search map
+friends
+feedback
+
+- referral
+- rating
+- register
+select interests page
+select people page
+- stop updates ondestroy/pause (implements back groundable stop start)
+- push updates
+
+
+ratings -> referral, jobs, feedback, usage, advertising
+
+
+power hour
+taxi operators
+
+
+bugs:
+attach to root on createView

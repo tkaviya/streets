@@ -1,0 +1,106 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <RelativeLayout
+        android:id="@+id/level1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:background="@mipmap/ic_custom_ring_menu_inside_ring" >
+
+        <ImageButton
+            android:id="@+id/home"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dip"
+            android:background="@drawable/res504" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/level2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:background="@mipmap/ic_custom_ring_menu_middle_ring" >
+
+        <ImageButton
+            android:id="@+id/search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="12dip"
+            android:layout_marginTop="65dip"
+            android:layout_toLeftOf="@+id/menu"
+            android:background="@drawable/res789" />
+
+        <ImageButton
+            android:id="@+id/menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/res532" />
+
+        <ImageButton
+            android:id="@+id/myyouku"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dip"
+            android:layout_marginTop="65dip"
+            android:layout_toRightOf="@+id/menu"
+            android:background="@drawable/res513" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/level3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:background="@mipmap/ic_custom_ring_menu_outside_ring" >
+
+        <ImageButton
+            android:id="@+id/c1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="47dip"
+            android:layout_marginTop="74dip"
+            android:layout_toLeftOf="@+id/c4"
+            android:background="@drawable/yams" />
+
+        <ImageButton
+            android:id="@+id/c2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="160dip"
+            android:background="@drawable/bag_of_cat" />
+
+        <ImageButton
+            android:id="@+id/c4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/res580" />
+
+        <ImageButton
+            android:id="@+id/c7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="47dip"
+            android:layout_marginTop="74dip"
+            android:layout_toRightOf="@+id/c4"
+            android:background="@drawable/res7" />
+    </RelativeLayout>
+
+    <net.blaklizt.streets.android.rotatemenu.view.CoverRingImageView
+        android:id="@+id/drawImageView"
+        android:layout_width="270dip"
+        android:layout_height="270dip"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" >
+    </net.blaklizt.streets.android.rotatemenu.view.CoverRingImageView>
+
+</RelativeLayout>

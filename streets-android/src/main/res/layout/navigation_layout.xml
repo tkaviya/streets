@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:id="@+id/navigation_layout"
+             android:orientation="vertical"
+             android:layout_width="fill_parent"
+             android:layout_height="fill_parent">
+    <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dip" >
+
+        <ImageView
+            android:id="@+id/nav_location_image"
+            android:layout_width="80dip"
+            android:layout_height="100dip"
+            android:contentDescription="@string/location_image"
+            android:src="@drawable/res1000"
+            android:layout_gravity="center_vertical|center_horizontal"
+            />
+        <TableLayout android:orientation="vertical"
+                     android:layout_width="fill_parent"
+                     android:layout_height="fill_parent">
+            <TableRow>
+                <TextView
+                        android:id="@+id/nav_location_name"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="3dip" />
+            </TableRow>
+            <TableRow>
+                <TextView
+                        android:id="@+id/nav_location_address"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="3dip" />
+            </TableRow>
+            <TableRow>
+                <TextView
+                        android:id="@+id/nav_location_categories"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="3dip" />
+            </TableRow>
+        </TableLayout>
+    </TableRow>
+    <ExpandableListView
+        android:id="@+id/nav_location_steps"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:padding="5dip" />
+</TableLayout>
