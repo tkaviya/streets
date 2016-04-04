@@ -1,7 +1,0 @@
-.idea/
-*.iml
-gen-external-apklibs/
-target/
-build/
-gradle
-*.properties

@@ -1,6 +1,0 @@
-create airtime interface
-navigate to friend
-update icons on ui
-
-
-backlog
