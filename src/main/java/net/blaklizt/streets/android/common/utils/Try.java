@@ -33,9 +33,9 @@ public class Try<T, K> {
         return (Try<T, K>) ((condition) ? new Try<>(success.get(), null) : new Try<>(null, failure.get()));
     }
 
-    public <Z> Z map(Function<T, Z> onSuccess, Function<K, Z> onFailure) {
-        return (this.isSuccess()) ? onSuccess.apply(this.value) : onFailure.apply(this.error);
-    }
+//    public <Z> Z map(Function<T, Z> onSuccess, Function<K, Z> onFailure) {
+//        return (this.isSuccess()) ? onSuccess.apply(this.value) : onFailure.apply(this.error);
+//    }
 
     public boolean isSuccess() { return get().isPresent(); }
 
@@ -52,7 +52,7 @@ public class Try<T, K> {
 
     public T value() { return value; }
 
-    public  Try<T,K> onSuccess(Function<T,Try<T,K>> function) { return isSuccess() ?  function.apply(value()) : this; }
+//    public  Try<T,K> onSuccess(Function<T,Try<T,K>> function) { return isSuccess() ?  function.apply(value()) : this; }
 
     @Override
     public String toString() {

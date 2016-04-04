@@ -17,6 +17,8 @@ import net.blaklizt.streets.android.sidemenu.interfaces.Resourceble;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.String.format;
+
 public class ViewAnimator<T extends Resourceble> {
     private final int ANIMATION_DURATION = 175;
     public static final int CIRCULAR_REVEAL_ANIMATION_DURATION = 500;
@@ -51,11 +53,14 @@ public class ViewAnimator<T extends Resourceble> {
             View viewMenu = appCompatActivity.getLayoutInflater().inflate(R.layout.menu_list_item, null);
             Log.i(TAG, format("Processing menu item %s/%s. Name: %s", i, size, viewMenu.getTag()));
             final int finalI = i;
-            viewMenu.setOnClickListener(v -> {
-                Log.i(TAG, format("Executing onClick for viewMenu %s", v.getTag()));
-                int[] location = {0, 0};
-                v.getLocationOnScreen(location);
-                switchItem(list.get(finalI), location[1] + v.getHeight() / 2);
+            viewMenu.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.i(TAG, format("Executing onClick for viewMenu %s", view.getTag()));
+                    int[] location = {0, 0};
+                    view.getLocationOnScreen(location);
+                    switchItem(list.get(finalI), location[1] + view.getHeight() / 2);
+                }
             });
             ((ImageView) viewMenu.findViewById(R.id.menu_item_image)).setImageResource(list.get(i).getImageRes());
             viewMenu.setVisibility(View.GONE);
@@ -64,13 +69,16 @@ public class ViewAnimator<T extends Resourceble> {
             animatorListener.addViewToContainer(viewMenu);
             final double position = i;
             final double delay = 3 * ANIMATION_DURATION * (position / size);
-            new Handler().postDelayed(() -> {
-                if (position < viewList.size()) {
-                    animateView((int) position);
-                }
-                if (position == viewList.size() - 1) {
-                    Log.i(TAG, format("Executing postDelayed for streetsFragment %s", streetsFragment.getClassName()));
-                    setViewsClickable(true);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (position < viewList.size()) {
+                        animateView((int) position);
+                    }
+                    if (position == viewList.size() - 1) {
+                        Log.i(TAG, format("Executing postDelayed for streetsFragment %s", streetsFragment.getClassName()));
+                        setViewsClickable(true);
+                    }
                 }
             }, (long) delay);
         }

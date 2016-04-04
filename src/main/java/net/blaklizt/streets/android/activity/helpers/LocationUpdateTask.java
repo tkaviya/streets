@@ -85,7 +85,12 @@ public class LocationUpdateTask extends StreetsAbstractTask {
                 final Location location = locationManager.getLastKnownLocation(GPS_PROVIDER);
 
                 if (location != null) {
-                    Startup.getInstance().runOnUiThread(() -> MenuLayout.getInstance().onLocationChanged(location));
+                    Startup.getInstance().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            MenuLayout.getInstance().onLocationChanged(location);
+                        }
+                    });
 
                     Log.i(TAG, "Found location using GPS.");
                     getAppContextInstance().setCurrentProvider(locationManager.getProvider(GPS_PROVIDER));
@@ -135,7 +140,12 @@ public class LocationUpdateTask extends StreetsAbstractTask {
 
             if (location != null) {
                 final Location finalLocation = location;
-                Startup.getInstance().runOnUiThread(() -> MenuLayout.getInstance().onLocationChanged(finalLocation));
+                Startup.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        MenuLayout.getInstance().onLocationChanged(finalLocation);
+                    }
+                });
                 Log.i(TAG, "Found location using provider '" + getAppContextInstance().getDefaultProvider() + "'. Placing initial marker.");
             } else {
                 //All providers failed, may as well poll using least battery consuming provider

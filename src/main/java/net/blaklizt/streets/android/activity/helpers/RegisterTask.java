@@ -68,7 +68,12 @@ public class RegisterTask extends AsyncTask<Void, Void, Void> {
             }
             else {
                 final String registerResponseStr = responseJSON.getString("response_message");
-                register.runOnUiThread(() -> showToast(register, TAG, registerResponseStr, Toast.LENGTH_SHORT));
+                register.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showToast(register, TAG, registerResponseStr, Toast.LENGTH_SHORT);
+                    }
+                });
             }
         } catch (Exception e) {
             Log.e(TAG, "Registration failed: " + e.getMessage(), e);

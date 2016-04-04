@@ -59,8 +59,8 @@ public class CurrentViewLocationTask extends StreetsAbstractTask {
 	    Geocoder geocoder = new Geocoder(AppContext.getApplicationContext(), Locale.getDefault());
 	    List<Address> addresses;
 	    try {
-            if (AppContext.getAppContextInstance().getCurrentLocation().isPresent()) {
-                Location currentViewLocation = AppContext.getAppContextInstance().getCurrentLocation().get();
+            if (AppContext.getAppContextInstance().getCurrentLocation() == null) {
+                Location currentViewLocation = AppContext.getAppContextInstance().getCurrentLocation();
                 addresses = geocoder.getFromLocation(currentViewLocation.getLatitude(), currentViewLocation.getLongitude(), 1);
                 lastUpdateDate = new Date();
                 currentCity = addresses.get(0).getLocality();

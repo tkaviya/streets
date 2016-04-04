@@ -28,10 +28,10 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
-import io.codetail.animation.SupportAnimator;
-import io.codetail.animation.ViewAnimationUtils;
+
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.LocationUpdateTask;
 import net.blaklizt.streets.android.activity.helpers.PlacesTask;
@@ -47,10 +47,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import io.codetail.animation.SupportAnimator;
+import io.codetail.animation.ViewAnimationUtils;
+
 import static android.location.LocationManager.GPS_PROVIDER;
 import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static java.lang.String.format;
-import static net.blaklizt.streets.android.activity.AppContext.*;
+import static net.blaklizt.streets.android.activity.AppContext.DEFAULT_FRAGMENT_VIEW;
+import static net.blaklizt.streets.android.activity.AppContext.MINIMUM_REFRESH_DISTANCE;
+import static net.blaklizt.streets.android.activity.AppContext.MINIMUM_REFRESH_TIME;
+import static net.blaklizt.streets.android.activity.AppContext.getAppContextInstance;
+import static net.blaklizt.streets.android.activity.AppContext.getBackgroundExecutionTask;
+import static net.blaklizt.streets.android.activity.AppContext.getFragmentView;
+import static net.blaklizt.streets.android.activity.AppContext.getMenuFragmentRegistry;
+import static net.blaklizt.streets.android.activity.AppContext.getStreetsFragments;
 import static net.blaklizt.streets.android.activity.helpers.SequentialTaskManager.runWhenAvailable;
 import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.ASK_ON_EXIT;
 import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.REQUEST_GPS_PERMS;
@@ -139,7 +149,12 @@ public class MenuLayout extends AppCompatActivity implements
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerLayout.setScrimColor(Color.TRANSPARENT);
         linearLayout = (LinearLayout) findViewById(R.id.left_drawer);
-        linearLayout.setOnClickListener(v -> drawerLayout.closeDrawers());
+        linearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawerLayout.closeDrawers();
+            }
+        });
 
         Log.i(TAG, "Status text view");
         statusTextView = (TextView) findViewById(R.id.status_text_view);
@@ -456,16 +471,16 @@ public class MenuLayout extends AppCompatActivity implements
 			if (AppContext.isFirstLocationUpdate())
 			{
 				// Showing the current location in Google Map
-				if (getAppContextInstance().getGoogleMap().isPresent()) {
+				if (getAppContextInstance().getGoogleMap() != null) {
 
 					//prevent all other processes from updating
 					AppContext.setIsFirstLocationUpdate(false);
 
-					getAppContextInstance().getGoogleMap().get().moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+					getAppContextInstance().getGoogleMap().moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
 					Log.i(TAG, "Camera moved to new location");
 
 					// Zoom in the Google Map
-					getAppContextInstance().getGoogleMap().get().animateCamera(CameraUpdateFactory.zoomTo(13), 3000, null);
+					getAppContextInstance().getGoogleMap().animateCamera(CameraUpdateFactory.zoomTo(13), 3000, null);
 					Log.i(TAG, "Camera zoomed to view");
 
 					runWhenAvailable(getBackgroundExecutionTask(PlacesTask.class));

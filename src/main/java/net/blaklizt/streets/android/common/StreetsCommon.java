@@ -98,22 +98,42 @@ public class StreetsCommon
     }
 
     public static void showSnackBar(final Activity currentActivity, final String TAG, final String text, final int duration) {
-        currentActivity.runOnUiThread(() -> Snackbar.make(currentActivity.getCurrentFocus(), text, duration).show());
+        currentActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Snackbar.make(currentActivity.getCurrentFocus(), text, duration).show();
+            }
+        });
         writeLog(TAG, text, duration == Snackbar.LENGTH_SHORT ? INFO : WARNING);
     }
 
-    public static void showSnackBar(final Activity currentActivity, final String TAG, final String text, EVENT_LEVEL eventLevel) {
-        currentActivity.runOnUiThread(() -> Snackbar.make(currentActivity.getCurrentFocus(), text, SNACKBAR_DURATION.get(eventLevel)).show());
+    public static void showSnackBar(final Activity currentActivity, final String TAG, final String text, final EVENT_LEVEL eventLevel) {
+        currentActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Snackbar.make(currentActivity.getCurrentFocus(), text, SNACKBAR_DURATION.get(eventLevel)).show();
+            }
+        });
         writeLog(TAG, text, eventLevel);
     }
 
     public static void showToast(final Activity currentActivity, final String TAG, final String text, final int duration) {
-        currentActivity.runOnUiThread(() -> Toast.makeText(currentActivity, text, duration).show());
+        currentActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(currentActivity, text, duration).show();
+            }
+        });
         writeLog(TAG, text, duration == Toast.LENGTH_SHORT ? INFO : WARNING);
     }
 
-    public static void showToast(final Activity currentActivity, final String TAG, final String text, EVENT_LEVEL eventLevel) {
-        currentActivity.runOnUiThread(() -> Toast.makeText(currentActivity, text, eventLevel == INFO ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG).show());
+    public static void showToast(final Activity currentActivity, final String TAG, final String text, final EVENT_LEVEL eventLevel) {
+        currentActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(currentActivity, text, eventLevel == INFO ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG).show();
+            }
+        });
         writeLog(TAG, text, eventLevel);
     }
 

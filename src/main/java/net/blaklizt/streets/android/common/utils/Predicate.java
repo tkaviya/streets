@@ -24,33 +24,33 @@ package net.blaklizt.streets.android.common.utils;
 @FunctionalInterface
 public interface Predicate<T> {
 
-    boolean test(T t);
-
-    default Predicate<T> and(Predicate<? super T> other) {
-        if (other == null) {
-            throw new NullPointerException();
-        }
-        return (t) -> test(t) && other.test(t);
-    }
-
-    default Predicate<T> negate() {
-        return (t) -> !test(t);
-    }
-
-    default Predicate<T> or(Predicate<? super T> other) {
-        if (other == null) {
-            throw new NullPointerException();
-        }
-        return (t) -> test(t) || other.test(t);
-    }
-
-    static <T> Predicate<T> isEqual(Object targetRef) {
-        return (null == targetRef)
-                ? Predicate::isNull
-                : targetRef::equals;
-    }
-
-    static boolean isNull(Object obj) {
-        return obj == null;
-    }
+//    boolean test(T t);
+//
+//    default Predicate<T> and(Predicate<? super T> other) {
+//        if (other == null) {
+//            throw new NullPointerException();
+//        }
+//        return (t) -> test(t) && other.test(t);
+//    }
+//
+//    default Predicate<T> negate() {
+//        return (t) -> !test(t);
+//    }
+//
+//    default Predicate<T> or(Predicate<? super T> other) {
+//        if (other == null) {
+//            throw new NullPointerException();
+//        }
+//        return (t) -> test(t) || other.test(t);
+//    }
+//
+//    static <T> Predicate<T> isEqual(Object targetRef) {
+//        return (null == targetRef)
+//                ? Predicate::isNull
+//                : targetRef::equals;
+//    }
+//
+//    static boolean isNull(Object obj) {
+//        return obj == null;
+//    }
 }

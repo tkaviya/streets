@@ -57,46 +57,50 @@ public class RingOperationLayout extends LinearLayout {
 		super(context);
 		initialize(context);
 
-		mMenuButton.setOnClickListener(v -> {
+		mMenuButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!mLevel3ISRuning) {
+                    mLevel3ISRuning = true;
 
-            if (!mLevel3ISRuning) {
-                mLevel3ISRuning = true;
+                    if (mIsLevel3Show) {
+                        // mMenuButton.setClickable(false);
+                        mDrawImageView.hideOutsideCircle();
+                        RotateAnimations.startAnimation(mLevel3, 1500, 0);
+                    } else {
+                        // showCircleLevelOne();
+                        mDrawImageView.showOutsideCircle();
+                        RotateAnimations.startAnimation(mLevel3, 1500, 0);
+                    }
 
-                if (mIsLevel3Show) {
-                    // mMenuButton.setClickable(false);
-                    mDrawImageView.hideOutsideCircle();
-                    RotateAnimations.startAnimation(mLevel3, 1500, 0);
-                } else {
-                    // showCircleLevelOne();
-                    mDrawImageView.showOutsideCircle();
-                    RotateAnimations.startAnimation(mLevel3, 1500, 0);
+                    mIsLevel3Show = !mIsLevel3Show;
                 }
-
-                mIsLevel3Show = !mIsLevel3Show;
             }
         });
 
-		mHomeButton.setOnClickListener(v -> {
+		mHomeButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!mLevel3ISRuning && !mLevel2ISRuning) {
+                    mLevel2ISRuning = true;
 
-            if (!mLevel3ISRuning && !mLevel2ISRuning) {
-                mLevel2ISRuning = true;
-
-                if (!mIsLevel2Show) {
-                    mDrawImageView.showInsideCircle();
-                    RotateAnimations.startAnimation(mLevel2, 1500, 0);
-                } else {
-                    if (mIsLevel3Show) {
-                        mDrawImageView.hideOutsideCircle();
-                        RotateAnimations.startAnimation(mLevel3, 1500, 0);
-                        mDrawImageView.hideInsideCircle();
-                        RotateAnimations.startAnimation(mLevel2, 1500, 500);
-                        mIsLevel3Show = !mIsLevel3Show;
-                    } else {
-                        mDrawImageView.hideInsideCircle();
+                    if (!mIsLevel2Show) {
+                        mDrawImageView.showInsideCircle();
                         RotateAnimations.startAnimation(mLevel2, 1500, 0);
+                    } else {
+                        if (mIsLevel3Show) {
+                            mDrawImageView.hideOutsideCircle();
+                            RotateAnimations.startAnimation(mLevel3, 1500, 0);
+                            mDrawImageView.hideInsideCircle();
+                            RotateAnimations.startAnimation(mLevel2, 1500, 500);
+                            mIsLevel3Show = !mIsLevel3Show;
+                        } else {
+                            mDrawImageView.hideInsideCircle();
+                            RotateAnimations.startAnimation(mLevel2, 1500, 0);
+                        }
                     }
+                    mIsLevel2Show = !mIsLevel2Show;
                 }
-                mIsLevel2Show = !mIsLevel2Show;
             }
         });
 

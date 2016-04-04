@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.helpers.RegisterTask;
 
@@ -55,9 +56,12 @@ public class Register extends AppCompatActivity implements View.OnClickListener
         registerBtn = (Button) findViewById(R.id.btnRegister);
         registerBtn.setOnClickListener(this);
 
-        imgRegisterBack.setOnClickListener(view -> {
-            Intent registerServiceActivity = new Intent(getInstance(), RegisterService.class);
-            startActivity(registerServiceActivity);
+        imgRegisterBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent registerServiceActivity = new Intent(getInstance(), RegisterService.class);
+                startActivity(registerServiceActivity);
+            }
         });
 
         if (registerUsername.getText().length() == 0) {

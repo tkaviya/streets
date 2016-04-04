@@ -50,16 +50,22 @@ public class Startup extends AppCompatActivity implements OnClickListener, Media
         setContentView(R.layout.intro_layout);
         startup = this;
 
-        findViewById(R.id.labelLoginHeader).setOnClickListener(view -> {
-            Intent registerActivity = new Intent(getApplicationContext(), RegisterService.class);
-            getInstance().finish();
-            startActivity(registerActivity);
+        findViewById(R.id.labelLoginHeader).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent registerActivity = new Intent(getApplicationContext(), RegisterService.class);
+                getInstance().finish();
+                startActivity(registerActivity);
+            }
         });
 
-        findViewById(R.id.labelGoToRegistration).setOnClickListener(view -> {
-            Intent registerActivity = new Intent(getApplicationContext(), RegisterService.class);
-            getInstance().finish();
-            startActivity(registerActivity);
+        findViewById(R.id.labelGoToRegistration).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent registerActivity = new Intent(getApplicationContext(), RegisterService.class);
+                getInstance().finish();
+                startActivity(registerActivity);
+            }
         });
 
         edtPassword = (EditText) findViewById(R.id.loginPin);
@@ -94,10 +100,13 @@ public class Startup extends AppCompatActivity implements OnClickListener, Media
         videoView.setClickable(false);
         videoView.setSoundEffectsEnabled(false);
         videoView.requestFocus();
-        videoView.setOnPreparedListener(mp -> {
-            mp.setVolume(0, 0);
-            mp.setLooping(false);
-            videoView.start();
+        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mediaPlayer) {
+                mediaPlayer.setVolume(0, 0);
+                mediaPlayer.setLooping(false);
+                videoView.start();
+            }
         });
         videoView.setOnCompletionListener(this);
     }

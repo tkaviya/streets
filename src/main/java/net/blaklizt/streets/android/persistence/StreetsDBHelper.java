@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
+import static java.lang.String.format;
 import static net.blaklizt.streets.android.common.enumeration.STATUS_CODES.GENERAL_ERROR;
 import static net.blaklizt.streets.android.common.utils.SecurityContext.handleApplicationError;
 

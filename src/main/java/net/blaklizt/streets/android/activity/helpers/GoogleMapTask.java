@@ -1,13 +1,14 @@
 package net.blaklizt.streets.android.activity.helpers;
 
 import android.util.Log;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration.Builder;
+
 import net.blaklizt.streets.android.R;
 import net.blaklizt.streets.android.activity.MapLayout;
 import net.blaklizt.streets.android.common.StreetsCommon;
@@ -66,39 +67,42 @@ public class GoogleMapTask extends StreetsAbstractTask {
 
         final MapLayout mapLayout = (MapLayout) getFragmentView(MapLayout.class);
 
-        if (getAppContextInstance().getGoogleMap().isPresent()) {
+        if (getAppContextInstance().getGoogleMap() != null) {
             Log.i(TAG, "Google map already initialized");
             return null;
         }
 
-        getFragmentView(MapLayout.class).getActivity().runOnUiThread(() -> {
-            Log.i(TAG, "Initializing Google Map");
+        getFragmentView(MapLayout.class).getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "Initializing Google Map");
 
-            //Create global configuration and initialize ImageLoader with this configuration
-            ImageLoaderConfiguration config = new Builder(mapLayout.getActivity().getApplicationContext()).build();
-            ImageLoader.getInstance().init(config);
+                //Create global configuration and initialize ImageLoader with this configuration
+                ImageLoaderConfiguration config = new Builder(mapLayout.getActivity().getApplicationContext()).build();
+                ImageLoader.getInstance().init(config);
 
-            int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(mapLayout.getActivity().getApplicationContext());
-            // Showing status
-            if (status != ConnectionResult.SUCCESS) // Google Play Services are not available
-            {
-                Log.i(TAG, "Google Play Services are not available");
-            } else // Google Play Services are available
-            {
-                Log.i(TAG, "Google Play Services are available");
-                // Getting reference to the SupportMapFragment of activity_main.xml
-                MapFragment fm = (MapFragment) mapLayout.getActivity().getFragmentManager().findFragmentById(R.id.map_fragment);
+                int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(mapLayout.getActivity().getApplicationContext());
+                // Showing status
+                if (status != ConnectionResult.SUCCESS) // Google Play Services are not available
+                {
+                    Log.i(TAG, "Google Play Services are not available");
+                } else // Google Play Services are available
+                {
+                    Log.i(TAG, "Google Play Services are available");
+                    // Getting reference to the SupportMapFragment of activity_main.xml
+                    MapFragment fm = (MapFragment) mapLayout.getActivity().getFragmentManager().findFragmentById(R.id.map_fragment);
 
-                // Getting GoogleMap object from the fragment
-                getAppContextInstance().setGoogleMap(fm.getMap());
+                    // Getting GoogleMap object from the fragment
+                    getAppContextInstance().setGoogleMap(fm.getMap());
 
-                Log.i(TAG, "Got Google map");
+                    Log.i(TAG, "Got Google map");
 
-                getAppContextInstance().getGoogleMap().get().setMyLocationEnabled(true);
-                getAppContextInstance().getGoogleMap().get().getUiSettings().setZoomGesturesEnabled(true);
-                getAppContextInstance().getGoogleMap().get().getUiSettings().setZoomControlsEnabled(true);
-                getAppContextInstance().getGoogleMap().get().setOnMarkerClickListener(mapLayout);
+                    getAppContextInstance().getGoogleMap().setMyLocationEnabled(true);
+                    getAppContextInstance().getGoogleMap().getUiSettings().setZoomGesturesEnabled(true);
+                    getAppContextInstance().getGoogleMap().getUiSettings().setZoomControlsEnabled(true);
+                    getAppContextInstance().getGoogleMap().setOnMarkerClickListener(mapLayout);
 //                    AppContext.getInstance().getGoogleMap().get().setInfoWindowAdapter(mapLayout);
+                }
             }
         });
 
@@ -107,12 +111,12 @@ public class GoogleMapTask extends StreetsAbstractTask {
 
     @Override
     public void onCancelledRelay() {
-        getAppContextInstance().getGoogleMap().ifPresent(GoogleMap::stopAnimation);
+        getAppContextInstance().getGoogleMap().stopAnimation();
     }
 
     @Override
     public void onTerminationRelay() {
         Log.i(TAG, "Shutting down class " + getClassName());
-        getAppContextInstance().getGoogleMap().ifPresent(GoogleMap::stopAnimation);
+        getAppContextInstance().getGoogleMap().stopAnimation();
     }
 }

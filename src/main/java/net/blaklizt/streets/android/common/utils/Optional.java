@@ -55,7 +55,7 @@ public final class Optional<T> {
     }
 
     public static <T> Optional<T> ofNullable(T value) {
-        return value == null ? empty() : of(value);
+        return value == null ? (Optional<T>) EMPTY : of(value);
     }
 
     public T get() {
@@ -74,31 +74,31 @@ public final class Optional<T> {
             consumer.accept(value);
     }
 
-    public Optional<T> filter(Predicate<? super T> predicate) {
-        requireNonNull(predicate);
-        if (!isPresent())
-            return this;
-        else
-            return predicate.test(value) ? this : empty();
-    }
+//    public Optional<T> filter(Predicate<? super T> predicate) {
+//        requireNonNull(predicate);
+//        if (!isPresent())
+//            return this;
+//        else
+//            return predicate.test(value) ? this : empty();
+//    }
 
-    public<U> Optional<U> map(Function<? super T, ? extends U> mapper) {
-        requireNonNull(mapper);
-        if (!isPresent())
-            return empty();
-        else {
-            return Optional.ofNullable(mapper.apply(value));
-        }
-    }
+//    public<U> Optional<U> map(Function<? super T, ? extends U> mapper) {
+//        requireNonNull(mapper);
+//        if (!isPresent())
+//            return empty();
+//        else {
+//            return Optional.ofNullable(mapper.apply(value));
+//        }
+//    }
 
-    public<U> Optional<U> flatMap(Function<? super T, Optional<U>> mapper) {
-        requireNonNull(mapper);
-        if (!isPresent())
-            return empty();
-        else {
-            return requireNonNull(mapper.apply(value));
-        }
-    }
+//    public<U> Optional<U> flatMap(Function<? super T, Optional<U>> mapper) {
+//        requireNonNull(mapper);
+//        if (!isPresent())
+//            return empty();
+//        else {
+//            return requireNonNull(mapper.apply(value));
+//        }
+//    }
 
     public T orElse(T other) {
         return value != null ? value : other;

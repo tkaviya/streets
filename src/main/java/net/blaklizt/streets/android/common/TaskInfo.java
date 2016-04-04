@@ -12,6 +12,7 @@ import net.blaklizt.streets.android.common.enumeration.TASK_TYPE;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static java.lang.String.format;
 import static net.blaklizt.streets.android.activity.helpers.SequentialTaskManager.onTaskUpdate;
 
 /******************************************************************************
@@ -41,7 +42,7 @@ public abstract class TaskInfo extends AsyncTask implements StreetsInterfaceTask
     protected Boolean allowOnlyOnce = null;
     protected Boolean allowMultiInstance = null;
     protected ArrayList<String> processDependencies = null;
-    protected ArrayList<Class<? extends StreetsAbstractView>> viewDependencies = null;
+    protected ArrayList viewDependencies = null;
     protected TASK_TYPE taskType = null;
     protected Object[] additionalParams = null;
     protected Date requestedTime = null, startTime = null, endTime = null;

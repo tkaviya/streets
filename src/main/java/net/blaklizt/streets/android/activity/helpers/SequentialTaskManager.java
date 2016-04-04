@@ -194,7 +194,13 @@ public class SequentialTaskManager {
         } else if (checkReadyToExecute(bgTask).isFailure()) {
             return schedule(bgTask);
         } else {
-            return schedule(bgTask).map((t) -> execute(bgTask).map(Try::success, Try::fail), Try::fail);
+            Try scheduleResult = schedule(bgTask);
+            if (scheduleResult.isSuccess()) {
+                return execute(bgTask);
+            } else {
+                return schedule(bgTask);
+            }
+//            return schedule(bgTask).map((t) -> execute(bgTask).map(Try::success, Try::fail), Try::fail);
         }
     }
 

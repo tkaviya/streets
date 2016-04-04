@@ -57,8 +57,8 @@ public class PlacesTask extends StreetsAbstractTask {
                 (AppContext.getAppContextInstance().getNearbyPlaces() != null ? AppContext.getAppContextInstance().getNearbyPlaces().size() : 0));
         if (AppContext.getAppContextInstance().getNearbyPlaces() != null) {
             Log.i(TAG, "Processing nearby places");
-            if (AppContext.getAppContextInstance().getGoogleMap().isPresent()) {
-                AppContext.getAppContextInstance().getGoogleMap().get().clear();
+            if (AppContext.getAppContextInstance().getGoogleMap() != null) {
+                AppContext.getAppContextInstance().getGoogleMap().clear();
                 for (Place place : AppContext.getAppContextInstance().getNearbyPlaces()) {
                     drawPlaceMarker(place);
                 }
@@ -70,10 +70,10 @@ public class PlacesTask extends StreetsAbstractTask {
     protected Object doInBackground(Object[] params) {
         Log.i(TAG, "+++ doInBackground +++");
 
-        if (AppContext.getAppContextInstance().getCurrentLocation().isPresent()) {
+        if (AppContext.getAppContextInstance().getCurrentLocation() != null) {
             AppContext.getAppContextInstance().getMarkerPlaces().clear();
             AppContext.getAppContextInstance().setNearbyPlaces(PlacesService.nearby_search(
-                    AppContext.getAppContextInstance().getCurrentLocation().get().getLatitude(), AppContext.getAppContextInstance().getCurrentLocation().get().getLongitude(),
+                    AppContext.getAppContextInstance().getCurrentLocation().getLatitude(), AppContext.getAppContextInstance().getCurrentLocation().getLongitude(),
                     5000, PlaceTypes.getDefaultPlaces()));
         }
         else {
@@ -89,7 +89,7 @@ public class PlacesTask extends StreetsAbstractTask {
 
     public static void drawPlaceMarker(Place place){
         Log.i(TAG, "Drawing place marker for " + place.name + " at location " + place.latitude + " : " + place.longitude);
-        if (AppContext.getAppContextInstance().getGoogleMap().isPresent()) {
+        if (AppContext.getAppContextInstance().getGoogleMap() != null) {
             LatLng currentPosition = new LatLng(place.latitude, place.longitude);
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(currentPosition);
@@ -97,7 +97,7 @@ public class PlacesTask extends StreetsAbstractTask {
             markerOptions.icon(place.icon);
             markerOptions.alpha(0.7f);
             markerOptions.title(place.name);
-            Marker placeMarker = AppContext.getAppContextInstance().getGoogleMap().get().addMarker(markerOptions);
+            Marker placeMarker = AppContext.getAppContextInstance().getGoogleMap().addMarker(markerOptions);
             AppContext.getAppContextInstance().getMarkerPlaces().put(placeMarker.getId(), place);
         } else {
             Log.i(TAG, "Map not ready for ");

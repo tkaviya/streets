@@ -51,7 +51,13 @@ public class PlacesListAdapter extends BaseExpandableListAdapter
 		}
 		text = (TextView) convertView.findViewById(R.id.navigationItemText);
 		text.setText(children);
-		convertView.setOnClickListener(v -> AppContext.getStreetsCommon().speak(children));
+		convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AppContext.getStreetsCommon().speak(children);
+            }
+        });
+
 		return convertView;
 	}
 

@@ -26,10 +26,10 @@ public interface Consumer<T> {
 
     void accept(T t);
 
-    default Consumer<T> andThen(Consumer<? super T> after) {
-        if (after == null) {
-            throw new NullPointerException();
-        }
-        return (T t) -> { accept(t); after.accept(t); };
-    }
+//    default Consumer<T> andThen(Consumer<? super T> after) {
+//        if (after == null) {
+//            throw new NullPointerException();
+//        }
+//        return (T t) -> { accept(t); after.accept(t); };
+//    }
 }

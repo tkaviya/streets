@@ -78,8 +78,8 @@ public class MapLayout extends StreetsAbstractView implements InfoWindowAdapter,
 	    Place clickedPlace = getAppContextInstance().getMarkerPlaces().get(marker.getId());
         location_info.setText(marker.getTitle() + "\n" + marker.getSnippet());
 	    location_image.setImageDrawable(clickedPlace.image);
-	    Location currentLocation = getAppContextInstance().getCurrentLocation().get();
-        Navigator navigator = new Navigator(getAppContextInstance().getGoogleMap().get(), getAppContextInstance().getMarkerPlaces().get(marker.getId()), marker,
+	    Location currentLocation = getAppContextInstance().getCurrentLocation();
+        Navigator navigator = new Navigator(getAppContextInstance().getGoogleMap(), getAppContextInstance().getMarkerPlaces().get(marker.getId()), marker,
                 new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), marker.getPosition());
         navigator.setOnPathSetListener((NavigationLayout) getFragmentView(NavigationLayout.class));
         navigator.findDirections(false);

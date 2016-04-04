@@ -11,14 +11,22 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.google.android.gms.maps.GoogleMap;
+
 import net.blaklizt.streets.android.R.drawable;
-import net.blaklizt.streets.android.activity.helpers.*;
+import net.blaklizt.streets.android.activity.helpers.CurrentViewLocationTask;
+import net.blaklizt.streets.android.activity.helpers.GoogleMapTask;
+import net.blaklizt.streets.android.activity.helpers.LocationSettingsTask;
+import net.blaklizt.streets.android.activity.helpers.LocationUpdateTask;
+import net.blaklizt.streets.android.activity.helpers.PlacesTask;
+import net.blaklizt.streets.android.activity.helpers.SequentialTaskManager;
+import net.blaklizt.streets.android.activity.helpers.StreetsAbstractView;
+import net.blaklizt.streets.android.activity.helpers.StreetsInterfaceView;
 import net.blaklizt.streets.android.common.StreetsCommon;
 import net.blaklizt.streets.android.common.TaskInfo;
 import net.blaklizt.streets.android.common.enumeration.STATUS_CODES;
 import net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE;
-import net.blaklizt.streets.android.common.utils.Optional;
 import net.blaklizt.streets.android.common.utils.SecurityContext;
 import net.blaklizt.streets.android.listener.EnableGPSDialogueListener;
 import net.blaklizt.streets.android.listener.PreferenceUpdateDialogueListener;
@@ -26,19 +34,27 @@ import net.blaklizt.streets.android.location.places.Place;
 import net.blaklizt.streets.android.persistence.StreetsDBHelper;
 import net.blaklizt.streets.android.sidemenu.model.SlideMenuItem;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Locale;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.location.LocationManager.GPS_PROVIDER;
 import static android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS;
+import static java.lang.String.format;
 import static net.blaklizt.streets.android.activity.helpers.SequentialTaskManager.runWhenAvailable;
 import static net.blaklizt.streets.android.common.StreetsCommon.getTag;
 import static net.blaklizt.streets.android.common.StreetsCommon.showToast;
 import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.BG_PERMISSIONS_TASK;
 import static net.blaklizt.streets.android.common.enumeration.TASK_TYPE.USER_PREF_READ;
-import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.*;
+import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.AUTO_ENABLE_GPS;
+import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.ENABLE_TTS;
+import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.REQUEST_GPS_PERMS;
+import static net.blaklizt.streets.android.common.enumeration.USER_PREFERENCE.SUGGEST_GPS;
 import static net.blaklizt.streets.android.common.utils.SecurityContext.handleApplicationError;
 
 /**
@@ -242,9 +258,12 @@ public class AppContext {
         try {
             if (ttsEngine == null) {
                 Log.i(TAG, "Initializing text to speech engine");
-                ttsEngine = new TextToSpeech(applicationContext, status -> {
-                    Log.i(TAG, "Initialized text to speech engine");
-                    ttsEngine.setLanguage(Locale.US);
+                ttsEngine = new TextToSpeech(applicationContext, new TextToSpeech.OnInitListener() {
+                    @Override
+                    public void onInit(int i) {
+                        Log.i(TAG, "Initialized text to speech engine");
+                        ttsEngine.setLanguage(Locale.US);
+                    }
                 });
             } return ttsEngine;
         } catch (Exception ex) {
@@ -439,16 +458,16 @@ public class AppContext {
 
     /* =========== GLOBALLY ACCESSIBLE CONTEXT DATA FUNCTIONS =========== */
 
-    public Optional<GoogleMap> getGoogleMap() {
-        return Optional.ofNullable(googleMap);
+    public GoogleMap getGoogleMap() {
+        return googleMap;
     }
 
     public void setGoogleMap(final GoogleMap googleMap) {
         this.googleMap = googleMap;
     }
 
-    public Optional<Location> getCurrentLocation() {
-        return Optional.ofNullable(currentLocation);
+    public Location getCurrentLocation() {
+        return currentLocation;
     }
 
     public void setCurrentLocation(final Location currentLocation) {
