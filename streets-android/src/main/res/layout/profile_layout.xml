@@ -17,19 +17,20 @@
             android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:fitsSystemWindows="true">
+            <!--
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            android:fitsSystemWindows="true"
             app:contentScrim="#000"
             app:expandedTitleMarginStart="48dp"
-            app:expandedTitleMarginEnd="64dp">
+            app:expandedTitleMarginEnd="64dp"-->
 
             <ImageView
                 android:id="@+id/backdrop"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:fitsSystemWindows="true"
-                app:layout_collapseMode="parallax" />
+                android:fitsSystemWindows="true"/>
+                <!--app:layout_collapseMode="parallax" /-->
 
         </android.support.design.widget.CollapsingToolbarLayout>
 
@@ -37,8 +38,8 @@
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
+        <!--app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -143,10 +144,10 @@
     <android.support.design.widget.FloatingActionButton
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        app:layout_anchor="@id/appbar"
-        app:layout_anchorGravity="bottom|right|end"
         android:src="@drawable/res890"
         android:layout_margin="@dimen/fab_margin"
         android:clickable="true"/>
+    <!--app:layout_anchor="@id/appbar"
+    app:layout_anchorGravity="bottom|right|end"-->
 
 </android.support.design.widget.CoordinatorLayout>

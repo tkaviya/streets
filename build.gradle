@@ -6,9 +6,3 @@ allprojects {
 	group = 'net.blaklizt.streets'
 	version = '1.0.0'
 }
-
-subprojects {
-	apply plugin: 'java'
-	sourceCompatibility = 1.8
-	targetCompatibility = 1.8
-}
